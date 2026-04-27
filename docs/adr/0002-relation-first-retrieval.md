@@ -15,7 +15,7 @@ Cosine-similarity retrieval can return lookalike code that is topologically irre
 
 ## Consequences
 
-- **Implementation binding (2026):** the reference graph lives under [`packages/graph`](../../packages/graph) (Python, stdlib + in-memory index). **Not** committed: SQLite corpus, NetworkX, or Tree-sitter parsers—those remain future ADR revisions if scale requires them.
+- **Implementation binding (2026):** the reference graph lives under [`packages/graph`](../../packages/graph) (Python, stdlib + in-memory index). Optional **SQLite** persistence is documented in child [ADR-0007](0007-graph-persistence.md). **Not** committed by default: NetworkX or Tree-sitter parsers—those remain future ADR revisions if scale requires them.
 - CI time budget for graph ingestion: **≤ 2 minutes** wall-clock on `ubuntu-24.04` for the unittest job scanning the repo checkout (exclude `.git`, `node_modules`, `.venv`, `__pycache__`, `dist`, `build`).
 - First-class languages in scope for cards: **Python** (`.py`). Additional extensions require an ADR amendment.
 - If a vendor or internal tool replaces this approach, update this ADR rather than pretending the essay’s names are binding.
