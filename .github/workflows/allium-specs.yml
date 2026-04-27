@@ -18,18 +18,68 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: CI contract (merge gate wiring)
         run: bash tests/ci_contract.sh
 
+      - name: Requirement ID traceability
+        run: bash scripts/verify-requirement-traceability.sh
+
+      - name: Governance doc co-touch (FR-0.1)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/verify-governance-doc-cotouch.sh
+
+      - name: Constitution amendment co-touch (FR-0.1)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/verify-constitution-amendment-cotouch.sh
+
+      - name: FR spec anchor paths (FR-0.1)
+        run: bash scripts/verify-fr-spec-anchors.sh
+
+      - name: Distillation contract (FR-1.2)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/verify-distillation-contract.sh
+
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Install allium CLI
-        run: cargo install allium-cli --version 3.2.3
+        run: |
+          VERSION=$(tr -d ' \n' < devtools/allium-cli.version)
+          cargo install allium-cli --version "${VERSION}"
 
       - name: Add cargo bin to PATH
         run: echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
-      # Merge gate: allium check spec/ (see scripts/check-allium-specs.sh).
-      - name: Validate Allium specs
+      - name: Allium check (structural)
         run: bash scripts/check-allium-specs.sh
+
+      - name: Allium analyse (process-level)
+        run: bash scripts/analyse-allium-specs.sh
+
+      - name: Graph package unit tests (FR-2.x)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/packages/graph/src
+        run: python3 -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
+
+      - name: SBP server tests (FR-3.x)
+        run: cd packages/sbp-server && node --test
+
+      - name: Install Z3 (golden SMT)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq z3
+
+      - name: Golden SMT verification (FR-4.3)
+        run: bash scripts/verify-smt-golden.sh
+
+      - name: Crucible shim contract (FR-4.1 partial)
+        run: bash tests/crucible_shim_contract.sh

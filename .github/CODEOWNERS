@@ -1,0 +1,6 @@
+# Governance surfaces: require review before changes land.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+/docs/requirements/ @ravenoak
+/docs/traceability/ @ravenoak
+/spec/ @ravenoak
