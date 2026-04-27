@@ -82,7 +82,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 |-----------|----------------|
 | P4-ADR | Child ADR(s) under ADR-0004: SMT subset scope, Z3 packaging, OPA/policy surfaces, and a **maintainer-only, explicitly documented** dev-shim install path (never implied as default CI enforcement) |
 | P4-translate | FR-4.2 → `implemented`: [`packages/crucible`](../../packages/crucible/) + [`scripts/verify-crucible-compile.sh`](../../scripts/verify-crucible-compile.sh) golden `diff`; no LLM in translation path |
-| P4-solve | FR-4.3: Z3 invoked in CI or documented release gate with unsat-core UX spec in TDD |
+| P4-solve | FR-4.3 → `implemented`: `crucible.cli solve spec/` + named assertions + `explain_core` (see TDD / RTM) |
 | P4-shim | FR-4.1: command interception behind explicit install; NFR-S1 evidence for review gates |
 
 ## Backlog hygiene

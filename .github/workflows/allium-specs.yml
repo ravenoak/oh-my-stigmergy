@@ -209,6 +209,11 @@ jobs:
       - name: Golden SMT verification (FR-4.3)
         run: bash scripts/verify-smt-golden.sh
 
+      - name: Crucible solve spec/ (FR-4.3)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/packages/crucible/src
+        run: python3 -m crucible.cli solve "${{ github.workspace }}/spec"
+
       - name: Crucible shim contract (FR-4.1 partial)
         run: bash tests/crucible_shim_contract.sh
 

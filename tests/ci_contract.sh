@@ -116,6 +116,10 @@ echo "$heavy_block" | grep -q 'verify-smt-golden.sh' || {
   echo "ci_contract: specs-and-packages must run scripts/verify-smt-golden.sh" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q 'crucible.cli solve' || {
+  echo "ci_contract: specs-and-packages must run python3 -m crucible.cli solve on spec/" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'crucible_shim_contract.sh' || {
   echo "ci_contract: specs-and-packages must run tests/crucible_shim_contract.sh" >&2
   exit 1
