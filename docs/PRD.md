@@ -53,7 +53,7 @@ High-level goals below; **ordered milestones, explicit sequencing stances, and p
 
 ## Deferred program of record (P2–P4)
 
-Requirements in [requirements/FR.md](requirements/FR.md) that remain **planned** or **partial** with further work (for example FR-1.3, deeper P4 crucible per [ADR-0006](adr/0006-p4-crucible-execution.md)) advance **only** along [ROADMAP.md](ROADMAP.md) when each initiative has a **scoped ADR** (where required) and a **dedicated PR series** with RTM verification. Use [BACKLOG.md](BACKLOG.md) to park or promote ideas without silently implying shipped maturity.
+Requirements in [requirements/FR.md](requirements/FR.md) that remain **planned** or **partial** with further work (for example deeper P4 crucible per [ADR-0006](adr/0006-p4-crucible-execution.md)) advance **only** along [ROADMAP.md](ROADMAP.md) when each initiative has a **scoped ADR** (where required) and a **dedicated PR series** with RTM verification. Use [BACKLOG.md](BACKLOG.md) to park or promote ideas without silently implying shipped maturity.
 
 ## References
 

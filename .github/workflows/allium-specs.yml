@@ -136,9 +136,6 @@ jobs:
           GITHUB_BASE_REF: ${{ github.base_ref }}
         run: bash scripts/verify-distillation-contract.sh
 
-      - name: Transition sidecar sync (FR-1.3 partial)
-        run: bash scripts/verify-transitions-sync.sh
-
   specs-and-packages:
     needs: filter
     if: needs.filter.outputs.relevant == 'true'
@@ -188,10 +185,12 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/packages/graph/src
         run: python3 -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
 
-      - name: Transitions harness (FR-1.3 partial)
+      - name: Transitions harness (FR-1.3)
         env:
           PYTHONPATH: ${{ github.workspace }}/packages/transitions/src
-        run: python3 -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
+        run: |
+          command -v allium
+          python3 -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
 
       - name: SBP server tests (FR-3.x)
         run: cd packages/sbp-server && node --test

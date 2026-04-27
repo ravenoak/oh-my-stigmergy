@@ -12,7 +12,7 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 
 | Essay pillar (§8–9) | FR epic | NFR touchpoints | Current gap (summary) |
 |---------------------|---------|-----------------|------------------------|
-| Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 partial; FR-1.3 planned; transition enforcement absent |
+| Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 implemented; FR-1.3 implemented via `allium model` + `packages/transitions` |
 | Hound relation-first navigation | FR-2.x | NFR-C1 | Reference Python graph + SQLite opt-in shipped; Tree-sitter / multi-language still open |
 | SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE shipped; durable JSONL per [ADR-0008](adr/0008-sbp-persistence.md); load tests / Redis scale still open |
 | Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | No shim, translator, or solver integration per ADR-0004 |
@@ -57,7 +57,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 |-----------|----------------|
 | P1-a | FR-1.2 → `implemented`: distillation outputs are **defined artefacts** (e.g. reported paths or checklists) with a **script or CI job** that fails when required artefacts are missing after a labelled change; playbook stays canonical |
 | P1-b | FR-1.1 stays `implemented`; governance + project Allium modules grow only with clean `allium check` / `allium analyse` |
-| P1-c | FR-1.3 remains P2 but has a **scoped technical note** in TDD linking transitions to future test hooks (no maturity inflation) |
+| P1-c | FR-1.3 → `implemented`: `allium model` JSON + [`packages/transitions`](../../packages/transitions/) harness documented in [TDD.md](TDD.md) §FR-1.3 |
 
 ### Phase 2 — Relation-first navigation (essay Epic 2 + §9.3.1)
 

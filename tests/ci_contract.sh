@@ -12,13 +12,11 @@ cotouch_script="scripts/verify-governance-doc-cotouch.sh"
 const_amend_script="scripts/verify-constitution-amendment-cotouch.sh"
 fr_anchor_script="scripts/verify-fr-spec-anchors.sh"
 distill_script="scripts/verify-distillation-contract.sh"
-transitions_sync_script="scripts/verify-transitions-sync.sh"
-transitions_sync_py="scripts/verify_transitions_sync.py"
 smt_script="scripts/verify-smt-golden.sh"
 crucible_contract="tests/crucible_shim_contract.sh"
 version_file="devtools/allium-cli.version"
 
-for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$transitions_sync_script" "$transitions_sync_py" "$smt_script" "$crucible_contract" "$version_file"; do
+for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$smt_script" "$crucible_contract" "$version_file"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -32,14 +30,8 @@ bash -n "$cotouch_script"
 bash -n "$const_amend_script"
 bash -n "$fr_anchor_script"
 bash -n "$distill_script"
-bash -n "$transitions_sync_script"
 bash -n "$smt_script"
 bash -n "$crucible_contract"
-
-python3 -m py_compile "$transitions_sync_py" || {
-  echo "ci_contract: $transitions_sync_py must be valid Python" >&2
-  exit 1
-}
 
 grep -q 'allium check' "$check_script" || {
   echo "ci_contract: $check_script must contain allium check" >&2
@@ -80,8 +72,8 @@ echo "$governance_block" | grep -q 'cargo install' && {
   echo "ci_contract: governance job must not run cargo install (keep PR minutes low)" >&2
   exit 1
 }
-echo "$governance_block" | grep -q 'verify-transitions-sync.sh' || {
-  echo "ci_contract: governance job must run scripts/verify-transitions-sync.sh" >&2
+echo "$governance_block" | grep -q 'verify-transitions-sync.sh' && {
+  echo "ci_contract: governance job must not run removed verify-transitions-sync.sh" >&2
   exit 1
 }
 
@@ -100,6 +92,10 @@ echo "$heavy_block" | grep -q 'packages/graph/tests' || {
 }
 echo "$heavy_block" | grep -q 'packages/transitions/tests' || {
   echo "ci_contract: specs-and-packages must run transitions unit tests under packages/transitions/tests" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'command -v allium' || {
+  echo "ci_contract: specs-and-packages must assert allium is on PATH before transitions tests" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'packages/sbp-server' || {
