@@ -23,6 +23,7 @@ The inspiration essay describes Z3 satisfiability gates, OPA-backed shell interc
 
 - Documentation and rules use cautious language for P4 items.
 - When a solver bridge ships, **golden tests** on fixture `.allium` files are mandatory before maturity moves to `partial` or `implemented`.
+- Scoped P4 delivery details: [ADR-0006](0006-p4-crucible-execution.md) (curated SMT, `z3` gate, maintainer-only shim).
 
 ## Verification
 

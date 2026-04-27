@@ -4,28 +4,28 @@
 
 | ID | Epic / doc | Spec anchor | Verification (deterministic vs other) | Owner | Phase | Maturity |
 |----|----------------|-------------|----------------------------------------|-------|-------|----------|
-| FR-0.1 | Governance / [CONSTITUTION.md](../CONSTITUTION.md) | [spec/project.allium](../../spec/project.allium) | **Other:** human + agent review; optional `allium check` on spec | Maintainers | P0 | partial |
-| FR-0.2 | Governance | `spec/**/*.allium` | **Deterministic today:** GitHub Actions workflow `allium-specs` runs [`scripts/check-allium-specs.sh`](../../scripts/check-allium-specs.sh) (`allium check spec/`). Contract: [`tests/ci_contract.sh`](../../tests/ci_contract.sh). | Maintainers | P0 | partial |
-| FR-1.1 | Intent / Allium | `spec/project.allium` + future domain specs | **Deterministic today:** `allium check` / `allium analyse` on specs. **Other:** JUXT skills workflow | Maintainers | P1 | partial |
-| FR-1.2 | Intent / Allium | — | **Other:** `/allium:distill` skill; manual architect review | Maintainers | P1 | partial |
-| FR-1.3 | Intent / Allium | TBD domain `.allium` | **Future:** spec-to-code alignment tests + `allium analyse` | TBD | P2 | planned |
-| FR-2.1 | Graph navigation | — | **Future:** unit tests on card store (not in repo) | TBD | P2 | planned |
-| FR-2.2 | Graph navigation | — | **Future:** graph build pipeline tests | TBD | P2 | planned |
-| FR-2.3 | Graph navigation | — | **Future:** tool contract tests for `load_node` | TBD | P2 | planned |
-| FR-3.1 | SBP | — | **Future:** load/contract tests on ledger + SSE | TBD | P3 | planned |
-| FR-3.2 | SBP | — | **Future:** schema validation tests | TBD | P3 | planned |
-| FR-3.3 | SBP | — | **Future:** concurrency/idempotency tests | TBD | P3 | planned |
-| FR-3.4 | SBP | — | **Future:** simulation or property tests | TBD | P3 | planned |
-| FR-4.1 | Crucible | — | **Future:** shim + OPA policy tests | TBD | P4 | planned |
-| FR-4.2 | Crucible | — | **Future:** golden SMT outputs from fixture `.allium` — **not** LLM translation | TBD | P4 | planned |
-| FR-4.3 | Crucible | — | **Future:** Z3 sat/unsat regression suite | TBD | P4 | planned |
-| NFR-D1 | Docs | RTM + FR/NFR | **Other:** review | Maintainers | P0 | partial |
+| FR-0.1 | Governance / [CONSTITUTION.md](../CONSTITUTION.md) | [spec/project.allium](../../spec/project.allium) | **Deterministic today (PRs):** [`scripts/verify-governance-doc-cotouch.sh`](../../scripts/verify-governance-doc-cotouch.sh), [`scripts/verify-constitution-amendment-cotouch.sh`](../../scripts/verify-constitution-amendment-cotouch.sh). **Deterministic today (push/PR):** [`scripts/verify-fr-spec-anchors.sh`](../../scripts/verify-fr-spec-anchors.sh). **Other:** human + agent review; [`.github/CODEOWNERS`](../../.github/CODEOWNERS) and [PR template](../../.github/pull_request_template.md) | Maintainers | P0 | implemented |
+| FR-0.2 | Governance | `spec/**/*.allium` | **Mechanical:** workflow `allium-specs` runs [`tests/ci_contract.sh`](../../tests/ci_contract.sh), [`scripts/verify-requirement-traceability.sh`](../../scripts/verify-requirement-traceability.sh), [`scripts/verify-governance-doc-cotouch.sh`](../../scripts/verify-governance-doc-cotouch.sh) (PRs), [`scripts/verify-constitution-amendment-cotouch.sh`](../../scripts/verify-constitution-amendment-cotouch.sh) (PRs), [`scripts/verify-fr-spec-anchors.sh`](../../scripts/verify-fr-spec-anchors.sh), [`scripts/verify-distillation-contract.sh`](../../scripts/verify-distillation-contract.sh) (PRs), [`scripts/check-allium-specs.sh`](../../scripts/check-allium-specs.sh), [`scripts/analyse-allium-specs.sh`](../../scripts/analyse-allium-specs.sh), [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh), graph [`packages/graph`](../../packages/graph) unittest job, SBP [`packages/sbp-server`](../../packages/sbp-server) `node --test`, [`tests/crucible_shim_contract.sh`](../../tests/crucible_shim_contract.sh); CLI pin [`devtools/allium-cli.version`](../../devtools/allium-cli.version). **Organizational:** branch protection per [docs/operations/github-branch-protection.md](../operations/github-branch-protection.md); [`scripts/apply-branch-protection-main.sh`](../../scripts/apply-branch-protection-main.sh), [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh), [`devtools/branch-protection.json`](../../devtools/branch-protection.json). | Maintainers | P0 | implemented |
+| FR-1.1 | Intent / Allium | [`spec/project.allium`](../../spec/project.allium), [`spec/governance.allium`](../../spec/governance.allium) | **Deterministic today:** `allium-specs` runs `allium check` / `allium analyse` on `spec/`. **Other:** JUXT skills workflow | Maintainers | P1 | implemented |
+| FR-1.2 | Intent / Allium | [`devtools/distillation-contract.json`](../../devtools/distillation-contract.json) | **Deterministic today (PRs):** [`scripts/verify-distillation-contract.sh`](../../scripts/verify-distillation-contract.sh). **Other:** [Distillation playbook](../guides/distillation-playbook.md); `/allium:distill` skill | Maintainers | P1 | implemented |
+| FR-1.3 | Intent / Allium | TBD domain `.allium` | **Future:** spec-to-code alignment tests + `allium analyse`; see [TDD.md](../TDD.md) §FR-1.3 hooks | TBD | P2 | planned |
+| FR-2.1 | Graph navigation | [`packages/graph/README.md`](../../packages/graph/README.md) | **Deterministic today:** `PYTHONPATH=packages/graph/src python3 -m unittest discover -s packages/graph/tests -p 'test_*.py'` in `allium-specs` | Maintainers | P2 | implemented |
+| FR-2.2 | Graph navigation | [`packages/graph/README.md`](../../packages/graph/README.md) | **Deterministic today:** same unittest job (`test_aspect_graph`) | Maintainers | P2 | implemented |
+| FR-2.3 | Graph navigation | [`packages/graph/README.md`](../../packages/graph/README.md) | **Deterministic today:** same unittest job (`test_load_node`); CLI `python -m graph.load_node` per package README | Maintainers | P2 | implemented |
+| FR-3.1 | SBP | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) | **Deterministic today:** `node --test` in `packages/sbp-server` (`allium-specs`) | Maintainers | P3 | implemented |
+| FR-3.2 | SBP | [`packages/sbp-server/schemas/pheromone.json`](../../packages/sbp-server/schemas/pheromone.json) | **Deterministic today:** same Node tests + schema on disk | Maintainers | P3 | implemented |
+| FR-3.3 | SBP | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) | **Deterministic today:** `sbp.test.mjs` claim / 409 behaviour | Maintainers | P3 | implemented |
+| FR-3.4 | SBP | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) | **Deterministic today:** `floor.test.mjs` inflate behaviour | Maintainers | P3 | implemented |
+| FR-4.1 | Crucible | [`devtools/crucible-shim/README.md`](../../devtools/crucible-shim/README.md) | **Deterministic today:** [`tests/crucible_shim_contract.sh`](../../tests/crucible_shim_contract.sh). **Other:** maintainer PATH install per README + [ADR-0006](../adr/0006-p4-crucible-execution.md) | Maintainers | P4 | partial |
+| FR-4.2 | Crucible | [`tests/fixtures/crucible/README.md`](../../tests/fixtures/crucible/README.md) | **Deterministic today:** curated `.smt2` checked by [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh) companion to fixture `.allium`. **Other:** automated Allium→SMT translator per [ADR-0006](../adr/0006-p4-crucible-execution.md) | Maintainers | P4 | partial |
+| FR-4.3 | Crucible | [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh) | **Deterministic today:** `z3` on golden `.smt2` in `allium-specs` | Maintainers | P4 | partial |
+| NFR-D1 | Docs | RTM + FR/NFR | **Deterministic today:** [`scripts/verify-requirement-traceability.sh`](../../scripts/verify-requirement-traceability.sh) in CI. **Other:** semantic review of requirement text | Maintainers | P0 | implemented |
 | NFR-D2 | Docs | [ADR-0004](../adr/0004-verification-stack-layering.md) | **Other:** ADR + PR review | Maintainers | P0 | implemented |
-| NFR-O1 | Tooling | Editor + CLI | **Deterministic today:** `allium check` where installed | Contributors | P1 | partial |
-| NFR-O2 | SBP runtime | — | **Future:** structured logging tests | TBD | P3 | planned |
-| NFR-C1 | Economics | CONTRIBUTING | **Other:** review | Maintainers | P1 | partial |
+| NFR-O1 | Tooling | Editor + CLI | **Deterministic today:** `allium-specs` runs `allium check` and `allium analyse` on `spec/` | Contributors | P1 | implemented |
+| NFR-O2 | SBP runtime | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) | **Deterministic today:** SSE `/stream` contract exercised by `node --test` (extend with log assertions in same tests) | Maintainers | P3 | implemented |
+| NFR-C1 | Economics | [docs/guides/agent-session-budgets.md](../guides/agent-session-budgets.md) | **Other:** CONTRIBUTING link; human adherence | Maintainers | P1 | implemented |
 | NFR-C2 | Cursor UX | CONTRIBUTING | **Other:** contributor experience | Maintainers | P1 | implemented |
 | NFR-S1 | Safety | ADR | **Future:** security review on any policy synth | TBD | P4 | planned |
 | NFR-A1 | Onboarding | docs/README.md | **Other:** onboarding walkthrough | Maintainers | P0 | implemented |
 
-**Maintenance rule:** Changing an FR/NFR row without updating this table must call out **Deferred** with a ticket or note in the PR.
+**Maintenance rule:** Changing an FR/NFR row without updating this table must call out **Deferred** with a ticket or note in the PR. Pull requests that change `docs/requirements/FR.md` or `NFR.md` must also change `docs/traceability/RTM.md` (enforced by `verify-governance-doc-cotouch.sh`).
