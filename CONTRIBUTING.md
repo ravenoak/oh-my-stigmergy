@@ -1,5 +1,11 @@
 # Contributing
 
+## GitHub Flow (branching and merging)
+
+This repository follows **GitHub Flow** with a **linear `main`**: work happens on **feature branches**, commits are **atomic**, and integration into `main` is **pull requests only**, merged with **Squash** or **Rebase** (not merge commits). Use the **[GitHub CLI (`gh`)](https://cli.github.com/)** for PRs and merges when possible so steps stay reproducible.
+
+**Canonical guide:** [docs/guides/github-flow.md](docs/guides/github-flow.md) — includes `git` / `gh` commands, branch protection expectations, and agent notes.
+
 ## Restore AI skills from lockfile
 
 After clone, reinstall JUXT Allium skills so `.agents/skills/` matches [skills-lock.json](skills-lock.json):
@@ -19,19 +25,46 @@ done
 
 Optional: `npx skills experimental_install` when your skills CLI version documents restore-from-lock behaviour.
 
-## Allium CLI
+## Maintainer bootstrap (once per repository)
 
-Install [allium-tools](https://github.com/juxt/allium-tools) (`brew tap juxt/allium && brew install allium` or `cargo install allium-cli`). Validate specs before merge:
+After the first green `allium-specs` run on `main`, enable **branch protection** so merges require that workflow.
+
+1. **Preferred (repeatable):** with `gh`, `jq`, and an admin-capable token, run `./scripts/apply-branch-protection-main.sh` from the repo root, then `./scripts/verify-branch-protection-remote.sh`. See [docs/operations/github-branch-protection.md](docs/operations/github-branch-protection.md).
+2. **Manual:** same document describes the GitHub UI path if you cannot use the API.
+3. Record the date in the **Enablement record** table in that doc after protection is live.
+
+## Allium CLI and local validation
+
+1. Install [allium-tools](https://github.com/juxt/allium-tools) (`brew tap juxt/allium && brew install allium` or `cargo install allium-cli`). The **CI-pinned** version lives in [`devtools/allium-cli.version`](devtools/allium-cli.version); match it when debugging CI-only failures.
+
+2. Before pushing spec or requirements changes, run:
 
 ```bash
+bash tests/ci_contract.sh
+bash scripts/verify-requirement-traceability.sh
+# On a PR branch (simulates CI): GITHUB_BASE_REF=main GITHUB_EVENT_NAME=pull_request bash scripts/verify-governance-doc-cotouch.sh
 ./scripts/check-allium-specs.sh
-allium check spec/project.allium
-allium analyse spec/project.allium   # optional deeper analysis
+./scripts/analyse-allium-specs.sh
 ```
 
-The repository workflow [`.github/workflows/allium-specs.yml`](.github/workflows/allium-specs.yml) runs the same `allium check spec/` step on pushes to `main`/`master` and on pull requests (see [FR-0.2](docs/requirements/FR.md)).
+Single-file spot checks (optional):
+
+```bash
+allium check spec/project.allium
+allium analyse spec/project.allium
+```
+
+The workflow [`.github/workflows/allium-specs.yml`](.github/workflows/allium-specs.yml) runs the contract test, RTM ID sync, **governance doc co-touch on pull requests** ([FR-0.1](docs/requirements/FR.md)), pinned `cargo install allium-cli`, then the same check and analyse scripts (see [FR-0.2](docs/requirements/FR.md), [NFR-D1](docs/requirements/NFR.md), [NFR-O1](docs/requirements/NFR.md)).
 
 Cursor does not run post-edit hooks like Claude Code; run checks explicitly after changing `.allium` files.
+
+## Agent session budgets (NFR-C1)
+
+See [docs/guides/agent-session-budgets.md](docs/guides/agent-session-budgets.md) for token and parallelism guidance.
+
+## Distillation (FR-1.2)
+
+See [docs/guides/distillation-playbook.md](docs/guides/distillation-playbook.md) for when and how to run `/allium:distill` and update traceability.
 
 ## Long tend / weed sessions
 
