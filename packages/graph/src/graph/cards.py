@@ -14,9 +14,11 @@ class Card:
     char_start: int
     char_end: int
     text: str
+    language: str = "python"
+    role: str = "line"  # line | symbol
 
 
-def ingest_python_file(root: Path, file_path: Path) -> list[Card]:
+def ingest_line_cards(root: Path, file_path: Path, *, language: str) -> list[Card]:
     """Chunk file into one card per line with cumulative byte offsets."""
     rel = str(file_path.relative_to(root))
     raw = file_path.read_bytes()
@@ -34,9 +36,16 @@ def ingest_python_file(root: Path, file_path: Path) -> list[Card]:
                 char_start=start,
                 char_end=end,
                 text=line.rstrip("\n"),
+                language=language,
+                role="line",
             )
         )
     return cards
+
+
+def ingest_python_file(root: Path, file_path: Path) -> list[Card]:
+    """Chunk Python file into one card per line (language tag: python)."""
+    return ingest_line_cards(root, file_path, language="python")
 
 
 _IMPORT_RE = re.compile(

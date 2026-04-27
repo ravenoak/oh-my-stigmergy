@@ -13,7 +13,7 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 | Essay pillar (§8–9) | FR epic | NFR touchpoints | Current gap (summary) |
 |---------------------|---------|-----------------|------------------------|
 | Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 implemented; FR-1.3 implemented via `allium model` + `packages/transitions` |
-| Hound relation-first navigation | FR-2.x | NFR-C1 | Reference Python graph + SQLite opt-in shipped; Tree-sitter / multi-language still open |
+| Hound relation-first navigation | FR-2.x | NFR-C1 | Reference graph + SQLite; Python + TypeScript + shell ingestion + optional Tree-sitter symbol cards (see ADR-0007) |
 | SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE shipped; durable JSONL per [ADR-0008](adr/0008-sbp-persistence.md); load tests / Redis scale still open |
 | Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | FR-4.2–4.3 + attested shim shipped; ContextCov parity still out of scope per ADR-0004 |
 
@@ -63,7 +63,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P2-ADR | Update or supersede [ADR-0002](adr/0002-relation-first-retrieval.md) with chosen storage (SQLite + NetworkX vs alternatives), ingestion language set, and CI resource limits — **SQLite slice:** [ADR-0007](adr/0007-graph-persistence.md) (stdlib `sqlite3`; Tree-sitter deferred) |
+| P2-ADR | [ADR-0007](adr/0007-graph-persistence.md) records SQLite + **Python / TypeScript / shell** ingestion and CI `tree-sitter-languages` install; ADR-0002 revision remains optional for NetworkX / retrieval depth |
 | P2-core | FR-2.1: byte-accurate code cards stored and indexed |
 | P2-graph | FR-2.2: at least one aspect graph pipeline with tests |
 | P2-tool | FR-2.3: `load_node` (or renamed equivalent) contract tests per ADR-0002 verification clause |

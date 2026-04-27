@@ -102,6 +102,10 @@ echo "$heavy_block" | grep -q 'packages/crucible/tests' || {
   echo "ci_contract: specs-and-packages must run packages/crucible/tests unittest" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q 'tree-sitter-languages' || {
+  echo "ci_contract: specs-and-packages must pip install tree-sitter-languages for graph" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'packages/graph/tests' || {
   echo "ci_contract: specs-and-packages must run graph unit tests under packages/graph/tests" >&2
   exit 1

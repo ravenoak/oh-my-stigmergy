@@ -186,6 +186,14 @@ jobs:
       - name: Crucible compile golden diff (FR-4.2)
         run: bash scripts/verify-crucible-compile.sh
 
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-graph-${{ hashFiles('packages/graph/pyproject.toml') }}
+
+      - name: Install graph tree-sitter wheels (FR-2.x multi-language)
+        run: python3 -m pip install tree-sitter-languages
+
       - name: Graph package unit tests (FR-2.x)
         env:
           PYTHONPATH: ${{ github.workspace }}/packages/graph/src
