@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run structural validation on every Allium spec under spec/ (FR-0.2).
+# Structural Allium validation on every spec under spec/ (FR-0.2, FR-1.1 structural slice).
 set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"

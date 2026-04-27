@@ -1,0 +1,4 @@
+{
+  "pathPrefixes": ["scripts/", ".github/workflows/", "devtools/"],
+  "waiverDirectory": "docs/distillation/waivers"
+}
