@@ -48,7 +48,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); **on the canonical remote**, [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) exits `0` and the [enablement table](operations/github-branch-protection.md) records **verified remote** with date + verifier (optional: [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) or manual **branch-protection-audit** workflow with `BP_ADMIN_TOKEN`) |
+| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); **required status `allium-specs / check` enforced on `main`** recorded in the enablement table (2026-04-27). **Classic API proof:** when GitHub exposes **classic** branch protection, [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) exits `0` and summary output is pasted into the same table; **rulesets-only** remotes may return HTTP 404 to the classic GET — extend the script or audit rulesets separately (see enablement row note). |
 | P0-b | FR-0.1 → `implemented`: constitution scope changes reflected in `spec/` **and** RTM in the same change sets; expand deterministic governance checks beyond PR-only co-touch where gaps remain (each addition gets an RTM line) |
 
 ### Phase 1 — Intent workflows (essay Epic 1)
