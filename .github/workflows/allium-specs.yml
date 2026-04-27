@@ -1,4 +1,6 @@
 # FR-0.2: deterministic spec validation on every push/PR (see docs/requirements/FR.md).
+# Cost model: governance job always runs; specs-and-packages skips on doc-only PRs.
+# Required branch protection check name stays: allium-specs / check
 name: allium-specs
 
 on:
@@ -14,7 +16,90 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  filter:
+    runs-on: ubuntu-24.04
+    outputs:
+      relevant: ${{ steps.out.outputs.relevant }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: out
+        name: Decide if heavy CI is needed
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" != "pull_request" ]; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "${BASE_REF}" --quiet || true
+          remote_ref="origin/${BASE_REF}"
+          if ! git rev-parse --verify "${remote_ref}" >/dev/null 2>&1; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files="$(git diff --name-only "${remote_ref}...HEAD" || true)"
+          if [ -z "${files}" ]; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          is_heavy() {
+            case "$1" in
+              spec/*|packages/*|scripts/*|tests/*|devtools/*|docs/requirements/*|docs/traceability/*|docs/adr/*|.github/workflows/*)
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+          is_light_only() {
+            case "$1" in
+              docs/*)
+                case "$1" in
+                  docs/requirements/*|docs/traceability/*|docs/adr/*)
+                    return 1
+                    ;;
+                  *)
+                    return 0
+                    ;;
+                esac
+                ;;
+              *.md)
+                case "$1" in
+                  */*)
+                    return 1
+                    ;;
+                  *)
+                    return 0
+                    ;;
+                esac
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+          while IFS= read -r f; do
+            [ -z "${f}" ] && continue
+            if is_heavy "${f}"; then
+              echo "relevant=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done <<< "${files}"
+          while IFS= read -r f; do
+            [ -z "${f}" ] && continue
+            if ! is_light_only "${f}"; then
+              echo "relevant=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done <<< "${files}"
+          echo "relevant=false" >> "$GITHUB_OUTPUT"
+
+  governance:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -51,11 +136,42 @@ jobs:
           GITHUB_BASE_REF: ${{ github.base_ref }}
         run: bash scripts/verify-distillation-contract.sh
 
+      - name: Transition sidecar sync (FR-1.3 partial)
+        run: bash scripts/verify-transitions-sync.sh
+
+  specs-and-packages:
+    needs: filter
+    if: needs.filter.outputs.relevant == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache Cargo and allium-cli install
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: cargo-allium-${{ runner.os }}-${{ hashFiles('devtools/allium-cli.version') }}
+          restore-keys: |
+            cargo-allium-${{ runner.os }}-
+
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Install allium CLI
         run: |
+          set -euo pipefail
           VERSION=$(tr -d ' \n' < devtools/allium-cli.version)
+          if command -v allium >/dev/null 2>&1; then
+            if allium --version 2>&1 | grep -qF "${VERSION}"; then
+              echo "allium ${VERSION} already on PATH"
+              exit 0
+            fi
+          fi
           cargo install allium-cli --version "${VERSION}"
 
       - name: Add cargo bin to PATH
@@ -72,6 +188,11 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/packages/graph/src
         run: python3 -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
 
+      - name: Transitions harness (FR-1.3 partial)
+        env:
+          PYTHONPATH: ${{ github.workspace }}/packages/transitions/src
+        run: python3 -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
+
       - name: SBP server tests (FR-3.x)
         run: cd packages/sbp-server && node --test
 
@@ -83,3 +204,28 @@ jobs:
 
       - name: Crucible shim contract (FR-4.1 partial)
         run: bash tests/crucible_shim_contract.sh
+
+  check:
+    if: always()
+    needs: [filter, governance, specs-and-packages]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Aggregate merge gate
+        env:
+          GOV: ${{ needs.governance.result }}
+          HEAVY: ${{ needs.specs-and-packages.result }}
+        run: |
+          set -euo pipefail
+          echo "governance=${GOV} specs-and-packages=${HEAVY}"
+          [ "${GOV}" = "success" ] || {
+            echo "governance job did not succeed (${GOV})" >&2
+            exit 1
+          }
+          case "${HEAVY}" in
+            success|skipped) ;;
+            *)
+              echo "specs-and-packages job did not succeed or skip (${HEAVY})" >&2
+              exit 1
+              ;;
+          esac
+          echo "allium-specs merge gate: ok"
