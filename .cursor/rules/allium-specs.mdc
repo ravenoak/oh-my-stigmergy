@@ -1,0 +1,12 @@
+---
+description: Validate and analyse Allium specs after edits; behavioural not implementation detail
+globs: "**/*.allium"
+alwaysApply: false
+---
+
+# Allium specifications
+
+- After creating or editing `.allium` files, run `allium check <path>` and fix diagnostics. Use `allium analyse` when exploring cross-rule implications.
+- Specs describe **observable behaviour** (entities, rules, transitions). Do not encode incidental implementation choices (schemas, frameworks) unless they are part of the contract.
+- Prefer JUXT Allium slash skills (`/allium`, `/allium:elicit`, `/allium:distill`, `/allium:tend`, `/allium:weed`) instead of duplicating language-reference prose in chat.
+- Cursor lacks Claude Code PostToolUse hooks — validation is manual or via editor LSP ([allium-tools](https://github.com/juxt/allium-tools)).

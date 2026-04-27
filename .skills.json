@@ -1,0 +1,18 @@
+{
+  "skills": [
+    {
+      "remote": "juxt/allium",
+      "version": "latest",
+      "agent": "cursor",
+      "paths": [
+        ".agents/skills/allium",
+        ".agents/skills/distill",
+        ".agents/skills/elicit",
+        ".agents/skills/propagate",
+        ".agents/skills/tend",
+        ".agents/skills/weed"
+      ]
+    }
+  ],
+  "lockfile": "skills-lock.json"
+}

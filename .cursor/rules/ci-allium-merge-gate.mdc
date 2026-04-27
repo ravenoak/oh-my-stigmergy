@@ -1,0 +1,11 @@
+---
+description: Allium specs under spec/ are CI-gated; run the local check script before push
+globs: "**/*.allium"
+alwaysApply: false
+---
+
+# Allium CI merge gate (FR-0.2)
+
+- Pushes to `main`/`master` and pull requests run workflow `allium-specs`, which executes [`scripts/check-allium-specs.sh`](../../scripts/check-allium-specs.sh) (`allium check spec/`).
+- After editing files under `spec/`, run `./scripts/check-allium-specs.sh` locally when the Allium CLI is installed, so CI does not fail on structural diagnostics.
+- Changing the workflow should keep [`tests/ci_contract.sh`](../../tests/ci_contract.sh) in sync with the merge-gate wiring (the workflow runs that script first).
