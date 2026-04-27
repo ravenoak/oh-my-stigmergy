@@ -5,15 +5,11 @@
     {
       "command": "echo",
       "argv_prefix": []
-    },
-    {
-      "command": "git",
-      "argv_prefix": ["status"]
     }
   ],
   "attestation": {
-    "sha256": "REPLACE_WITH_SHA256_OF_JSON_WITHOUT_ATTESTATION",
-    "signed_by": "maintainer-handle",
+    "sha256": "a40100c08e2f511abf1b4c64b557154b69e00c3e5c8df8b18b1940cc36715e5a",
+    "signed_by": "oh-my-stigmergy",
     "signed_at": "2026-04-27T00:00:00Z"
   }
 }

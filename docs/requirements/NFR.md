@@ -27,7 +27,7 @@
 
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
-| NFR-S1 | Generated policy or SMT tooling must not execute unreviewed LLM-produced evaluators as the sole safety gate. | P4 | planned | ADR |
+| NFR-S1 | Generated policy or SMT tooling must not execute unreviewed LLM-produced evaluators as the sole safety gate. | P4 | implemented | [`devtools/crucible-shim/policy.maintainer.json`](../../devtools/crucible-shim/policy.maintainer.json), [`scripts/verify-shim-policy.sh`](../../scripts/verify-shim-policy.sh) | **Deterministic today:** policy body SHA-256 attestation verified in CI + before wrap; [`tests/crucible_shim_contract.sh`](../../tests/crucible_shim_contract.sh) exercises allow/deny/tamper/missing-attestation. |
 
 ## Accessibility of process
 

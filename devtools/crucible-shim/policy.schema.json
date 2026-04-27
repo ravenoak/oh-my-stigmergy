@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Crucible shim policy",
+  "type": "object",
+  "required": ["version", "default", "allow", "attestation"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "default": { "type": "string", "const": "deny" },
+    "allow": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["command", "argv_prefix"],
+        "properties": {
+          "command": { "type": "string" },
+          "argv_prefix": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "attestation": {
+      "type": "object",
+      "required": ["sha256", "signed_by", "signed_at"],
+      "properties": {
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "signed_by": { "type": "string" },
+        "signed_at": { "type": "string" }
+      }
+    }
+  }
+}

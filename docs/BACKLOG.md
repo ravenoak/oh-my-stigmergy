@@ -24,7 +24,7 @@ Execution order follows [ROADMAP.md](ROADMAP.md). Reference slices for FR-2.x / 
 | Graph — SQLite + Tree-sitter multi-language cards | P2+ | [ADR-0002](adr/0002-relation-first-retrieval.md) revision | ADR amendment + ingestion pipeline PR |
 | SBP — Redis persistence + sub-ms SLO | P3+ | Production hardening ADR | Load tests + operator runbook |
 | Crucible — extend Allium→SMT compiler beyond transition graphs | P4 | [ADR-0006](adr/0006-p4-crucible-execution.md) | Additional AST/model encoders + goldens as features grow |
-| FR-4.1 — org-wide PATH / OPA parity | P4 | Policy review + NFR-S1 | Beyond maintainer prototype shim |
+| FR-4.1 — org-wide PATH / OPA parity | P4 | Policy review | Beyond maintainer attested shim (see FR-4.1 row) |
 
 ## Ad hoc ideas
 

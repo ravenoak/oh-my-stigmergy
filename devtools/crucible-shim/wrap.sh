@@ -1,19 +1,15 @@
 #!/usr/bin/env bash
-# FR-4.1 partial: optional gate for a single command argv[1]…
+# FR-4.1 / NFR-S1: deny-by-default shim with attested policy (see policy.schema.json).
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-policy_file="${POLICY_FILE:-${here}/policy.example.json}"
+policy_file="${POLICY_FILE:-${here}/policy.maintainer.json}"
 if [[ $# -lt 1 ]]; then
   echo "usage: wrap.sh <command> [args…]" >&2
   exit 2
 fi
-base="$(basename "$1")"
-if ! command -v jq >/dev/null 2>&1; then
-  echo "crucible-shim: jq required" >&2
-  exit 2
-fi
-if jq -e --arg b "$base" '.deny | index($b) != null' "$policy_file" >/dev/null 2>&1; then
-  echo "crucible-shim: blocked: $base" >&2
-  exit 1
+python3 "${here}/policy_gate.py" "$policy_file" "$@"
+exit_code=$?
+if [[ "${exit_code}" -ne 0 ]]; then
+  exit "${exit_code}"
 fi
 exec "$@"

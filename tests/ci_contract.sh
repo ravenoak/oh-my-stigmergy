@@ -13,11 +13,12 @@ const_amend_script="scripts/verify-constitution-amendment-cotouch.sh"
 fr_anchor_script="scripts/verify-fr-spec-anchors.sh"
 distill_script="scripts/verify-distillation-contract.sh"
 crucible_compile_script="scripts/verify-crucible-compile.sh"
+shim_policy_script="scripts/verify-shim-policy.sh"
 smt_script="scripts/verify-smt-golden.sh"
 crucible_contract="tests/crucible_shim_contract.sh"
 version_file="devtools/allium-cli.version"
 
-for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$smt_script" "$crucible_contract" "$version_file"; do
+for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$smt_script" "$crucible_contract" "$version_file"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -32,6 +33,7 @@ bash -n "$const_amend_script"
 bash -n "$fr_anchor_script"
 bash -n "$distill_script"
 bash -n "$crucible_compile_script"
+bash -n "$shim_policy_script"
 bash -n "$smt_script"
 bash -n "$crucible_contract"
 
@@ -76,6 +78,10 @@ echo "$governance_block" | grep -q 'cargo install' && {
 }
 echo "$governance_block" | grep -q 'verify-transitions-sync.sh' && {
   echo "ci_contract: governance job must not run removed verify-transitions-sync.sh" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-shim-policy.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-shim-policy.sh" >&2
   exit 1
 }
 

@@ -15,7 +15,7 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 | Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 implemented; FR-1.3 implemented via `allium model` + `packages/transitions` |
 | Hound relation-first navigation | FR-2.x | NFR-C1 | Reference Python graph + SQLite opt-in shipped; Tree-sitter / multi-language still open |
 | SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE shipped; durable JSONL per [ADR-0008](adr/0008-sbp-persistence.md); load tests / Redis scale still open |
-| Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | No shim, translator, or solver integration per ADR-0004 |
+| Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | FR-4.2–4.3 + attested shim shipped; ContextCov parity still out of scope per ADR-0004 |
 
 Sections **1–7** of the essay supply **motivation and critique** (ToCS, ContextCov, OMO, liquid delegation). They inform ADRs and guides but are not duplicated as extra FR rows here.
 
@@ -83,7 +83,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 | P4-ADR | Child ADR(s) under ADR-0004: SMT subset scope, Z3 packaging, OPA/policy surfaces, and a **maintainer-only, explicitly documented** dev-shim install path (never implied as default CI enforcement) |
 | P4-translate | FR-4.2 → `implemented`: [`packages/crucible`](../../packages/crucible/) + [`scripts/verify-crucible-compile.sh`](../../scripts/verify-crucible-compile.sh) golden `diff`; no LLM in translation path |
 | P4-solve | FR-4.3 → `implemented`: `crucible.cli solve spec/` + named assertions + `explain_core` (see TDD / RTM) |
-| P4-shim | FR-4.1: command interception behind explicit install; NFR-S1 evidence for review gates |
+| P4-shim | FR-4.1 + NFR-S1 → `implemented`: deny-by-default attested policy + contract tests (see RTM) |
 
 ## Backlog hygiene
 

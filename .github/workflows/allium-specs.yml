@@ -136,6 +136,9 @@ jobs:
           GITHUB_BASE_REF: ${{ github.base_ref }}
         run: bash scripts/verify-distillation-contract.sh
 
+      - name: Crucible shim policy attestation (FR-4.1 / NFR-S1)
+        run: bash scripts/verify-shim-policy.sh
+
   specs-and-packages:
     needs: filter
     if: needs.filter.outputs.relevant == 'true'
@@ -214,7 +217,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/packages/crucible/src
         run: python3 -m crucible.cli solve "${{ github.workspace }}/spec"
 
-      - name: Crucible shim contract (FR-4.1 partial)
+      - name: Crucible shim contract (FR-4.1 / NFR-S1)
         run: bash tests/crucible_shim_contract.sh
 
   check:
