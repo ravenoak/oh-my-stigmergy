@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pheromone",
+  "type": "object",
+  "required": ["id", "stanceTarget", "baseIntensity", "decayRate"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "stanceTarget": { "type": "string" },
+    "baseIntensity": { "type": "number", "minimum": 0 },
+    "decayRate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": false
+}

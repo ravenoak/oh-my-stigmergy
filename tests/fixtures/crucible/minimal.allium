@@ -1,0 +1,6 @@
+-- allium: 3
+
+-- Fixture for curated golden SMT pairing (see README.md). Not part of default spec/ CI.
+
+module FixtureMinimal {
+}
