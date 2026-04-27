@@ -9,3 +9,4 @@ Decisions are numbered sequentially. Use [template.md](template.md) for new ADRs
 | [0003](0003-stigmergy-vs-orchestrator.md) | Stigmergic coordination vs mega-orchestrator | Accepted |
 | [0004](0004-verification-stack-layering.md) | Verification stack layering (CLI vs future solvers) | Accepted |
 | [0005](0005-conflict-resolution-governance.md) | Conflict resolution and delegation risks | Proposed |
+| [0006](0006-p4-crucible-execution.md) | P4 crucible execution scope (golden SMT, shim, Z3 gate) | Accepted |

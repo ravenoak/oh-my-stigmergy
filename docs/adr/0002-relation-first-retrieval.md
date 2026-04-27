@@ -15,9 +15,11 @@ Cosine-similarity retrieval can return lookalike code that is topologically irre
 
 ## Consequences
 
-- FR-2.x remain `planned` until a concrete graph or card store exists.
-- If a vendor or internal tool replaces a Hound-like approach, update this ADR rather than pretending the essay’s names are binding.
+- **Implementation binding (2026):** the reference graph lives under [`packages/graph`](../../packages/graph) (Python, stdlib + in-memory index). **Not** committed: SQLite corpus, NetworkX, or Tree-sitter parsers—those remain future ADR revisions if scale requires them.
+- CI time budget for graph ingestion: **≤ 2 minutes** wall-clock on `ubuntu-24.04` for the unittest job scanning the repo checkout (exclude `.git`, `node_modules`, `.venv`, `__pycache__`, `dist`, `build`).
+- First-class languages in scope for cards: **Python** (`.py`). Additional extensions require an ADR amendment.
+- If a vendor or internal tool replaces this approach, update this ADR rather than pretending the essay’s names are binding.
 
 ## Verification
 
-- When FR-2.3 is implemented, contract tests cover `load_node` (or equivalent) slice correctness.
+- [`packages/graph/tests`](../../packages/graph/tests) unittest discovery in `allium-specs` covers byte cards, IMPORTS aspect edges, and `load_node` slice aggregation.

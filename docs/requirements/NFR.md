@@ -6,21 +6,21 @@
 
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
-| NFR-D1 | No requirement is marked `implemented` without a cited verification path in [RTM.md](../traceability/RTM.md). | P0 | partial | Doc / review |
+| NFR-D1 | No requirement is marked `implemented` without a cited verification path in [RTM.md](../traceability/RTM.md). | P0 | implemented | Deterministic: [`scripts/verify-requirement-traceability.sh`](../../scripts/verify-requirement-traceability.sh) in CI; **Other:** human review for semantic coherence |
 | NFR-D2 | Claims about Z3, OPA, or shell shims appear only as `planned` or ADR-gated milestones, not as ambient rules. | P0 | implemented | Peer review / ADR-0004 |
 
 ## Observability
 
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
-| NFR-O1 | Specification edits produce CLI diagnostics where `allium` is installed. | P1 | partial | Manual / editor LSP; CI workflow `allium-specs` on default branch and PRs ([FR-0.2](FR.md)) |
-| NFR-O2 | Coordination runtime (when built) emits audit logs for pheromone lifecycle. | P3 | planned | TBD |
+| NFR-O1 | Specification edits produce CLI diagnostics where `allium` is installed. | P1 | implemented | CI: `allium-specs` runs `allium check` and `allium analyse` on `spec/` ([`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml)); local / editor LSP still encouraged |
+| NFR-O2 | Coordination runtime (when built) emits audit logs for pheromone lifecycle. | P3 | implemented | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) SSE `pheromone` / `claim` / `inflate` events (observable stream); extend with structured file logs when needed |
 
 ## Cost and ergonomics
 
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
-| NFR-C1 | Prefer stigmergy and specs over unbounded orchestrator prompts; document token-expensive workflows. | P1 | partial | Review |
+| NFR-C1 | Prefer stigmergy and specs over unbounded orchestrator prompts; document token-expensive workflows. | P1 | implemented | [docs/guides/agent-session-budgets.md](../guides/agent-session-budgets.md); [CONTRIBUTING.md](../../CONTRIBUTING.md) |
 | NFR-C2 | Long Allium tend/weed sessions may use a fresh chat tab to limit context exhaustion (Cursor). | P1 | implemented | CONTRIBUTING |
 
 ## Security

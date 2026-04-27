@@ -41,13 +41,19 @@ A decentralized, verification-aware software development environment where multi
 
 ## Phased roadmap
 
+High-level goals below; **ordered milestones, explicit sequencing stances, and phase exit criteria** live in [ROADMAP.md](ROADMAP.md). That document maps [oh-my-stigmergy_inspiration.md](../oh-my-stigmergy_inspiration.md) §8–9 to FR/NFR evidence and resolves fork choices (for example graph-before-SBP, translation-before-solver-before-shell for P4).
+
 | Phase | Goal | Success signal (examples) |
 |-------|------|---------------------------|
-| **P0** | Governance and specs in-repo | `allium check` clean on `spec/`; FR/NFR/RTM coherent; CI workflow `allium-specs` exercises the same gate on push/PR ([FR-0.2](requirements/FR.md)) |
-| **P1** | Intent workflows operational | Teams use `/allium:*` skills; distill vs elicit gaps triaged |
-| **P2** | Relation-first navigation | Graph or card index; `load_node`-style retrieval for agents **if implemented** |
-| **P3** | SBP runtime | Ledger + pheromone schema deployed; decay and idempotency tested |
-| **P4** | Extended crucible | Deterministic translation to SMT or OPA-backed gates **only with ADR + code** |
+| **P0** | Governance and specs in-repo | `allium check` and `allium analyse` clean on `spec/`; FR/NFR/RTM ID sets aligned (`scripts/verify-requirement-traceability.sh`); CI workflow `allium-specs` runs those gates on push/PR; default branch protection requires the check ([FR-0.2](requirements/FR.md), [docs/operations/github-branch-protection.md](operations/github-branch-protection.md)); FR-0.1 at `implemented` per [ROADMAP.md](ROADMAP.md) P0-b |
+| **P1** | Intent workflows operational | `/allium:*` skills in use; FR-1.2 at `implemented` with repo-cited verification; distill vs elicit gaps triaged with artefacts |
+| **P2** | Relation-first navigation | Graph or card index and `load_node`-style retrieval shipped with contract tests ([ADR-0002](adr/0002-relation-first-retrieval.md)) |
+| **P3** | SBP runtime | Ledger + versioned pheromone schema; decay and idempotency tested; governance-sensitive features ADR-gated ([ADR-0005](adr/0005-conflict-resolution-governance.md)) |
+| **P4** | Extended crucible | FR-4.2 → FR-4.3 → FR-4.1 order per [ROADMAP.md](ROADMAP.md); each layer ADR-documented under [ADR-0004](adr/0004-verification-stack-layering.md) |
+
+## Deferred program of record (P2–P4)
+
+Requirements in [requirements/FR.md](requirements/FR.md) that remain **planned** or **partial** with further work (for example FR-1.3, deeper P4 crucible per [ADR-0006](adr/0006-p4-crucible-execution.md)) advance **only** along [ROADMAP.md](ROADMAP.md) when each initiative has a **scoped ADR** (where required) and a **dedicated PR series** with RTM verification. Use [BACKLOG.md](BACKLOG.md) to park or promote ideas without silently implying shipped maturity.
 
 ## References
 

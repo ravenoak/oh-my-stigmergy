@@ -6,40 +6,40 @@
 
 | ID | Requirement | Phase | Maturity | Spec anchor | Notes |
 |----|-------------|-------|----------|-------------|-------|
-| FR-1.1 | The platform shall support bidirectional specification work in Allium (author, parse, evolve). | P1 | partial | [`spec/project.allium`](../../spec/project.allium) | JUXT skills + `allium check`; “bidirectional sync” full automation is roadmap. |
-| FR-1.2 | Provide distillation path: draft specs from code structure, surfacing gaps to the human architect. | P1 | partial | — | Use `/allium:distill` per [juxt/allium](https://github.com/juxt/allium). |
+| FR-1.1 | The platform shall support bidirectional specification work in Allium (author, parse, evolve). | P1 | implemented | [`spec/project.allium`](../../spec/project.allium), [`spec/governance.allium`](../../spec/governance.allium) | JUXT skills; CI runs `allium check` and `allium analyse` on `spec/`; seed + governance module. |
+| FR-1.2 | Provide distillation path: draft specs from code structure, surfacing gaps to the human architect. | P1 | implemented | [`devtools/distillation-contract.json`](../../devtools/distillation-contract.json) | [Distillation playbook](../guides/distillation-playbook.md); `/allium:distill` per [juxt/allium](https://github.com/juxt/allium). **Deterministic (PRs):** [`scripts/verify-distillation-contract.sh`](../../scripts/verify-distillation-contract.sh). |
 | FR-1.3 | State-dependent fields and transition graphs constrain allowed state changes; violations are treated as critical at maturity. | P2 | planned | — | Requires mapping spec transitions to implementation checks. |
 
 ## Epic 2 — Topological navigation (relation-first graphs)
 
 | ID | Requirement | Phase | Maturity | Spec anchor | Notes |
 |----|-------------|-------|----------|-------------|-------|
-| FR-2.1 | Ingestion chunks the repository into byte-addressed **code cards** (`char_start`/`char_end`). | P2 | planned | — | Inspired by Hound-style designs; not implemented in-repo. |
-| FR-2.2 | Background or batch process maintains **aspect graphs** (e.g. auth, monetary, architecture views). | P2 | planned | — | |
-| FR-2.3 | Agents can call `load_node(id)` (or equivalent) returning only incident slices, not embedding noise. | P2 | planned | — | |
+| FR-2.1 | Ingestion chunks the repository into byte-addressed **code cards** (`char_start`/`char_end`). | P2 | implemented | [`packages/graph/README.md`](../../packages/graph/README.md) | Implemented in [`packages/graph/`](../../packages/graph/) (Python); CI: `pytest packages/graph/tests`. |
+| FR-2.2 | Background or batch process maintains **aspect graphs** (e.g. auth, monetary, architecture views). | P2 | implemented | [`packages/graph/README.md`](../../packages/graph/README.md) | **Imports** aspect graph from card edges; see `packages/graph/tests/test_aspect_graph.py`. |
+| FR-2.3 | Agents can call `load_node(id)` (or equivalent) returning only incident slices, not embedding noise. | P2 | implemented | [`packages/graph/README.md`](../../packages/graph/README.md) | CLI `python -m graph.load_node`; contract tests in `packages/graph/tests/test_load_node.py`. |
 
 ## Epic 3 — Stigmergic blackboard coordination (SBP)
 
 | ID | Requirement | Phase | Maturity | Spec anchor | Notes |
 |----|-------------|-------|----------|-------------|-------|
-| FR-3.1 | Central semantic ledger with atomic updates and streaming (e.g. SSE) for observers. | P3 | planned | — | Essay targets sub-ms; real SLO TBD when built. |
-| FR-3.2 | Tasks and states are **digital pheromones** with UUID, stance target, intensity, decay. | P3 | planned | — | |
-| FR-3.3 | UUID idempotency to prevent duplicate execution (“first claim wins”). | P3 | planned | — | |
-| FR-3.4 | Pheromone floor / inflation prevents critical work from starving. | P3 | planned | — | |
+| FR-3.1 | Central semantic ledger with atomic updates and streaming (e.g. SSE) for observers. | P3 | implemented | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) | In-process ledger + SSE in Node; CI: `npm test` in `packages/sbp-server`. |
+| FR-3.2 | Tasks and states are **digital pheromones** with UUID, stance target, intensity, decay. | P3 | implemented | [`packages/sbp-server/schemas/pheromone.json`](../../packages/sbp-server/schemas/pheromone.json) | JSON Schema + `POST /pheromones`; see README. |
+| FR-3.3 | UUID idempotency to prevent duplicate execution (“first claim wins”). | P3 | implemented | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) | `POST /pheromones/:id/claim` returns 409 on duplicate claim; tests. |
+| FR-3.4 | Pheromone floor / inflation prevents critical work from starving. | P3 | implemented | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) | `POST /pheromones/:id/inflate`; tests in `packages/sbp-server/test/floor.test.mjs`. |
 
 ## Epic 4 — Sublation crucible (verification beyond LLM)
 
 | ID | Requirement | Phase | Maturity | Spec anchor | Notes |
 |----|-------------|-------|----------|-------------|-------|
-| FR-4.1 | Intercept agent shell commands (e.g. PATH shims) and evaluate against policy; block disallowed commands. | P4 | planned | — | ContextCov-class; not implemented here. |
-| FR-4.2 | Deterministic compilation of `.allium` to SMT-LIB (no LLM in translation). | P4 | planned | — | **Not claimed** until shipped; contradicts live allium-tools feature set until proven. |
-| FR-4.3 | Integrations must pass satisfiability checking; unsat cores become explainable traces. | P4 | planned | — | Depends on FR-4.2 and code fact extraction. |
+| FR-4.1 | Intercept agent shell commands (e.g. PATH shims) and evaluate against policy; block disallowed commands. | P4 | partial | [`devtools/crucible-shim/README.md`](../../devtools/crucible-shim/README.md) | Prototype [`devtools/crucible-shim/wrap.sh`](../../devtools/crucible-shim/wrap.sh) + policy JSON; maintainer PATH prepend per README and [ADR-0006](../adr/0006-p4-crucible-execution.md). CI: `bash tests/crucible_shim_contract.sh`. |
+| FR-4.2 | Deterministic compilation of `.allium` to SMT-LIB (no LLM in translation). | P4 | partial | [`tests/fixtures/crucible/README.md`](../../tests/fixtures/crucible/README.md) | **Curated golden pair:** fixture `.allium` + hand-maintained `.smt2`; `scripts/verify-smt-golden.sh`; full AST pipeline tracked in ADR-0006. |
+| FR-4.3 | Integrations must pass satisfiability checking; unsat cores become explainable traces. | P4 | partial | [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh) | CI runs `z3` on golden SMT; unsat-core UX in [TDD.md](../TDD.md) when bridge widens. |
 
 ## P0 repository governance (derived)
 
 | ID | Requirement | Phase | Maturity | Spec anchor | Notes |
 |----|-------------|-------|----------|-------------|-------|
-| FR-0.1 | Behavioural changes to declared scope update Allium specs and RTM per [CONSTITUTION.md](../CONSTITUTION.md). | P0 | partial | [`spec/project.allium`](../../spec/project.allium) | Human + agent discipline. |
-| FR-0.2 | Specification files validate with `allium check` before merge when CI exists. | P0 | partial | `spec/**/*.allium` | [`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml) runs `allium check spec/` on push/PR; `allium-cli` is pinned in the workflow. Require the check in branch protection for strict merge enforcement. |
+| FR-0.1 | Behavioural changes to declared scope update Allium specs and RTM per [CONSTITUTION.md](../CONSTITUTION.md). | P0 | implemented | [`spec/project.allium`](../../spec/project.allium) | **Deterministic (PRs):** [`scripts/verify-governance-doc-cotouch.sh`](../../scripts/verify-governance-doc-cotouch.sh), [`scripts/verify-constitution-amendment-cotouch.sh`](../../scripts/verify-constitution-amendment-cotouch.sh). **Deterministic (push/PR):** [`scripts/verify-fr-spec-anchors.sh`](../../scripts/verify-fr-spec-anchors.sh). **Other:** human + agent review. |
+| FR-0.2 | Specification files validate with `allium check` before merge when CI exists. | P0 | implemented | `spec/**/*.allium` | **Mechanical:** [`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml) runs [`tests/ci_contract.sh`](../../tests/ci_contract.sh), [`scripts/verify-requirement-traceability.sh`](../../scripts/verify-requirement-traceability.sh), [`scripts/verify-governance-doc-cotouch.sh`](../../scripts/verify-governance-doc-cotouch.sh) (pull requests), [`scripts/verify-constitution-amendment-cotouch.sh`](../../scripts/verify-constitution-amendment-cotouch.sh) (pull requests), [`scripts/verify-fr-spec-anchors.sh`](../../scripts/verify-fr-spec-anchors.sh), [`scripts/verify-distillation-contract.sh`](../../scripts/verify-distillation-contract.sh) (pull requests), [`scripts/check-allium-specs.sh`](../../scripts/check-allium-specs.sh), [`scripts/analyse-allium-specs.sh`](../../scripts/analyse-allium-specs.sh), [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh), graph tests (`PYTHONPATH=packages/graph/src python3 -m unittest discover -s packages/graph/tests -p 'test_*.py'`), SBP tests (`npm test` in `packages/sbp-server`); CLI version in [`devtools/allium-cli.version`](../../devtools/allium-cli.version). **Organizational:** default branch requires the `allium-specs` / `check` status per [docs/operations/github-branch-protection.md](../operations/github-branch-protection.md); maintainers apply with [`scripts/apply-branch-protection-main.sh`](../../scripts/apply-branch-protection-main.sh) (body [`devtools/branch-protection.json`](../../devtools/branch-protection.json)) and audit with [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh). |
 
 See [traceability/RTM.md](../traceability/RTM.md) for verification mapping.
