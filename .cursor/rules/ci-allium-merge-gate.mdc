@@ -1,11 +1,11 @@
 ---
-description: Allium specs under spec/ are CI-gated; run the local check script before push
+description: Allium specs under spec/ are CI-gated; run local check and analyse before push
 globs: "**/*.allium"
 alwaysApply: false
 ---
 
-# Allium CI merge gate (FR-0.2)
+# Allium CI merge gate (FR-0.2, NFR-O1)
 
-- Pushes to `main`/`master` and pull requests run workflow `allium-specs`, which executes [`scripts/check-allium-specs.sh`](../../scripts/check-allium-specs.sh) (`allium check spec/`).
-- After editing files under `spec/`, run `./scripts/check-allium-specs.sh` locally when the Allium CLI is installed, so CI does not fail on structural diagnostics.
-- Changing the workflow should keep [`tests/ci_contract.sh`](../../tests/ci_contract.sh) in sync with the merge-gate wiring (the workflow runs that script first).
+- Pushes to `main`/`master` and pull requests run workflow **`allium-specs`**, which runs [`tests/ci_contract.sh`](../../tests/ci_contract.sh), [`scripts/verify-requirement-traceability.sh`](../../scripts/verify-requirement-traceability.sh), on PRs [`scripts/verify-governance-doc-cotouch.sh`](../../scripts/verify-governance-doc-cotouch.sh), then installs the CLI version from [`devtools/allium-cli.version`](../../devtools/allium-cli.version), then [`scripts/check-allium-specs.sh`](../../scripts/check-allium-specs.sh) and [`scripts/analyse-allium-specs.sh`](../../scripts/analyse-allium-specs.sh).
+- After editing `spec/`, run both scripts locally with `allium` on `PATH`. When changing FR/NFR IDs or RTM rows, run [`scripts/verify-requirement-traceability.sh`](../../scripts/verify-requirement-traceability.sh). When changing FR.md or NFR.md on a PR branch, include RTM.md in the same PR ([FR-0.1](../../docs/requirements/FR.md)).
+- Default branch must require the **`check`** job in branch protection: [docs/operations/github-branch-protection.md](../../docs/operations/github-branch-protection.md).

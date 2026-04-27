@@ -1,0 +1,34 @@
+-- allium: 3
+-- Repository governance: traceability row maturity (FR-1.1 domain slice).
+
+------------------------------------------------------------
+-- Entities and Variants
+------------------------------------------------------------
+
+entity TraceabilityRow {
+    requirement_id: String
+    maturity: draft | published
+
+    transitions maturity {
+        draft -> published
+        terminal: published
+    }
+}
+
+------------------------------------------------------------
+-- Defaults
+------------------------------------------------------------
+
+default TraceabilityRow seed_traceability_row = {
+    requirement_id: "FR-0.2",
+    maturity: draft
+}
+
+------------------------------------------------------------
+-- Invariants
+------------------------------------------------------------
+
+invariant TraceabilityRowsWellFormed {
+    for row in TraceabilityRows:
+        length(row.requirement_id) > 0 and (row.maturity = draft or row.maturity = published)
+}
