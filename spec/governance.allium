@@ -15,6 +15,19 @@ entity TraceabilityRow {
     }
 }
 
+entity Pheromone {
+    id: String
+    state: open | claimed | done | expired
+
+    transitions state {
+        open -> claimed
+        claimed -> done
+        open -> expired
+        terminal: done
+        terminal: expired
+    }
+}
+
 ------------------------------------------------------------
 -- Defaults
 ------------------------------------------------------------
@@ -24,6 +37,11 @@ default TraceabilityRow seed_traceability_row = {
     maturity: draft
 }
 
+default Pheromone seed_pheromone = {
+    id: "demo-pheromone",
+    state: open
+}
+
 ------------------------------------------------------------
 -- Invariants
 ------------------------------------------------------------
@@ -31,4 +49,10 @@ default TraceabilityRow seed_traceability_row = {
 invariant TraceabilityRowsWellFormed {
     for row in TraceabilityRows:
         length(row.requirement_id) > 0 and (row.maturity = draft or row.maturity = published)
+}
+
+invariant PheromonesWellFormed {
+    for p in Pheromones:
+        length(p.id) > 0
+            and (p.state = open or p.state = claimed or p.state = done or p.state = expired)
 }

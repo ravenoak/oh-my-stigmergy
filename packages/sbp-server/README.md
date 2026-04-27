@@ -9,6 +9,23 @@ npm install
 node server.mjs
 ```
 
+### Durable ledger (JSONL)
+
+Append-only persistence is opt-in via **`SBP_LEDGER_JSONL`** (path to a `.jsonl` file). The server replays the log on startup; see [ADR-0008](../../docs/adr/0008-sbp-persistence.md).
+
+```bash
+SBP_LEDGER_JSONL=/tmp/sbp-ledger.jsonl node server.mjs
+```
+
+Programmatic use:
+
+```javascript
+import { createLedgerServer, JsonlLedgerStore } from "./server.mjs";
+
+const store = new JsonlLedgerStore("/tmp/ledger.jsonl");
+const { server } = createLedgerServer({ store });
+```
+
 ## Test
 
 ```bash

@@ -2,6 +2,8 @@
 
 Byte-addressed **code cards** and an **imports** aspect graph for Python sources under a repository root.
 
+**Backends:** default build is in-memory (`GraphIndex.build`). Optional SQLite persistence (`GraphIndex.persist_to_sqlite` / `GraphIndex.from_sqlite`) per [ADR-0007](../../docs/adr/0007-graph-persistence.md).
+
 ## Develop
 
 ```bash

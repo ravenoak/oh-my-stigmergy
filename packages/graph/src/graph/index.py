@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from graph.cards import Card, extract_import_targets, ingest_python_file
+from graph.ids import node_id
+from graph.store import SqliteCardStore
 
 
 @dataclass
@@ -39,6 +41,29 @@ class GraphIndex:
                     idx.edges.append((src_node, target, "IMPORTS"))
         return idx
 
+    def persist_to_sqlite(self, sqlite_path: Path) -> None:
+        """Write cards and IMPORTS edges to SQLite (ADR-0007)."""
+        store = SqliteCardStore(sqlite_path)
+        try:
+            store.init_schema()
+            store.upsert_cards(self.cards.values())
+            store.add_imports(self.edges)
+        finally:
+            store.close()
 
-def node_id(file_path: str, line: int) -> str:
-    return f"{file_path}#{line}"
+    @classmethod
+    def from_sqlite(cls, sqlite_path: Path, root: Path) -> GraphIndex:
+        """Load a previously persisted graph from SQLite."""
+        store = SqliteCardStore(sqlite_path)
+        try:
+            cards: dict[str, Card] = {}
+            for c in store.iter_cards():
+                nid = node_id(c.file_path, c.line)
+                cards[nid] = c
+            edges = list(store.iter_edges())
+            return cls(root=root, cards=cards, edges=edges)
+        finally:
+            store.close()
+
+
+__all__ = ["GraphIndex", "node_id"]

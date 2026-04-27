@@ -8,6 +8,7 @@
     "stanceTarget": { "type": "string" },
     "baseIntensity": { "type": "number", "minimum": 0 },
     "decayRate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "seq": { "type": "integer", "minimum": 0 },
     "payload": { "type": "object" }
   },
   "additionalProperties": false

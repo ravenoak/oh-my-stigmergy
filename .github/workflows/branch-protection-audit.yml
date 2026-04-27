@@ -1,0 +1,26 @@
+# Maintainer-only: verify remote branch protection matches devtools/branch-protection.json.
+# workflow_dispatch only — does not consume minutes on a schedule.
+name: branch-protection-audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify remote branch protection
+        env:
+          GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::notice::BP_ADMIN_TOKEN not set; skipping remote verification (non-blocking)."
+            exit 0
+          fi
+          bash scripts/verify-branch-protection-remote.sh

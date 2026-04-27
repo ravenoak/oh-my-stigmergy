@@ -6,7 +6,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from graph.index import GraphIndex, node_id
+from graph.ids import node_id
+from graph.index import GraphIndex
 
 
 def load_slices(index: GraphIndex, nid: str) -> list[str]:
