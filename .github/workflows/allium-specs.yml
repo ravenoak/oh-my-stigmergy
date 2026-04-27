@@ -180,10 +180,18 @@ jobs:
       - name: Allium analyse (process-level)
         run: bash scripts/analyse-allium-specs.sh
 
+      - name: Crucible compile golden diff (FR-4.2)
+        run: bash scripts/verify-crucible-compile.sh
+
       - name: Graph package unit tests (FR-2.x)
         env:
           PYTHONPATH: ${{ github.workspace }}/packages/graph/src
         run: python3 -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
+
+      - name: Crucible compiler unit tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/packages/crucible/src
+        run: python3 -m unittest discover -s packages/crucible/tests -p 'test_*.py' -v
 
       - name: Transitions harness (FR-1.3)
         env:

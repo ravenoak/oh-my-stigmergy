@@ -10,9 +10,9 @@ Accepted
 
 ## Decision
 
-1. **FR-4.2 (partial first):** Maintain **curated** golden pairs under `tests/fixtures/crucible/` (`.allium` narrative + hand-maintained `.smt2`). [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh) is the deterministic gate. A future compiler from Allium AST to SMT replaces curation without deleting golden tests immediately (transition plan in PRs).
+1. **FR-4.2 (`implemented`):** [`packages/crucible`](../../packages/crucible/) compiles **`allium model` JSON** to deterministic SMT-LIB. [`scripts/verify-crucible-compile.sh`](../../scripts/verify-crucible-compile.sh) enforces byte-stable output against [`tests/fixtures/crucible/transitions.smt2`](../../tests/fixtures/crucible/transitions.smt2). [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh) continues to run `z3` on every `*.smt2` under `tests/fixtures/crucible/`. Extend the compiler incrementally for richer Allium constructs; goldens remain regression anchors.
 
-2. **FR-4.3 (partial):** `z3` on golden `.smt2` in CI. Unsat-core mapping to human-readable traces stays **TDD-documented** until FR-4.2 moves to `implemented` with an automated translator.
+2. **FR-4.3 (partial):** `z3` on golden `.smt2` in CI. Unsat-core mapping to human-readable traces is the next compiler + solver slice (FR-4.3 row).
 
 3. **FR-4.1 (partial):** [`devtools/crucible-shim/wrap.sh`](../../devtools/crucible-shim/wrap.sh) is a **maintainer-only** PATH prepend wrapper, not installed by default. Policy is JSON deny-list. No claim of ContextCov parity or org-wide PATH enforcement.
 
