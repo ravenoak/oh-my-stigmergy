@@ -1,0 +1,13 @@
+---
+description: Keep FR/NFR and RTM aligned when changing governance or requirements docs
+globs: "docs/**/*.md"
+alwaysApply: false
+---
+
+# Documentation traceability
+
+When editing functional or non-functional commitments under `docs/requirements/` or changing phased maturity:
+
+1. Update [docs/traceability/RTM.md](docs/traceability/RTM.md) for affected IDs, or explicitly mark **Deferred** with rationale.
+2. If architectural direction shifts, add or supersede an ADR in `docs/adr/`.
+3. Do not upgrade **maturity** to `implemented` without a cited verification path (see [ADR-0004](docs/adr/0004-verification-stack-layering.md)).

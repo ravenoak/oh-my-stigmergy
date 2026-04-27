@@ -1,0 +1,16 @@
+---
+description: Core principles for oh-my-stigmergy — intent specs, empiricism, no false verification claims
+alwaysApply: true
+---
+
+# Oh-my-stigmergy constitution (summary)
+
+Read the full text in [docs/CONSTITUTION.md](docs/CONSTITUTION.md). In every session:
+
+- **Behavioural intent** lives in Allium (`spec/**/*.allium`) and linked docs; code is not the sole source of “should”.
+- **Empirical constraint:** proportion claims to evidence; prefer falsifiable statements.
+- **Do not claim** Z3, OPA, PATH shims, or SMT compilation as enforced for this repo unless [docs/traceability/RTM.md](docs/traceability/RTM.md) lists them as `implemented` and code exists ([ADR-0004](docs/adr/0004-verification-stack-layering.md)).
+- **Deterministic spec checks today:** `allium check` and `allium analyse` via [allium-tools](https://github.com/juxt/allium-tools) where installed.
+- **Non-goals:** this project orientation is not optimized for snap operational decisions; escalate humans when urgency dominates analysis.
+
+For dialectical / systems-analysis discipline when the user asks for validation, follow [`stigmergy-validation`](../skills/stigmergy-validation/SKILL.md).

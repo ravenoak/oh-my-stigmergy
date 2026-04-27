@@ -1,0 +1,10 @@
+-- allium: 3
+
+-- Repository pointers for behavioural specs. Expand with entities and rules as the system grows.
+-- Canonical requirements remain in docs/requirements/ until captured here.
+-- FR-0.2: CI validates spec/ via allium check (see .github/workflows/allium-specs.yml).
+
+config {
+    rtm_document: String = "docs/traceability/RTM.md"
+    constitution: String = "docs/CONSTITUTION.md"
+}

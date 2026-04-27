@@ -1,0 +1,35 @@
+# FR-0.2: deterministic spec validation on every push/PR (see docs/requirements/FR.md).
+name: allium-specs
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: allium-specs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: CI contract (merge gate wiring)
+        run: bash tests/ci_contract.sh
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install allium CLI
+        run: cargo install allium-cli --version 3.2.3
+
+      - name: Add cargo bin to PATH
+        run: echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      # Merge gate: allium check spec/ (see scripts/check-allium-specs.sh).
+      - name: Validate Allium specs
+        run: bash scripts/check-allium-specs.sh
