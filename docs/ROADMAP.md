@@ -14,7 +14,7 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 |---------------------|---------|-----------------|------------------------|
 | Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 implemented; FR-1.3 implemented via `allium model` + `packages/transitions` |
 | Hound relation-first navigation | FR-2.x | NFR-C1 | Reference graph + SQLite; Python + TypeScript + shell ingestion + optional Tree-sitter symbol cards (see ADR-0007) |
-| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE shipped; durable JSONL per [ADR-0008](adr/0008-sbp-persistence.md); load tests / Redis scale still open |
+| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE; JSONL per [ADR-0008](adr/0008-sbp-persistence.md); decay + load + NDJSON log contracts ([`docs/operations/sbp-slo.md`](operations/sbp-slo.md)); Redis scale still open |
 | Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | FR-4.2–4.3 + attested shim shipped; ContextCov parity still out of scope per ADR-0004 |
 
 Sections **1–7** of the essay supply **motivation and critique** (ToCS, ContextCov, OMO, liquid delegation). They inform ADRs and guides but are not duplicated as extra FR rows here.
@@ -74,7 +74,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 |-----------|----------------|
 | P3-schema | Versioned JSON Schema (in-repo) for pheromone records aligned with FR-3.2; stance config schema for essay §9.2.1 (documented in TDD) |
 | P3-ledger | FR-3.1: atomic publish API + observer stream (SSE or replacement); **durable JSONL** replay per [ADR-0008](adr/0008-sbp-persistence.md); load tests documented (still open for scale) |
-| P3-pheromone | FR-3.2–FR-3.4: decay, idempotency, floor behaviour covered by automated tests; NFR-O2 moves to `implemented` with log contract tests |
+| P3-pheromone | FR-3.2–FR-3.4: exponential decay + inflations, idempotency, floor, load p95, NDJSON log contract — see [`docs/operations/sbp-slo.md`](operations/sbp-slo.md) |
 
 ### Phase 4 — Sublation crucible (essay Epic 4 + §9.3.2)
 

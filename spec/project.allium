@@ -4,7 +4,7 @@ use "./governance.allium" as governance
 
 -- Repository pointers for behavioural specs. Expand with entities and rules as the system grows.
 -- Canonical requirements remain in docs/requirements/ until captured here.
--- CI: allium check + analyse on spec/; FR/NFR/RTM ID sync; PR co-touch FR/NFR->RTM (see scripts/). governance.allium: traceability row lifecycle; crucible compile + solve (FR-4.2/4.3); crucible-shim attested policy (FR-4.1/NFR-S1); graph multi-language ingestion (FR-2.x) in packages/graph + tests/fixtures/graph-corpus/.
+-- CI: allium check + analyse on spec/; FR/NFR/RTM ID sync; PR co-touch FR/NFR->RTM (see scripts/). governance.allium: traceability row lifecycle; crucible compile + solve (FR-4.2/4.3); crucible-shim attested policy (FR-4.1/NFR-S1); graph multi-language (FR-2.x); SBP decay/load/logs (FR-3.x/NFR-O2) in packages/sbp-server + docs/operations/sbp-slo.md.
 
 config {
     rtm_document: String = "docs/traceability/RTM.md"

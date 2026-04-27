@@ -14,7 +14,7 @@
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
 | NFR-O1 | Specification edits produce CLI diagnostics where `allium` is installed. | P1 | implemented | CI: `allium-specs` runs `allium check` and `allium analyse` on `spec/` ([`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml)); local / editor LSP still encouraged |
-| NFR-O2 | Coordination runtime (when built) emits audit logs for pheromone lifecycle. | P3 | implemented | [`packages/sbp-server/README.md`](../../packages/sbp-server/README.md) SSE `pheromone` / `claim` / `inflate` events (observable stream); extend with structured file logs when needed |
+| NFR-O2 | Coordination runtime (when built) emits audit logs for pheromone lifecycle. | P3 | implemented | [`packages/sbp-server/server.mjs`](../../packages/sbp-server/server.mjs), [`docs/operations/sbp-slo.md`](../operations/sbp-slo.md) | SSE events + **NDJSON** `sbpLog` (`SBP_LOG_FILE`, optional `SBP_LOG_STDERR=1`); contract [`log-contract.test.mjs`](../../packages/sbp-server/test/log-contract.test.mjs); load SLOs in [`load.test.mjs`](../../packages/sbp-server/test/load.test.mjs). |
 
 ## Cost and ergonomics
 

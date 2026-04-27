@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import { once } from "node:events";
-import { createLedgerServer } from "../server.mjs";
+import { createLedgerServer, currentIntensity } from "../server.mjs";
 
 test("POST pheromone then claim idempotent conflict", async () => {
   const { server, ledger, claims } = createLedgerServer();
@@ -24,7 +24,9 @@ test("POST pheromone then claim idempotent conflict", async () => {
   assert.equal(r409.statusCode, 409);
 
   await drain(await post(`${base}/pheromones/f47ac10b-58cc-4372-a567-0e02b2c3d479/inflate`, ""));
-  assert.equal(ledger.get("f47ac10b-58cc-4372-a567-0e02b2c3d479").intensity, 2);
+  const rec = ledger.get("f47ac10b-58cc-4372-a567-0e02b2c3d479");
+  const now = rec.publishedAt;
+  assert.ok(Math.abs(currentIntensity(rec, now) - 2) < 1e-6);
 
   server.closeAllConnections?.();
   server.close();

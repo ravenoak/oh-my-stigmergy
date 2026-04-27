@@ -5,7 +5,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { once } from "node:events";
-import { createLedgerServer, JsonlLedgerStore } from "../server.mjs";
+import { createLedgerServer, currentIntensity, JsonlLedgerStore } from "../server.mjs";
 
 test("JsonlLedgerStore survives restart with identical ledger + claims", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "sbp-dur-"));
@@ -32,7 +32,7 @@ test("JsonlLedgerStore survives restart with identical ledger + claims", async (
 
   const store2 = new JsonlLedgerStore(ledgerPath);
   const { server: s2, ledger, claims } = createLedgerServer({ store: store2 });
-  assert.equal(ledger.get(pid).intensity, 2);
+  assert.ok(Math.abs(currentIntensity(ledger.get(pid), Date.now()) - 2) < 0.01);
   assert.ok(claims.has(pid));
   s2.closeAllConnections?.();
   s2.close();
