@@ -54,7 +54,11 @@ allium check spec/project.allium
 allium analyse spec/project.allium
 ```
 
-The workflow [`.github/workflows/allium-specs.yml`](.github/workflows/allium-specs.yml) runs the contract test, RTM ID sync, **governance doc co-touch on pull requests** ([FR-0.1](docs/requirements/FR.md)), pinned `cargo install allium-cli`, then the same check and analyse scripts (see [FR-0.2](docs/requirements/FR.md), [NFR-D1](docs/requirements/NFR.md), [NFR-O1](docs/requirements/NFR.md)).
+The workflow [`.github/workflows/allium-specs.yml`](.github/workflows/allium-specs.yml) runs the contract test, RTM ID sync, **governance doc co-touch on pull requests** ([FR-0.1](docs/requirements/FR.md)), then (when the diff is not doc-only on PRs) pinned `allium-cli` with **Cargo cache**, `allium check` / `allium analyse`, package tests, and Z3/shim checks (see [FR-0.2](docs/requirements/FR.md), [NFR-D1](docs/requirements/NFR.md), [NFR-O1](docs/requirements/NFR.md)).
+
+### CI cost model (Actions minutes)
+
+To conserve GitHub Actions quota, the workflow uses a **`governance`** job on every run and a **`specs-and-packages`** job only when PR diffs touch “heavy” paths (`spec/`, `packages/`, `scripts/`, `tests/`, `devtools/`, `.github/workflows/`, `docs/requirements/`, `docs/traceability/`, `docs/adr/`). Pull requests that change only other `docs/**` files or root `*.md` still get traceability and co-touch gates, but skip Allium install and package tests until something substantive changes. **Pushes to `main` always run the full heavy job.** The required merge check name remains **`allium-specs / check`** (it aggregates job results).
 
 Cursor does not run post-edit hooks like Claude Code; run checks explicitly after changing `.allium` files.
 

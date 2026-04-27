@@ -13,8 +13,8 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 | Essay pillar (§8–9) | FR epic | NFR touchpoints | Current gap (summary) |
 |---------------------|---------|-----------------|------------------------|
 | Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 partial; FR-1.3 planned; transition enforcement absent |
-| Hound relation-first navigation | FR-2.x | NFR-C1 | No card store, graph, or `load_node` in tree |
-| SBP blackboard | FR-3.x | NFR-O2 | No ledger, SSE, or pheromone runtime |
+| Hound relation-first navigation | FR-2.x | NFR-C1 | Reference Python graph + SQLite opt-in shipped; Tree-sitter / multi-language still open |
+| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE shipped; durable JSONL per [ADR-0008](adr/0008-sbp-persistence.md); load tests / Redis scale still open |
 | Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | No shim, translator, or solver integration per ADR-0004 |
 
 Sections **1–7** of the essay supply **motivation and critique** (ToCS, ContextCov, OMO, liquid delegation). They inform ADRs and guides but are not duplicated as extra FR rows here.
@@ -48,7 +48,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); after apply, `./scripts/verify-branch-protection-remote.sh` succeeds and the enablement table records date and verifier |
+| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); **on the canonical remote**, [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) exits `0` and the [enablement table](operations/github-branch-protection.md) records **verified remote** with date + verifier (optional: [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) or manual **branch-protection-audit** workflow with `BP_ADMIN_TOKEN`) |
 | P0-b | FR-0.1 → `implemented`: constitution scope changes reflected in `spec/` **and** RTM in the same change sets; expand deterministic governance checks beyond PR-only co-touch where gaps remain (each addition gets an RTM line) |
 
 ### Phase 1 — Intent workflows (essay Epic 1)
@@ -63,7 +63,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P2-ADR | Update or supersede [ADR-0002](adr/0002-relation-first-retrieval.md) with chosen storage (SQLite + NetworkX vs alternatives), ingestion language set, and CI resource limits |
+| P2-ADR | Update or supersede [ADR-0002](adr/0002-relation-first-retrieval.md) with chosen storage (SQLite + NetworkX vs alternatives), ingestion language set, and CI resource limits — **SQLite slice:** [ADR-0007](adr/0007-graph-persistence.md) (stdlib `sqlite3`; Tree-sitter deferred) |
 | P2-core | FR-2.1: byte-accurate code cards stored and indexed |
 | P2-graph | FR-2.2: at least one aspect graph pipeline with tests |
 | P2-tool | FR-2.3: `load_node` (or renamed equivalent) contract tests per ADR-0002 verification clause |
@@ -73,7 +73,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 | Milestone | Exit criteria |
 |-----------|----------------|
 | P3-schema | Versioned JSON Schema (in-repo) for pheromone records aligned with FR-3.2; stance config schema for essay §9.2.1 (documented in TDD) |
-| P3-ledger | FR-3.1: atomic publish API + observer stream (SSE or replacement) with load tests documented |
+| P3-ledger | FR-3.1: atomic publish API + observer stream (SSE or replacement); **durable JSONL** replay per [ADR-0008](adr/0008-sbp-persistence.md); load tests documented (still open for scale) |
 | P3-pheromone | FR-3.2–FR-3.4: decay, idempotency, floor behaviour covered by automated tests; NFR-O2 moves to `implemented` with log contract tests |
 
 ### Phase 4 — Sublation crucible (essay Epic 4 + §9.3.2)

@@ -1,6 +1,6 @@
 # GitHub branch protection for `main`
 
-This repository’s mechanical merge gate is the **`allium-specs`** workflow ([`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml)). **FR-0.2** is only fully satisfied for the organization when that workflow is **required** before merging to the default branch.
+This repository’s mechanical merge gate is the **`allium-specs`** workflow ([`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml)). The workflow defines several jobs (`filter`, `governance`, `specs-and-packages`); the **required** status check is still the aggregate job id **`check`**, which GitHub displays as **`allium-specs / check`**. **FR-0.2** is only fully satisfied for the organization when that workflow is **required** before merging to the default branch.
 
 GitHub’s UI labels change over time; the intent is always: **no merge to `main` unless the Allium validation job has passed.**
 
@@ -45,14 +45,26 @@ The JSON body sent to GitHub is committed as [`devtools/branch-protection.json`]
 
 This script is **not** run in PR CI by default (the default `GITHUB_TOKEN` usually cannot read admin-only settings).
 
+### Human-readable summary
+
+After `gh auth login` with a token that can read branch protection:
+
+```bash
+./scripts/print-branch-protection-summary.sh
+```
+
+### Optional: GitHub Actions audit (`workflow_dispatch` only)
+
+Repository workflow [`.github/workflows/branch-protection-audit.yml`](../../.github/workflows/branch-protection-audit.yml) runs `verify-branch-protection-remote.sh` when manually dispatched. Add a repository secret **`BP_ADMIN_TOKEN`** (admin-capable classic PAT or equivalent) if you want the audit in CI; if the secret is absent, the workflow exits successfully with a notice and does **not** block anything.
+
 ## Verification
 
 Contributors with admin access confirm in the PR template (first-time setup) that this rule is enabled, or link to the org’s central governance doc if rules are managed elsewhere.
 
 ## Enablement record
 
-After you enable protection (UI, rulesets, or `./scripts/apply-branch-protection-main.sh`), add a row with the date and a short note (for example “classic rule” or “ruleset”).
+After you enable protection (UI, rulesets, or `./scripts/apply-branch-protection-main.sh`), add a row with the date, verifier, and evidence. **P0-a is satisfied on the canonical remote only when** `./scripts/verify-branch-protection-remote.sh` exits `0` **and** this table records **verified remote** (not “automation only”).
 
 | Date | Owner | Notes |
 |------|-------|-------|
-| 2026-04-26 | oh-my-stigmergy (automation) | Committed [`devtools/branch-protection.json`](../../devtools/branch-protection.json), [`scripts/apply-branch-protection-main.sh`](../../scripts/apply-branch-protection-main.sh), and [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh). **Maintainer follow-up:** with `gh` admin auth on the canonical remote, run `./scripts/verify-branch-protection-remote.sh` until exit `0`, then tighten this row to “verified remote” (or replace with your org’s verifier name). |
+| _YYYY-MM-DD_ | _verifier handle_ | **verified remote** — `./scripts/verify-branch-protection-remote.sh` exit `0`; optional `./scripts/print-branch-protection-summary.sh` output attached or pasted in PR. |

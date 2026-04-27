@@ -36,8 +36,8 @@ flowchart TB
 | Layer | Component | Technology (essay / options) | Status |
 |-------|-----------|------------------------------|--------|
 | Cognitive | Stance-driven agents | OpenCode, editors, vendor models | **Concrete** (tooling assumed) |
-| Coordination | SBP server | Node (in-process), SSE ([`packages/sbp-server`](../packages/sbp-server)) | **Concrete** (reference slice; Redis optional later) |
-| Epistemic | Graph engine / `load_node` | Python ([`packages/graph`](../packages/graph)); SQLite/Tree-sitter TBD | **Partial** — cards + IMPORTS graph + CLI |
+| Coordination | SBP server | Node (in-process), SSE ([`packages/sbp-server`](../packages/sbp-server)); optional JSONL ledger ([ADR-0008](adr/0008-sbp-persistence.md)) | **Concrete** (reference slice; Redis optional later) |
+| Epistemic | Graph engine / `load_node` | Python ([`packages/graph`](../packages/graph)); SQLite opt-in ([ADR-0007](adr/0007-graph-persistence.md)); Tree-sitter TBD | **Concrete (in-memory + SQLite)** — cards + IMPORTS graph + CLI |
 | Verification | Allium tools | Rust CLI / LSP ([allium-tools](https://github.com/juxt/allium-tools)) | **Concrete** — user supplies CLI |
 | Verification | Sublation bridge | Z3 on golden SMT ([`scripts/verify-smt-golden.sh`](../scripts/verify-smt-golden.sh)); shim prototype ([`devtools/crucible-shim`](../devtools/crucible-shim)) | **Partial** per [ADR-0006](adr/0006-p4-crucible-execution.md) |
 
@@ -66,13 +66,15 @@ Normative JSON Schema: [`packages/sbp-server/schemas/pheromone.json`](../package
 **Steps (essay):** Hook → parse Allium → compile to SMT → extract code facts → Z3 → sat/unsat with trace.  
 **Today:** **Allium CLI validation** of specs remains the primary spec gate. **Additionally:** curated golden `.smt2` under `tests/fixtures/crucible/` is checked with `z3` in CI ([ADR-0006](adr/0006-p4-crucible-execution.md)). Automated Allium→SMT translation is **not** claimed as `implemented` until golden outputs are produced by a checked-in compiler.
 
-## FR-1.3 (planned) — transition hooks
+## FR-1.3 (partial) — transition hooks
 
-When domain `.allium` gains `when` / `requires` / `ensures` transition graphs:
+**Today:** [`spec/governance.allium`](../spec/governance.allium) models `TraceabilityRow` and `Pheromone` transitions; [`spec/transitions.json`](../spec/transitions.json) is a checked-in sidecar validated by [`scripts/verify-transitions-sync.sh`](../scripts/verify-transitions-sync.sh) (governance CI job). [`packages/transitions`](../packages/transitions/) provides a Python `TransitionTable` + `unittest` harness used in the heavy CI job so disallowed jumps fail the build.
 
-1. **Naming:** each transition edge gets a stable identifier in spec (entity-level or module-level).
-2. **Test harness (future):** generated or hand-written tests assert disallowed state jumps fail CI (language: Python `unittest` or project default at that time).
-3. **RTM:** FR-1.3 row links spec paths + test command; no maturity upgrade until harness exists.
+**Future:** when Allium exposes a stable AST or codegen path, replace the JSON sidecar with a single source derived from specs; only then move FR-1.3 to `implemented` per RTM honesty rules.
+
+1. **Naming:** each transition edge remains stable in spec and mirrored in `transitions.json` until an extractor exists.
+2. **Test harness:** Python `unittest` under `packages/transitions/tests/`.
+3. **RTM:** FR-1.3 remains `partial` until an AST-backed extractor exists.
 
 ## Open questions
 
