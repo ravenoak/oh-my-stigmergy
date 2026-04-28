@@ -19,18 +19,14 @@ jobs:
 
       - name: Verify remote branch protection
         env:
-          GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if [ -z "${GH_TOKEN:-}" ]; then
-            echo "BP_ADMIN_TOKEN not set; cannot verify remote branch protection." >&2
-            exit 1
-          fi
           bash scripts/verify-branch-protection-remote.sh
 
       - name: Capture branch protection summary
         env:
-          GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           bash scripts/print-branch-protection-summary.sh main > /tmp/branch_protection_summary.txt
