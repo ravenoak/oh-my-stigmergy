@@ -53,9 +53,9 @@ After `gh auth login` with a token that can read branch protection:
 ./scripts/print-branch-protection-summary.sh
 ```
 
-### Optional: GitHub Actions audit (`workflow_dispatch` only)
+### GitHub Actions audit (scheduled + manual)
 
-Repository workflow [`.github/workflows/branch-protection-audit.yml`](../../.github/workflows/branch-protection-audit.yml) runs `verify-branch-protection-remote.sh` when manually dispatched. Add a repository secret **`BP_ADMIN_TOKEN`** (admin-capable classic PAT or equivalent) if you want the audit in CI; if the secret is absent, the workflow exits successfully with a notice and does **not** block anything.
+Repository workflow [`.github/workflows/branch-protection-audit.yml`](../../.github/workflows/branch-protection-audit.yml) runs monthly (UTC) and on **`workflow_dispatch`**. Configure repository secret **`BP_ADMIN_TOKEN`** (admin-capable token able to read branch protection / rulesets via `gh api`) so `verify-branch-protection-remote.sh` + evidence refresh can run in Actions; if the secret is absent, verification steps are **skipped** with a notice (workflow stays green).
 
 ## Verification
 
@@ -67,4 +67,5 @@ After you enable protection (UI, rulesets, or `./scripts/apply-branch-protection
 
 | Date | Owner | Notes |
 |------|-------|-------|
-| 2026-04-27 | oh-my-stigmergy | **Required check enforced** — `main` requires **`allium-specs / check`** before merge (maintainer-confirmed in GitHub UI / rules). **API note:** `GET /repos/{owner}/{repo}/branches/main/protection` may return **HTTP 404** when the repo uses **Repository rulesets** instead of classic branch protection; in that case [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) cannot succeed until it is extended for rulesets, or classic protection is enabled. When classic protection exists, the script **must** exit `0` and [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) should be pasted here on the next audit. |
+| 2026-04-27 | oh-my-stigmergy | **Required check enforced** — `main` requires **`allium-specs / check`** before merge (maintainer-confirmed in GitHub UI / rules). |
+| 2026-04-28 | oh-my-stigmergy | **Rulesets-aware verification** — [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) supports classic protection **and** repository rulesets (required contexts + merge-method checks). Paste [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) output here after each audit; scheduled audit workflow runs monthly when **`BP_ADMIN_TOKEN`** is configured. |

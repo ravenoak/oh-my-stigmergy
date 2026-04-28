@@ -18,6 +18,7 @@ entity TraceabilityRow {
 entity Pheromone {
     id: String
     state: open | claimed | done | expired
+    stance_target: String
 
     transitions state {
         open -> claimed
@@ -26,6 +27,23 @@ entity Pheromone {
         terminal: done
         terminal: expired
     }
+}
+
+entity StanceTarget {
+    name: String
+}
+
+entity LedgerStore {
+    kind: memory | jsonl | sqlite
+}
+
+entity CodeCard {
+    role: line | symbol | method | decorator
+    language: python | typescript | shell
+}
+
+entity AspectEdge {
+    kind: imports | sources | calls
 }
 
 ------------------------------------------------------------
@@ -39,7 +57,25 @@ default TraceabilityRow seed_traceability_row = {
 
 default Pheromone seed_pheromone = {
     id: "demo-pheromone",
-    state: open
+    state: open,
+    stance_target: "feature_implementation"
+}
+
+default LedgerStore seed_ledger_store = {
+    kind: memory
+}
+
+default StanceTarget seed_stance_target = {
+    name: "feature_implementation"
+}
+
+default CodeCard seed_code_card = {
+    role: line,
+    language: python
+}
+
+default AspectEdge seed_aspect_edge = {
+    kind: imports
 }
 
 ------------------------------------------------------------
@@ -55,4 +91,26 @@ invariant PheromonesWellFormed {
     for p in Pheromones:
         length(p.id) > 0
             and (p.state = open or p.state = claimed or p.state = done or p.state = expired)
+            and length(p.stance_target) > 0
+}
+
+invariant StanceTargetsWellFormed {
+    for s in StanceTargets:
+        length(s.name) > 0
+}
+
+invariant LedgerStoresWellFormed {
+    for ls in LedgerStores:
+        ls.kind = memory or ls.kind = jsonl or ls.kind = sqlite
+}
+
+invariant CodeCardsWellFormed {
+    for c in CodeCards:
+        (c.role = line or c.role = symbol or c.role = method or c.role = decorator)
+            and (c.language = python or c.language = typescript or c.language = shell)
+}
+
+invariant AspectEdgesWellFormed {
+    for e in AspectEdges:
+        e.kind = imports or e.kind = sources or e.kind = calls
 }

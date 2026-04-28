@@ -2,15 +2,15 @@
 
 ## Status
 
-Proposed
+Accepted (human-resolution stance for this repository; automatic delegation **not pursued** until a successor ADR ships with mitigations and tests)
 
 ## Context
 
 Agents with different stance vectors can bid for incompatible changes (e.g. security vs latency). Liquid-style delegation can **concentrate voting weight** on a few nodes, reintroducing centralized control under a decentralization story (see inspiration essay).
 
-## Decision (interim)
+## Decision
 
-- Until a runtime exists, **human architects** resolve irreconcilable spec conflicts using the constitution’s reasoning charter and documented trade-offs.
+- Until a coordination runtime exists in-tree, **human architects** resolve irreconcilable spec conflicts using the constitution’s reasoning charter and documented trade-offs.
 - Any future **automatic** conflict handler (delegation markets, auction, solver-only merge) requires:
   - Power-concentration mitigations documented,
   - Test and audit story,
@@ -24,4 +24,4 @@ Agents with different stance vectors can bid for incompatible changes (e.g. secu
 ## Verification
 
 - Open design reviews when multi-agent coordination code is proposed.
-- Revisit this ADR when FR-3.x reaches `partial` maturity.
+- Revisit this ADR when automation or delegation changes are proposed for merged specs or ledger policy.

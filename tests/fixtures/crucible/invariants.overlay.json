@@ -11,7 +11,33 @@
       "entity": "Pheromone",
       "fields": {
         "id": "demo-pheromone",
-        "state": "open"
+        "state": "open",
+        "stance_target": "feature_implementation"
+      }
+    },
+    {
+      "entity": "LedgerStore",
+      "fields": {
+        "kind": "memory"
+      }
+    },
+    {
+      "entity": "StanceTarget",
+      "fields": {
+        "name": "feature_implementation"
+      }
+    },
+    {
+      "entity": "CodeCard",
+      "fields": {
+        "role": "line",
+        "language": "python"
+      }
+    },
+    {
+      "entity": "AspectEdge",
+      "fields": {
+        "kind": "imports"
       }
     }
   ],
@@ -35,6 +61,79 @@
             "done",
             "expired"
           ]
+        },
+        {
+          "op": "len_gt",
+          "entity": "Pheromone",
+          "field": "stance_target",
+          "bound": 0
+        }
+      ]
+    },
+    {
+      "name": "LedgerStoresWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "LedgerStore",
+          "field": "kind",
+          "values": [
+            "memory",
+            "jsonl",
+            "sqlite"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AspectEdgesWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "AspectEdge",
+          "field": "kind",
+          "values": [
+            "imports",
+            "sources",
+            "calls"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CodeCardsWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "CodeCard",
+          "field": "role",
+          "values": [
+            "line",
+            "symbol",
+            "method",
+            "decorator"
+          ]
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "CodeCard",
+          "field": "language",
+          "values": [
+            "python",
+            "typescript",
+            "shell"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "StanceTargetsWellFormed",
+      "all": [
+        {
+          "op": "len_gt",
+          "entity": "StanceTarget",
+          "field": "name",
+          "bound": 0
         }
       ]
     },

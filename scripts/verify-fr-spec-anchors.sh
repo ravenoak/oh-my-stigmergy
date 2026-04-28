@@ -14,6 +14,7 @@ python3 <<'PY'
 import pathlib
 import re
 import sys
+import json
 
 root = pathlib.Path(".").resolve()
 fr_path = root / "docs" / "requirements" / "FR.md"
@@ -22,6 +23,12 @@ req_dir = fr_path.parent
 errors = []
 
 link_re = re.compile(r"\]\((\.\./\.\./[^)]+)\)")
+
+allow_path = root / "devtools" / "fr-anchor-allow.json"
+allow = {"allow_missing_spec_anchor": []}
+if allow_path.exists():
+    allow = json.loads(allow_path.read_text(encoding="utf-8"))
+allow_missing = set(allow.get("allow_missing_spec_anchor", []))
 
 for line in text.splitlines():
     if not re.match(r"^\|\s*FR-[0-9]+\.[0-9]+\s*\|", line):
@@ -32,6 +39,8 @@ for line in text.splitlines():
     rid = parts[1]
     anchor = parts[5]
     if not anchor or anchor in ("—", "-"):
+        if rid not in allow_missing:
+            errors.append(f"{rid}: missing spec anchor (add ../../spec/... link or allowlist it)")
         continue
     if "`spec/**/*.allium`" in anchor or "spec/**/*.allium" in anchor:
         if not list((root / "spec").rglob("*.allium")):

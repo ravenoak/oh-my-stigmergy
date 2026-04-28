@@ -4,8 +4,11 @@ name: branch-protection-audit
 
 on:
   schedule:
-    - cron: "23 3 * * 1" # weekly (UTC)
+    - cron: "23 3 1 * *" # monthly 03:23 UTC on the 1st
   workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 permissions:
   contents: write
@@ -18,27 +21,31 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Verify remote branch protection
+        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
+        run: bash scripts/verify-branch-protection-remote.sh
+
+      - name: Notice skipping branch protection verify
+        if: ${{ secrets.BP_ADMIN_TOKEN == '' }}
         run: |
-          set -euo pipefail
-          bash scripts/verify-branch-protection-remote.sh
+          echo "::notice::Skipping verify-branch-protection-remote — add repository secret BP_ADMIN_TOKEN (admin-capable) to run verification in Actions."
 
       - name: Capture branch protection summary
+        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          bash scripts/print-branch-protection-summary.sh main > /tmp/branch_protection_summary.txt
+          GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
+        run: bash scripts/print-branch-protection-summary.sh main > /tmp/branch_protection_summary.txt
 
       - name: Update evidence artifact
+        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import json
           from datetime import datetime, timezone
           from pathlib import Path
-          
+
           summary_txt = Path("/tmp/branch_protection_summary.txt").read_text(encoding="utf-8").splitlines()
           evidence = {
               "verified": True,
@@ -51,13 +58,14 @@ jobs:
           PY
 
       - name: Open PR updating evidence
+        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           commit-message: "chore(governance): refresh branch protection evidence"
           title: "chore(governance): refresh branch protection evidence"
           body: |
             Automated update of `docs/operations/branch-protection-evidence.json` from the scheduled branch-protection audit.
-            
+
             This keeps the merge gate `branch-protection-evidence / check` satisfied with fresh, verified evidence.
           branch: "automation/branch-protection-evidence"
           delete-branch: true

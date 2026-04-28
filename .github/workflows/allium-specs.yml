@@ -3,6 +3,9 @@
 # Required branch protection check name stays: allium-specs / check
 name: allium-specs
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 on:
   push:
     branches: [main, master]
@@ -113,6 +116,15 @@ jobs:
 
       - name: CI contract (merge gate wiring)
         run: bash tests/ci_contract.sh
+
+      - name: CI heavy-job budget (NFR-P1)
+        run: bash scripts/verify-heavy-budget.sh
+
+      - name: Secret pattern scan on PR diff (NFR-S2)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/verify-no-secrets.sh
 
       - name: Requirement ID traceability
         run: bash scripts/verify-requirement-traceability.sh

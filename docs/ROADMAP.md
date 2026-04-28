@@ -48,7 +48,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); **required status `allium-specs / check` enforced on `main`** recorded in the enablement table (2026-04-27). **Classic API proof:** when GitHub exposes **classic** branch protection, [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) exits `0` and summary output is pasted into the same table; **rulesets-only** remotes may return HTTP 404 to the classic GET — extend the script or audit rulesets separately (see enablement row note). |
+| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); **required status `allium-specs / check` enforced on `main`** recorded in the enablement table (2026-04-27). **API proof:** [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) supports **classic** branch protection **and** repository **rulesets** (required contexts + merge-method sanity); paste [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) output into the enablement table when auditing. |
 | P0-b | FR-0.1 → `implemented`: constitution scope changes reflected in `spec/` **and** RTM in the same change sets; expand deterministic governance checks beyond PR-only co-touch where gaps remain (each addition gets an RTM line) |
 
 ### Phase 1 — Intent workflows (essay Epic 1)
@@ -110,6 +110,19 @@ Four milestones shipped **sequentially** (Crucible invariants/defaults → stanc
 | P6-d — SBP SQLite + ops | **FR-3.1 / FR-3.2 / NFR-O2:** `SqliteLedgerStore` (`better-sqlite3`); mutual exclusive env with JSONL; JSONL writer lock + exit 75; `SBP_LEDGER_MAX_BYTES` rotation hook; `GET /healthz`; `compaction_done` logs; ADR-0011; runbook + SLO; `sqlite-store` / `healthz` / `multi-writer` tests. |
 
 **Phase 6 program exit:** all four rows above **green in CI**; [PRD.md](PRD.md) deferred-program paragraph cites ADR-0010 / ADR-0011 and amended ADRs; Redis backlog row **closed as not pursued** (replaced by ADR-0011).
+
+### Phase 7 — Honesty and governance closeout (spec ↔ runtime alignment)
+
+Single tracked program to eliminate drift between behavioural intent (`spec/governance.allium`), deterministic gates (`scripts/*`), and operational docs after Phase 6 shipped runtime slices (stance registry, SQLite ledger, graph **CALLS**, crucible invariants).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P7-a — Spec + anchors | [`spec/governance.allium`](../../spec/governance.allium) models **stance**, **ledger store**, **aspect edges**, and **code-card** slices aligned with packages; FR anchors cite `spec/` where behavioural intent applies; [`scripts/verify-fr-spec-anchors.sh`](../../scripts/verify-fr-spec-anchors.sh) + [`devtools/fr-anchor-allow.json`](../../devtools/fr-anchor-allow.json) enforce anchor hygiene; crucible governance fixtures stay golden-clean (`verify-crucible-compile`). |
+| P7-b — Conflict governance | [ADR-0005](../adr/0005-conflict-resolution-governance.md) **`Accepted`** — automatic delegation remains **not pursued** until a successor ADR; branch-protection audit documents rulesets-aware verification + optional `BP_ADMIN_TOKEN`. |
+| P7-c — Graph ergonomics + CI hygiene | `graph.aspect` CLI + `load_node --edge-kind`; mint **NFR-P1** (heavy-job budget script + [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt)) and **NFR-S2** (PR diff secret-pattern gate + [`devtools/secret-allowlist.txt`](../../devtools/secret-allowlist.txt)); amend [ADR-0002](../adr/0002-relation-first-retrieval.md) verification clause. |
+| P7-d — Docs + Actions stance | [PRD.md](PRD.md) / [TDD.md](TDD.md) / [BACKLOG.md](BACKLOG.md) honesty pass (no “Redis optional” ambiguity — replaced by SQLite path); [ROADMAP.md](ROADMAP.md) records Phase 7; workflows set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` for Node-on-Actions forward compatibility. |
+
+**Phase 7 program exit:** RTM rows cite new gates; `tests/ci_contract.sh` locks wiring; no new `implemented` claims without verification ([NFR-D1](requirements/NFR.md)).
 
 ## Backlog hygiene
 
