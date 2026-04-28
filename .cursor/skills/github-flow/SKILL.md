@@ -12,6 +12,7 @@ Use when **branching, committing, pushing, opening PRs, or merging** — includi
 ## Policy (non-negotiable here)
 
 1. Branch from current `main`: `git fetch origin && git checkout main && git pull && git checkout -b feature/...`.
+1b. If you already changed files on `main`, do **not** commit there: `git switch -c feature/...` and commit on that branch.
 2. **Atomic commits** — one coherent story per commit (split docs vs code vs CI when helpful).
 3. Land on `main` **only via PR**; ensure **`allium-specs`** is green (`gh pr checks`).
 4. Merge with **`gh pr merge --squash`** or **`gh pr merge --rebase`** only — **not** `--merge` (no merge commits on `main`).

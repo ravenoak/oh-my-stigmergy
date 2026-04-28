@@ -1,0 +1,25 @@
+# Merge gate: branch protection evidence must be verified and fresh.
+name: branch-protection-evidence
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: branch-protection-evidence-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Verify branch protection evidence freshness
+        env:
+          MAX_AGE_DAYS: "30"
+        run: bash scripts/verify-branch-protection-evidence-fresh.sh
+

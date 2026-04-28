@@ -5,6 +5,8 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 workflow=".github/workflows/allium-specs.yml"
+actions_pinned_workflow=".github/workflows/actions-pinned.yml"
+actions_pinned_script="scripts/verify-actions-pinned.sh"
 check_script="scripts/check-allium-specs.sh"
 analyse_script="scripts/analyse-allium-specs.sh"
 trace_script="scripts/verify-requirement-traceability.sh"
@@ -19,7 +21,7 @@ smt_script="scripts/verify-smt-golden.sh"
 crucible_contract="tests/crucible_shim_contract.sh"
 version_file="devtools/allium-cli.version"
 
-for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$crucible_contract" "$version_file" "devtools/uv.version" ".python-version" "pyproject.toml" "uv.lock" \
+for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$crucible_contract" "$version_file" "devtools/uv.version" ".python-version" "pyproject.toml" "uv.lock" \
   "tests/fixtures/crucible/enums.allium" "tests/fixtures/crucible/enums.smt2" \
   "tests/fixtures/crucible/required_fields.model.json" "tests/fixtures/crucible/required_fields.smt2" \
   "tests/fixtures/crucible/invariants.allium" "tests/fixtures/crucible/invariants.overlay.json" "tests/fixtures/crucible/invariants.smt2" \
@@ -60,6 +62,7 @@ bash -n "$shim_policy_script"
 bash -n "$shim_policy_diff_script"
 bash -n "$smt_script"
 bash -n "$crucible_contract"
+bash -n "$actions_pinned_script"
 
 grep -q 'allium check' "$check_script" || {
   echo "ci_contract: $check_script must contain allium check" >&2
@@ -118,8 +121,8 @@ echo "$governance_block" | grep -q "python-version: '3.13'" || {
 }
 
 heavy_block="$(awk '/^  specs-and-packages:/,/^  check:/' "$workflow")"
-echo "$heavy_block" | grep -q 'actions/cache@v4' || {
-  echo "ci_contract: specs-and-packages job must cache cargo (actions/cache@v4)" >&2
+echo "$heavy_block" | grep -q 'actions/cache@' || {
+  echo "ci_contract: specs-and-packages job must cache cargo (actions/cache@<sha>)" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'devtools/allium-cli.version' || {
@@ -148,6 +151,20 @@ echo "$heavy_block" | grep -q 'frozen' || {
 }
 echo "$heavy_block" | grep -q 'astral-sh/setup-uv' || {
   echo "ci_contract: specs-and-packages must install uv (astral-sh/setup-uv)" >&2
+  exit 1
+}
+
+actions_pinned_block="$(awk '/^name: actions-pinned/,0' "$actions_pinned_workflow")"
+echo "$actions_pinned_block" | grep -q '^jobs:' || {
+  echo "ci_contract: $actions_pinned_workflow must define jobs" >&2
+  exit 1
+}
+echo "$actions_pinned_block" | grep -q '^  check:' || {
+  echo "ci_contract: $actions_pinned_workflow must define check job" >&2
+  exit 1
+}
+echo "$actions_pinned_block" | grep -q 'verify-actions-pinned.sh' || {
+  echo "ci_contract: $actions_pinned_workflow must run scripts/verify-actions-pinned.sh" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'packages/graph/tests' || {
