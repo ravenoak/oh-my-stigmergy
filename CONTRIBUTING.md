@@ -33,6 +33,26 @@ After the first green `allium-specs` run on `main`, enable **branch protection**
 2. **Manual:** same document describes the GitHub UI path if you cannot use the API.
 3. Record the date in the **Enablement record** table in that doc after protection is live.
 
+## Python version
+
+Use **Python 3.13** for local runs of `packages/graph`, `packages/crucible`, and `packages/transitions` (see [`.python-version`](.python-version)). **Do not** use Python 3.14 or newer for those packages: `pyproject.toml` files require `>=3.13,<3.14`. In CI, both `governance` and `specs-and-packages` jobs use [`actions/setup-python`](https://github.com/actions/setup-python) with `3.13`.
+
+### Python environments ([uv](https://docs.astral.sh/uv/))
+
+The repo root defines a **`uv` workspace** ([`pyproject.toml`](pyproject.toml); lockfile [`uv.lock`](uv.lock)). Install [**uv**](https://docs.astral.sh/uv/getting-started/) once, then from the repository root recreate or refresh your local `.venv` (extras, dependency groups, upgrades, and pinned interpreter):
+
+```bash
+uv sync -U --all-extras --all-groups -p "$(which python3.13)"
+```
+
+Commit `uv.lock` whenever dependency pins change (`uv lock` updates it after editing member `pyproject.toml` files). CI uses [`astral-sh/setup-uv`](https://github.com/astral-sh/setup-uv) with the version in [`devtools/uv.version`](devtools/uv.version) and runs `uv sync --frozen --all-extras --all-groups` before package tests.
+
+Run tests through the synced environment, for example:
+
+```bash
+uv run python -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
+```
+
 ## Allium CLI and local validation
 
 1. Install [allium-tools](https://github.com/juxt/allium-tools) (`brew tap juxt/allium && brew install allium` or `cargo install allium-cli`). The **CI-pinned** version lives in [`devtools/allium-cli.version`](devtools/allium-cli.version); match it when debugging CI-only failures.

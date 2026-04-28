@@ -12,10 +12,10 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 
 | Essay pillar (§8–9) | FR epic | NFR touchpoints | Current gap (summary) |
 |---------------------|---------|-----------------|------------------------|
-| Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 partial; FR-1.3 planned; transition enforcement absent |
-| Hound relation-first navigation | FR-2.x | NFR-C1 | Reference Python graph + SQLite opt-in shipped; Tree-sitter / multi-language still open |
-| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE shipped; durable JSONL per [ADR-0008](adr/0008-sbp-persistence.md); load tests / Redis scale still open |
-| Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | No shim, translator, or solver integration per ADR-0004 |
+| Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 implemented; FR-1.3 implemented via `allium model` + `packages/transitions` |
+| Hound relation-first navigation | FR-2.x | NFR-C1 | Reference graph + SQLite; Python + TypeScript + shell ingestion + optional Tree-sitter symbol cards (see ADR-0007) |
+| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE; JSONL per [ADR-0008](adr/0008-sbp-persistence.md); decay + load + NDJSON log contracts ([`docs/operations/sbp-slo.md`](operations/sbp-slo.md)); Redis scale still open |
+| Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | FR-4.2–4.3 + attested shim shipped; ContextCov parity still out of scope per ADR-0004 |
 
 Sections **1–7** of the essay supply **motivation and critique** (ToCS, ContextCov, OMO, liquid delegation). They inform ADRs and guides but are not duplicated as extra FR rows here.
 
@@ -48,7 +48,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); **on the canonical remote**, [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) exits `0` and the [enablement table](operations/github-branch-protection.md) records **verified remote** with date + verifier (optional: [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) or manual **branch-protection-audit** workflow with `BP_ADMIN_TOKEN`) |
+| P0-a | FR-0.2 mechanical + organizational evidence: `allium-specs` green; maintainer record in [operations/github-branch-protection.md](operations/github-branch-protection.md); **required status `allium-specs / check` enforced on `main`** recorded in the enablement table (2026-04-27). **Classic API proof:** when GitHub exposes **classic** branch protection, [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) exits `0` and summary output is pasted into the same table; **rulesets-only** remotes may return HTTP 404 to the classic GET — extend the script or audit rulesets separately (see enablement row note). |
 | P0-b | FR-0.1 → `implemented`: constitution scope changes reflected in `spec/` **and** RTM in the same change sets; expand deterministic governance checks beyond PR-only co-touch where gaps remain (each addition gets an RTM line) |
 
 ### Phase 1 — Intent workflows (essay Epic 1)
@@ -57,13 +57,13 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 |-----------|----------------|
 | P1-a | FR-1.2 → `implemented`: distillation outputs are **defined artefacts** (e.g. reported paths or checklists) with a **script or CI job** that fails when required artefacts are missing after a labelled change; playbook stays canonical |
 | P1-b | FR-1.1 stays `implemented`; governance + project Allium modules grow only with clean `allium check` / `allium analyse` |
-| P1-c | FR-1.3 remains P2 but has a **scoped technical note** in TDD linking transitions to future test hooks (no maturity inflation) |
+| P1-c | FR-1.3 → `implemented`: `allium model` JSON + [`packages/transitions`](../../packages/transitions/) harness documented in [TDD.md](TDD.md) §FR-1.3 |
 
 ### Phase 2 — Relation-first navigation (essay Epic 2 + §9.3.1)
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P2-ADR | Update or supersede [ADR-0002](adr/0002-relation-first-retrieval.md) with chosen storage (SQLite + NetworkX vs alternatives), ingestion language set, and CI resource limits — **SQLite slice:** [ADR-0007](adr/0007-graph-persistence.md) (stdlib `sqlite3`; Tree-sitter deferred) |
+| P2-ADR | [ADR-0007](adr/0007-graph-persistence.md) records SQLite + **Python / TypeScript / shell** ingestion and CI **`uv sync`** for the Python workspace (`tree-sitter` / `tree-sitter-python`); ADR-0002 revision remains optional for NetworkX / retrieval depth |
 | P2-core | FR-2.1: byte-accurate code cards stored and indexed |
 | P2-graph | FR-2.2: at least one aspect graph pipeline with tests |
 | P2-tool | FR-2.3: `load_node` (or renamed equivalent) contract tests per ADR-0002 verification clause |
@@ -74,16 +74,16 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 |-----------|----------------|
 | P3-schema | Versioned JSON Schema (in-repo) for pheromone records aligned with FR-3.2; stance config schema for essay §9.2.1 (documented in TDD) |
 | P3-ledger | FR-3.1: atomic publish API + observer stream (SSE or replacement); **durable JSONL** replay per [ADR-0008](adr/0008-sbp-persistence.md); load tests documented (still open for scale) |
-| P3-pheromone | FR-3.2–FR-3.4: decay, idempotency, floor behaviour covered by automated tests; NFR-O2 moves to `implemented` with log contract tests |
+| P3-pheromone | FR-3.2–FR-3.4: exponential decay + inflations, idempotency, floor, load p95, NDJSON log contract — see [`docs/operations/sbp-slo.md`](operations/sbp-slo.md) |
 
 ### Phase 4 — Sublation crucible (essay Epic 4 + §9.3.2)
 
 | Milestone | Exit criteria |
 |-----------|----------------|
 | P4-ADR | Child ADR(s) under ADR-0004: SMT subset scope, Z3 packaging, OPA/policy surfaces, and a **maintainer-only, explicitly documented** dev-shim install path (never implied as default CI enforcement) |
-| P4-translate | FR-4.2 `partial`→`implemented`: golden SMT outputs from fixture `.allium`; no LLM in translation path |
-| P4-solve | FR-4.3: Z3 invoked in CI or documented release gate with unsat-core UX spec in TDD |
-| P4-shim | FR-4.1: command interception behind explicit install; NFR-S1 evidence for review gates |
+| P4-translate | FR-4.2 → `implemented`: [`packages/crucible`](../../packages/crucible/) + [`scripts/verify-crucible-compile.sh`](../../scripts/verify-crucible-compile.sh) golden `diff`; no LLM in translation path |
+| P4-solve | FR-4.3 → `implemented`: `crucible.cli solve spec/` + named assertions + `explain_core` (see TDD / RTM) |
+| P4-shim | FR-4.1 + NFR-S1 → `implemented`: deny-by-default attested policy + contract tests (see RTM) |
 
 ## Backlog hygiene
 

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "default": "deny",
+  "allow": [
+    {
+      "command": "echo",
+      "argv_prefix": []
+    }
+  ],
+  "attestation": {
+    "sha256": "a40100c08e2f511abf1b4c64b557154b69e00c3e5c8df8b18b1940cc36715e5a",
+    "signed_by": "oh-my-stigmergy",
+    "signed_at": "2026-04-27T00:00:00Z"
+  }
+}

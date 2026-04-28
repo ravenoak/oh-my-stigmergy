@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from graph.cards import Card
-from graph.ids import node_id
+from graph.ids import card_id
 
 
 class SqliteCardStore:
@@ -23,6 +23,13 @@ class SqliteCardStore:
     def close(self) -> None:
         self.conn.close()
 
+    def _migrate_cards(self) -> None:
+        cols = {str(r[1]) for r in self.conn.execute("PRAGMA table_info(cards)").fetchall()}
+        if "language" not in cols:
+            self.conn.execute("ALTER TABLE cards ADD COLUMN language TEXT NOT NULL DEFAULT 'python'")
+        if "role" not in cols:
+            self.conn.execute("ALTER TABLE cards ADD COLUMN role TEXT NOT NULL DEFAULT 'line'")
+
     def init_schema(self) -> None:
         self.conn.executescript(
             """
@@ -33,7 +40,9 @@ class SqliteCardStore:
                 char_start INTEGER NOT NULL,
                 char_end INTEGER NOT NULL,
                 text TEXT NOT NULL,
-                sha256 TEXT
+                sha256 TEXT,
+                language TEXT NOT NULL DEFAULT 'python',
+                role TEXT NOT NULL DEFAULT 'line'
             );
             CREATE TABLE IF NOT EXISTS edges (
                 src TEXT NOT NULL,
@@ -43,24 +52,29 @@ class SqliteCardStore:
             );
             """
         )
+        self._migrate_cards()
         self.conn.commit()
 
     def upsert_cards(self, cards: Iterable[Card]) -> None:
         rows: list[tuple[Any, ...]] = []
         for c in cards:
-            cid = node_id(c.file_path, c.line)
-            rows.append((cid, c.file_path, c.line, c.char_start, c.char_end, c.text, None))
+            cid = card_id(c)
+            rows.append(
+                (cid, c.file_path, c.line, c.char_start, c.char_end, c.text, None, c.language, c.role)
+            )
         self.conn.executemany(
             """
-            INSERT INTO cards (id, path, line, char_start, char_end, text, sha256)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO cards (id, path, line, char_start, char_end, text, sha256, language, role)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
               path=excluded.path,
               line=excluded.line,
               char_start=excluded.char_start,
               char_end=excluded.char_end,
               text=excluded.text,
-              sha256=excluded.sha256
+              sha256=excluded.sha256,
+              language=excluded.language,
+              role=excluded.role
             """,
             rows,
         )
@@ -77,7 +91,7 @@ class SqliteCardStore:
 
     def iter_cards(self) -> list[Card]:
         cur = self.conn.execute(
-            "SELECT path, line, char_start, char_end, text FROM cards ORDER BY path, line"
+            "SELECT path, line, char_start, char_end, text, language, role FROM cards ORDER BY path, line, char_start"
         )
         return [
             Card(
@@ -86,6 +100,8 @@ class SqliteCardStore:
                 char_start=int(r["char_start"]),
                 char_end=int(r["char_end"]),
                 text=str(r["text"]),
+                language=str(r["language"]),
+                role=str(r["role"]),
             )
             for r in cur.fetchall()
         ]

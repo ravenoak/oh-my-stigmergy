@@ -1,3 +1,19 @@
 {
-  "deny": ["curl"]
+  "version": 1,
+  "default": "deny",
+  "allow": [
+    {
+      "command": "echo",
+      "argv_prefix": []
+    },
+    {
+      "command": "git",
+      "argv_prefix": ["status"]
+    }
+  ],
+  "attestation": {
+    "sha256": "REPLACE_WITH_SHA256_OF_JSON_WITHOUT_ATTESTATION",
+    "signed_by": "maintainer-handle",
+    "signed_at": "2026-04-27T00:00:00Z"
+  }
 }

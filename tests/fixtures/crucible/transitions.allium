@@ -1,0 +1,13 @@
+-- allium: 3
+-- Fixture for crucible compiler + golden SMT (FR-4.2).
+
+module CrucibleTransitions {
+    entity Toggle {
+        s: up | down
+
+        transitions s {
+            up -> down
+            terminal: down
+        }
+    }
+}

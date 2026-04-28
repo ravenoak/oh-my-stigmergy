@@ -10,11 +10,11 @@ Accepted
 
 ## Decision
 
-1. **FR-4.2 (partial first):** Maintain **curated** golden pairs under `tests/fixtures/crucible/` (`.allium` narrative + hand-maintained `.smt2`). [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh) is the deterministic gate. A future compiler from Allium AST to SMT replaces curation without deleting golden tests immediately (transition plan in PRs).
+1. **FR-4.2 (`implemented`):** [`packages/crucible`](../../packages/crucible/) compiles **`allium model` JSON** to deterministic SMT-LIB. [`scripts/verify-crucible-compile.sh`](../../scripts/verify-crucible-compile.sh) enforces byte-stable output against [`tests/fixtures/crucible/transitions.smt2`](../../tests/fixtures/crucible/transitions.smt2). [`scripts/verify-smt-golden.sh`](../../scripts/verify-smt-golden.sh) continues to run `z3` on every `*.smt2` under `tests/fixtures/crucible/`. Extend the compiler incrementally for richer Allium constructs; goldens remain regression anchors.
 
-2. **FR-4.3 (partial):** `z3` on golden `.smt2` in CI. Unsat-core mapping to human-readable traces stays **TDD-documented** until FR-4.2 moves to `implemented` with an automated translator.
+2. **FR-4.3 (`implemented`):** `z3` on golden `.smt2` in CI; `crucible.cli solve spec/` runs the named-assertion compile path and expects **sat** for transition-bearing modules. Unsat-core text + `explain_core` map assertion ids back to entity/field/kind (see `packages/crucible/solve.py`).
 
-3. **FR-4.1 (partial):** [`devtools/crucible-shim/wrap.sh`](../../devtools/crucible-shim/wrap.sh) is a **maintainer-only** PATH prepend wrapper, not installed by default. Policy is JSON deny-list. No claim of ContextCov parity or org-wide PATH enforcement.
+3. **FR-4.1 (`implemented`):** [`devtools/crucible-shim/wrap.sh`](../../devtools/crucible-shim/wrap.sh) is a **maintainer-only** PATH prepend wrapper, not installed by default. Policy is **deny-by-default** with an explicit `allow` list and **SHA-256 attestation** over the policy body ([`policy_gate.py`](../../devtools/crucible-shim/policy_gate.py), [`scripts/verify-shim-policy.sh`](../../scripts/verify-shim-policy.sh)). No claim of ContextCov parity or org-wide PATH enforcement.
 
 4. **No LLM** in any translation or policy evaluation path marked `implemented` in the RTM.
 

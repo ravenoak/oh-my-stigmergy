@@ -12,18 +12,22 @@ cotouch_script="scripts/verify-governance-doc-cotouch.sh"
 const_amend_script="scripts/verify-constitution-amendment-cotouch.sh"
 fr_anchor_script="scripts/verify-fr-spec-anchors.sh"
 distill_script="scripts/verify-distillation-contract.sh"
-transitions_sync_script="scripts/verify-transitions-sync.sh"
-transitions_sync_py="scripts/verify_transitions_sync.py"
+crucible_compile_script="scripts/verify-crucible-compile.sh"
+shim_policy_script="scripts/verify-shim-policy.sh"
 smt_script="scripts/verify-smt-golden.sh"
 crucible_contract="tests/crucible_shim_contract.sh"
 version_file="devtools/allium-cli.version"
 
-for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$transitions_sync_script" "$transitions_sync_py" "$smt_script" "$crucible_contract" "$version_file"; do
+for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$smt_script" "$crucible_contract" "$version_file" "devtools/uv.version" ".python-version" "pyproject.toml" "uv.lock"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
   }
 done
+grep -qE '^3\.13$' .python-version || {
+  echo "ci_contract: .python-version must be 3.13 (not 3.14+)" >&2
+  exit 1
+}
 
 bash -n "$check_script"
 bash -n "$analyse_script"
@@ -32,14 +36,10 @@ bash -n "$cotouch_script"
 bash -n "$const_amend_script"
 bash -n "$fr_anchor_script"
 bash -n "$distill_script"
-bash -n "$transitions_sync_script"
+bash -n "$crucible_compile_script"
+bash -n "$shim_policy_script"
 bash -n "$smt_script"
 bash -n "$crucible_contract"
-
-python3 -m py_compile "$transitions_sync_py" || {
-  echo "ci_contract: $transitions_sync_py must be valid Python" >&2
-  exit 1
-}
 
 grep -q 'allium check' "$check_script" || {
   echo "ci_contract: $check_script must contain allium check" >&2
@@ -80,8 +80,16 @@ echo "$governance_block" | grep -q 'cargo install' && {
   echo "ci_contract: governance job must not run cargo install (keep PR minutes low)" >&2
   exit 1
 }
-echo "$governance_block" | grep -q 'verify-transitions-sync.sh' || {
-  echo "ci_contract: governance job must run scripts/verify-transitions-sync.sh" >&2
+echo "$governance_block" | grep -q 'verify-transitions-sync.sh' && {
+  echo "ci_contract: governance job must not run removed verify-transitions-sync.sh" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-shim-policy.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-shim-policy.sh" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q "python-version: '3.13'" || {
+  echo "ci_contract: governance job must pin Python 3.13 (setup-python)" >&2
   exit 1
 }
 
@@ -94,6 +102,30 @@ echo "$heavy_block" | grep -q 'devtools/allium-cli.version' || {
   echo "ci_contract: specs-and-packages must reference devtools/allium-cli.version" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q "python-version: '3.13'" || {
+  echo "ci_contract: specs-and-packages job must pin Python 3.13 (setup-python)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'verify-crucible-compile.sh' || {
+  echo "ci_contract: specs-and-packages must run scripts/verify-crucible-compile.sh" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'packages/crucible/tests' || {
+  echo "ci_contract: specs-and-packages must run packages/crucible/tests unittest" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'uv sync' || {
+  echo "ci_contract: specs-and-packages must sync the uv workspace (uv sync)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'frozen' || {
+  echo "ci_contract: specs-and-packages must use locked uv sync (--frozen)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'astral-sh/setup-uv' || {
+  echo "ci_contract: specs-and-packages must install uv (astral-sh/setup-uv)" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'packages/graph/tests' || {
   echo "ci_contract: specs-and-packages must run graph unit tests under packages/graph/tests" >&2
   exit 1
@@ -102,12 +134,24 @@ echo "$heavy_block" | grep -q 'packages/transitions/tests' || {
   echo "ci_contract: specs-and-packages must run transitions unit tests under packages/transitions/tests" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q 'command -v allium' || {
+  echo "ci_contract: specs-and-packages must assert allium is on PATH before transitions tests" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'packages/sbp-server' || {
   echo "ci_contract: specs-and-packages must run SBP tests under packages/sbp-server" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q 'npm test' || {
+  echo "ci_contract: specs-and-packages must run SBP via npm test (bounded node:test script)" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'verify-smt-golden.sh' || {
   echo "ci_contract: specs-and-packages must run scripts/verify-smt-golden.sh" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'crucible.cli solve' || {
+  echo "ci_contract: specs-and-packages must run python3 -m crucible.cli solve on spec/" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'crucible_shim_contract.sh' || {

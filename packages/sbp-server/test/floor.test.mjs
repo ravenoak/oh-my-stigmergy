@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import { once } from "node:events";
-import { createLedgerServer } from "../server.mjs";
+import { createLedgerServer, currentIntensity } from "../server.mjs";
 
 test("inflate raises intensity floor", async () => {
   const { server, ledger } = createLedgerServer();
@@ -17,7 +17,8 @@ test("inflate raises intensity floor", async () => {
   });
   await drain(await post(`${base}/pheromones`, body));
   await drain(await post(`${base}/pheromones/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/inflate`, ""));
-  assert.ok(ledger.get("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").intensity > 0.1);
+  const rec = ledger.get("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+  assert.ok(currentIntensity(rec, Date.now()) > 0.1);
   server.closeAllConnections?.();
   server.close();
   await once(server, "close");

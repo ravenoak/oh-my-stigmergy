@@ -64,23 +64,21 @@ Normative JSON Schema: [`packages/sbp-server/schemas/pheromone.json`](../package
 
 **Trigger:** Mutation proposed (e.g. commit).  
 **Steps (essay):** Hook → parse Allium → compile to SMT → extract code facts → Z3 → sat/unsat with trace.  
-**Today:** **Allium CLI validation** of specs remains the primary spec gate. **Additionally:** curated golden `.smt2` under `tests/fixtures/crucible/` is checked with `z3` in CI ([ADR-0006](adr/0006-p4-crucible-execution.md)). Automated Allium→SMT translation is **not** claimed as `implemented` until golden outputs are produced by a checked-in compiler.
+**Today:** **Allium CLI validation** of specs remains the primary spec gate. **Additionally:** [`packages/crucible`](../packages/crucible) compiles `allium model` JSON to SMT-LIB with committed goldens (`scripts/verify-crucible-compile.sh`); `z3` runs on every `*.smt2` under `tests/fixtures/crucible/`; `python3 -m crucible.cli solve spec/` checks transition-bearing modules for **sat** and [`packages/crucible`](../packages/crucible) maps **unsat** cores to labelled assertions ([ADR-0006](adr/0006-p4-crucible-execution.md)).
 
-## FR-1.3 (partial) — transition hooks
+## FR-1.3 (implemented) — transition hooks
 
-**Today:** [`spec/governance.allium`](../spec/governance.allium) models `TraceabilityRow` and `Pheromone` transitions; [`spec/transitions.json`](../spec/transitions.json) is a checked-in sidecar validated by [`scripts/verify-transitions-sync.sh`](../scripts/verify-transitions-sync.sh) (governance CI job). [`packages/transitions`](../packages/transitions/) provides a Python `TransitionTable` + `unittest` harness used in the heavy CI job so disallowed jumps fail the build.
+**Today:** [`spec/governance.allium`](../spec/governance.allium) models `TraceabilityRow` and `Pheromone` transitions. The vendor CLI **`allium model <file.allium>`** emits structured JSON (`transition_graphs` per entity); [`packages/transitions`](../packages/transitions/) merges every `spec/*.allium` model and exposes `TransitionTable.from_allium_specs(spec_dir)`. The heavy CI job runs `unittest` with `allium` on `PATH` so disallowed jumps fail the build.
 
-**Future:** when Allium exposes a stable AST or codegen path, replace the JSON sidecar with a single source derived from specs; only then move FR-1.3 to `implemented` per RTM honesty rules.
-
-1. **Naming:** each transition edge remains stable in spec and mirrored in `transitions.json` until an extractor exists.
+1. **Naming:** transition edges live only in `.allium`; no checked-in JSON sidecar.
 2. **Test harness:** Python `unittest` under `packages/transitions/tests/`.
-3. **RTM:** FR-1.3 remains `partial` until an AST-backed extractor exists.
+3. **RTM:** FR-1.3 is `implemented` with `allium model` as the single source.
 
 ## Open questions
 
 1. ~~Which canonical graph representation~~ **Resolved for now:** in-tree Python cards under `packages/graph`; revisit if SQLite + Tree-sitter ingestion is required.
 2. How will **liquid delegation** avoid power clumping if used (see ADR-0005)?
-3. What is the **minimum** unsat-core UX for humans if Z3 is introduced?
+3. ~~What is the **minimum** unsat-core UX~~ **Baseline shipped:** `explain_core` lists assertion ids with entity/field/kind plus a source excerpt; deepen span-accurate mapping when `allium parse` exposes stable rule handles.
 
 ## Related documents
 

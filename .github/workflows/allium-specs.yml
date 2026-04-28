@@ -48,7 +48,7 @@ jobs:
           fi
           is_heavy() {
             case "$1" in
-              spec/*|packages/*|scripts/*|tests/*|devtools/*|docs/requirements/*|docs/traceability/*|docs/adr/*|.github/workflows/*)
+              spec/*|packages/*|scripts/*|tests/*|devtools/*|docs/requirements/*|docs/traceability/*|docs/adr/*|.github/workflows/*|.python-version)
                 return 0
                 ;;
               *)
@@ -106,6 +106,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
       - name: CI contract (merge gate wiring)
         run: bash tests/ci_contract.sh
 
@@ -136,8 +141,8 @@ jobs:
           GITHUB_BASE_REF: ${{ github.base_ref }}
         run: bash scripts/verify-distillation-contract.sh
 
-      - name: Transition sidecar sync (FR-1.3 partial)
-        run: bash scripts/verify-transitions-sync.sh
+      - name: Crucible shim policy attestation (FR-4.1 / NFR-S1)
+        run: bash scripts/verify-shim-policy.sh
 
   specs-and-packages:
     needs: filter
@@ -147,6 +152,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version-file: devtools/uv.version
+          enable-cache: true
+
+      - name: Sync Python workspace (locked)
+        run: uv sync --frozen --all-extras --all-groups
 
       - name: Cache Cargo and allium-cli install
         uses: actions/cache@v4
@@ -183,18 +202,22 @@ jobs:
       - name: Allium analyse (process-level)
         run: bash scripts/analyse-allium-specs.sh
 
-      - name: Graph package unit tests (FR-2.x)
-        env:
-          PYTHONPATH: ${{ github.workspace }}/packages/graph/src
-        run: python3 -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
+      - name: Crucible compile golden diff (FR-4.2)
+        run: bash scripts/verify-crucible-compile.sh
 
-      - name: Transitions harness (FR-1.3 partial)
-        env:
-          PYTHONPATH: ${{ github.workspace }}/packages/transitions/src
-        run: python3 -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
+      - name: Graph package unit tests (FR-2.x)
+        run: uv run python -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
+
+      - name: Crucible compiler unit tests
+        run: uv run python -m unittest discover -s packages/crucible/tests -p 'test_*.py' -v
+
+      - name: Transitions harness (FR-1.3)
+        run: |
+          command -v allium
+          uv run python -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
 
       - name: SBP server tests (FR-3.x)
-        run: cd packages/sbp-server && node --test
+        run: cd packages/sbp-server && npm test
 
       - name: Install Z3 (golden SMT)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq z3
@@ -202,7 +225,10 @@ jobs:
       - name: Golden SMT verification (FR-4.3)
         run: bash scripts/verify-smt-golden.sh
 
-      - name: Crucible shim contract (FR-4.1 partial)
+      - name: Crucible solve spec/ (FR-4.3)
+        run: uv run python -m crucible.cli solve "${{ github.workspace }}/spec"
+
+      - name: Crucible shim contract (FR-4.1 / NFR-S1)
         run: bash tests/crucible_shim_contract.sh
 
   check:

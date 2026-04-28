@@ -1,0 +1,27 @@
+[project]
+name = "oh-my-stigmergy"
+version = "0.0.0"
+description = "Workspace root for local Python development (not published)"
+requires-python = ">=3.13,<3.14"
+readme = "README.md"
+dependencies = [
+    "oh-my-stigmergy-graph[dev]",
+    "oh-my-stigmergy-crucible",
+    "oh-my-stigmergy-transitions",
+]
+
+[tool.uv.sources]
+oh-my-stigmergy-graph = { workspace = true }
+oh-my-stigmergy-crucible = { workspace = true }
+oh-my-stigmergy-transitions = { workspace = true }
+
+[dependency-groups]
+# Workspace-wide tools; install with: uv sync --all-groups (see CONTRIBUTING.md)
+dev = []
+
+[tool.uv.workspace]
+members = [
+    "packages/graph",
+    "packages/crucible",
+    "packages/transitions",
+]

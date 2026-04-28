@@ -67,4 +67,4 @@ After you enable protection (UI, rulesets, or `./scripts/apply-branch-protection
 
 | Date | Owner | Notes |
 |------|-------|-------|
-| _YYYY-MM-DD_ | _verifier handle_ | **verified remote** — `./scripts/verify-branch-protection-remote.sh` exit `0`; optional `./scripts/print-branch-protection-summary.sh` output attached or pasted in PR. |
+| 2026-04-27 | oh-my-stigmergy | **Required check enforced** — `main` requires **`allium-specs / check`** before merge (maintainer-confirmed in GitHub UI / rules). **API note:** `GET /repos/{owner}/{repo}/branches/main/protection` may return **HTTP 404** when the repo uses **Repository rulesets** instead of classic branch protection; in that case [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) cannot succeed until it is extended for rulesets, or classic protection is enabled. When classic protection exists, the script **must** exit `0` and [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) should be pasted here on the next audit. |
