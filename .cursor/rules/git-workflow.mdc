@@ -1,0 +1,44 @@
+---
+description: Mandatory Git discipline — feature branches, commit before idle handoff, PR-only main, squash merge, delete merged branches, prune remotes
+alwaysApply: true
+---
+
+# Git workflow (Cursor / agents)
+
+Canonical narrative: [docs/guides/github-flow.md](../../docs/guides/github-flow.md). Skill detail: [`.cursor/skills/git-workflow/SKILL.md`](../skills/git-workflow/SKILL.md).
+
+## Forbidden
+
+- **Do not** push substantive implementation directly to **`origin/main`** when a PR is expected.
+- **Do not** leave **`main`** with **uncommitted work** at end of session — branch off first (`git switch -c feature/...`), then commit on the feature branch.
+- **Do not** merge PRs into `main` with **merge commits** — only **squash** or **rebase** (`gh pr merge --squash` / `--rebase`).
+- **Do not** delete **`main`**, **`master`**, or the **current branch** without switching away first.
+
+## When work produced repo changes (non-negotiable end state)
+
+If there are **any** uncommitted changes worth keeping:
+
+1. Be on a **`feature/<short-description>`** branch (create from updated `main` if needed).
+2. **`git add`** scoped paths → **`git commit`** (atomic message).
+3. **`git push -u origin <branch>`** when remote collaboration or CI is needed.
+4. Open or update a **PR** with **`gh pr create`** / **`gh pr view`**; wait for **`allium-specs / check`** green (**`gh pr checks`**).
+5. Merge with **`gh pr merge --squash --delete-branch`** (or `--rebase --delete-branch`) — this removes the **remote** feature branch.
+6. Locally: **`git checkout main && git pull`**, then **`git branch -d <merged-feature-branch>`** to remove the **local** branch.
+
+If changes are **discarded**: **`git restore`** / **`git checkout --`** / **`git reset`** — do not leave ambiguous “half-done” states without telling the user.
+
+## Branch cleanup (delete old branches)
+
+Run after merges or when tidying — **never** delete unmerged work without explicit user confirmation.
+
+1. **`git fetch origin --prune`** — drop stale **`origin/<branch>`** refs for deleted remotes.
+2. List locals merged into **`main`**: **`git branch --merged main`** — delete with **`git branch -d <name>`** (not **`-D`** unless user confirms abandon).
+3. Optionally list merged **remote** branches (requires rights): **`git branch -r --merged origin/main`** — delete remote with **`git push origin --delete <branch>`** only for obsolete **feature/** branches the team agrees to remove (not **`dependabot/**`** automation unless resolving a stuck branch).
+
+## Ambiguity resolution
+
+| Situation | Action |
+|-----------|--------|
+| Dirty `main` | **`git switch -c feature/...`** then commit — never commit on `main`. |
+| Feature done, CI green | **PR → squash merge → delete remote → pull main → `git branch -d` local.** |
+| Agent cannot push (auth) | Leave branch committed locally; give user exact **`git push`** / **`gh pr`** commands — do not pretend pushed. |

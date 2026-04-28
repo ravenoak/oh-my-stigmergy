@@ -10,6 +10,7 @@
 | [docs/README.md](docs/README.md) | Map of PRD, TDD, FR/NFR, RTM, ADRs |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Full implementation program vs inspiration essay; phase ordering |
 | [docs/guides/github-flow.md](docs/guides/github-flow.md) | **GitHub Flow:** feature branches, atomic commits, PR-only `main`, squash/rebase merge; use `gh` |
+| [`.cursor/skills/git-workflow/SKILL.md`](.cursor/skills/git-workflow/SKILL.md) | **Git (Cursor):** finish work with commits on a feature branch; PR + green CI + squash merge; delete merged branches; `git fetch --prune` |
 | [spec/project.allium](spec/project.allium) | Seed Allium config — extend with domain behaviour |
 | [docs/adr/0004-verification-stack-layering.md](docs/adr/0004-verification-stack-layering.md) | What deterministic tooling actually means **today** |
 

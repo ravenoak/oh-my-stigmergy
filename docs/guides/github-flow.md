@@ -80,4 +80,9 @@ Existing automation for required checks: [docs/operations/github-branch-protecti
 
 ## Agents and Cursor
 
-Follow the same flow: create a feature branch for substantive work, keep commits atomic, open a PR with `gh`, and merge with squash or rebase only. See [.cursor/skills/github-flow/SKILL.md](../../.cursor/skills/github-flow/SKILL.md) and [.cursor/rules/github-flow.mdc](../../.cursor/rules/github-flow.mdc).
+Follow the same flow: create a feature branch for substantive work, keep commits atomic, open a PR with `gh`, and merge with squash or rebase only.
+
+- **End of work:** do not leave uncommitted changes on `main` — commit on a `feature/...` branch, push, open/merge the PR, then `git checkout main && git pull` and `git branch -d <merged-feature>`.
+- **Cleanup:** `git fetch origin --prune`; delete local branches merged into `main` with `git branch --merged main` and `git branch -d <name>` (never delete unmerged work without explicit confirmation).
+
+See [.cursor/skills/github-flow/SKILL.md](../../.cursor/skills/github-flow/SKILL.md), **[.cursor/skills/git-workflow/SKILL.md](../../.cursor/skills/git-workflow/SKILL.md)** (completion and branch cleanup), [.cursor/rules/github-flow.mdc](../../.cursor/rules/github-flow.mdc), and **[.cursor/rules/git-workflow.mdc](../../.cursor/rules/git-workflow.mdc)**.

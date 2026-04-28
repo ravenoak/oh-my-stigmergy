@@ -13,3 +13,5 @@ alwaysApply: true
 - **CLI:** Prefer **`gh`** for `gh pr create`, `gh pr checks`, `gh pr merge --squash` / `--rebase` ([install](https://cli.github.com/)). Use **`git`** for branching and commits.
 
 Canonical guide: [docs/guides/github-flow.md](../../docs/guides/github-flow.md).
+
+**Session completion, merge, branch deletion:** follow [git-workflow.mdc](git-workflow.mdc) and [`git-workflow` skill](../skills/git-workflow/SKILL.md) — commit remaining work, PR + squash merge, **`git fetch --prune`**, delete merged locals (`git branch -d`).

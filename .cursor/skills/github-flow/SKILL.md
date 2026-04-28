@@ -9,6 +9,8 @@ description: >-
 
 Use when **branching, committing, pushing, opening PRs, or merging** — including agent-driven delivery sessions.
 
+For **end-of-session commits**, **post-merge cleanup**, **deleting merged branches**, and **`git fetch --prune`**, follow **[`git-workflow`](../git-workflow/SKILL.md)** (companion skill).
+
 ## Policy (non-negotiable here)
 
 1. Branch from current `main`: `git fetch origin && git checkout main && git pull && git checkout -b feature/...`.
