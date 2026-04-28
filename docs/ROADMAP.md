@@ -150,6 +150,19 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 9 program exit (2026-04-28):** `verify-crucible-compile` + `verify-smt-golden` + `packages/crucible` unittests green; element-level collection constraints remain **not pursued** per ADR-0006.
 
+### Phase 10 — Honesty + operational truth (**complete**)
+
+**Program:** close ADR/TDD drift after Phase 9; make **`allium-specs`** job wall-clocks and SHA-pinned actions **merge-gate mechanical**; lift latent tests on shipped SBP / stance / crucible paths; anchor CI timeout intent in [`spec/governance.allium`](../../spec/governance.allium) (`WorkflowJob.ci_job_timeout_profile`) plus a pure JSON crucible witness (`workflow_timeouts*.model.json`); explicitly mark speculative graph scale-ups **not pursued** without a new ADR.
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P10-a — ADR + TDD honesty | [ADR-0003](adr/0003-stigmergy-vs-orchestrator.md) reflects shipped SBP; [docs/adr/README.md](adr/README.md) indexes ADR-0007–0011 with correct statuses; [docs/TDD.md](TDD.md) graph + sublation rows name shipped vs **not pursued** boundaries. |
+| P10-b — CI operational truth | Mint **NFR-P2**; [`devtools/ci-job-timeouts.json`](../../devtools/ci-job-timeouts.json) + [`scripts/verify-job-timeouts.sh`](../../scripts/verify-job-timeouts.sh); job-level **`timeout-minutes`** on every `allium-specs` job; [`scripts/verify-actions-pinned.sh`](../../scripts/verify-actions-pinned.sh) runs in **`governance`**; [`tests/ci_contract.sh`](../../tests/ci_contract.sh) locks wiring. |
+| P10-c — Test coverage uplift | SBP [`stream.test.mjs`](../../packages/sbp-server/test/stream.test.mjs) + [`rotation.test.mjs`](../../packages/sbp-server/test/rotation.test.mjs); crucible `test_solve.py` **sat** rows for good JSON/enum fixtures; stance CLI subprocess tests; [`packages/transitions/README.md`](../../packages/transitions/README.md). |
+| P10-d — Spec + traceability coherence | `WorkflowJob` profile + invariant in [`spec/governance.allium`](../../spec/governance.allium); crucible goldens `workflow_timeouts*`; [RTM.md](traceability/RTM.md) / [FR.md](requirements/FR.md) / [PRD.md](PRD.md) / [BACKLOG.md](BACKLOG.md) updated; graph “deeper grammars / NetworkX” row **not pursued in Phase 10** (ADR-0002 amendment required to reopen). |
+
+**Phase 10 program exit (2026-04-28):** `allium check spec/` clean; `verify-crucible-compile` + `verify-smt-golden` + `ci_contract` + `npm test` (SBP) green; RTM cites NFR-P2 and new behavioural + test artefacts.
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.

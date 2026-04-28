@@ -21,7 +21,7 @@ Execution order follows [ROADMAP.md](ROADMAP.md). Reference slices for FR-2.x / 
 
 | Item | Phase | Dependency | Next unblocker |
 |------|-------|------------|----------------|
-| Graph — deeper grammars / NetworkX (beyond Python+TS+shell **CALLS** slice) | P2+ | [ADR-0002](adr/0002-relation-first-retrieval.md) revision | New ADR if expanding languages or global resolution |
+| Graph — deeper grammars / NetworkX (beyond Python+TS+shell **CALLS** slice) | P2+ | [ADR-0002](adr/0002-relation-first-retrieval.md) revision | **Not pursued in Phase 10** (2026-04-28): current CI + `NFR-P1` budget targets the shipped Python/TS/shell slice; expanding languages or NetworkX needs a scoped ADR + RTM verification before implementation ([ROADMAP.md](ROADMAP.md) Phase 10). |
 | SBP — Redis persistence + sub-ms SLO | — | **Not pursued** | Default scale path is **SQLite** + `better-sqlite3` per [ADR-0011](adr/0011-sbp-sqlite-store.md); avoids external service in the default path (`NFR-D2`). |
 | Crucible — integer ranges / collection cardinality (Phase 6+ invariant subset) | P4 | **Closed (2026-04-28)** | Shipped as [ROADMAP.md](ROADMAP.md) Phase 9: [ADR-0006](adr/0006-p4-crucible-execution.md) decision (5); fixtures `int_ranges*`, `collections*` under `tests/fixtures/crucible/`; FR-4.2/4.3 + RTM updated. **Not pursued:** per-element list reasoning (ADR-0006). |
 | Essay-scale ContextCov / Hashline AST parity inside agents | — | **Not pursued** | Outside Phase 7 honesty scope; would require new FR rows + ADR-0004 maturity discipline beyond maintainer shim ([ADR-0004](adr/0004-verification-stack-layering.md)) |

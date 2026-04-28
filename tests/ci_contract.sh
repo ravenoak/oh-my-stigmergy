@@ -22,12 +22,16 @@ crucible_contract="tests/crucible_shim_contract.sh"
 version_file="devtools/allium-cli.version"
 heavy_budget_script="scripts/verify-heavy-budget.sh"
 no_secrets_script="scripts/verify-no-secrets.sh"
+job_timeouts_script="scripts/verify-job-timeouts.sh"
+job_timeouts_json="devtools/ci-job-timeouts.json"
 
-for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
+for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "tests/fixtures/crucible/enums.allium" "tests/fixtures/crucible/enums.smt2" \
   "tests/fixtures/crucible/required_fields.model.json" "tests/fixtures/crucible/required_fields.smt2" \
   "tests/fixtures/crucible/invariants.allium" "tests/fixtures/crucible/invariants.overlay.json" "tests/fixtures/crucible/invariants.smt2" \
   "tests/fixtures/crucible/invariants_bad.model.json" "tests/fixtures/crucible/invariants_bad.smt2" \
+  "tests/fixtures/crucible/workflow_timeouts.model.json" "tests/fixtures/crucible/workflow_timeouts.smt2" \
+  "tests/fixtures/crucible/workflow_timeouts_bad.model.json" "tests/fixtures/crucible/workflow_timeouts_bad.smt2" \
   "packages/stance/schema/stance-config.schema.json" "packages/stance/src/stance/validate.py" "packages/stance/src/stance/registry.py" \
   "tests/fixtures/stance/good.json"; do
   test -f "$f" || {
@@ -65,6 +69,7 @@ bash -n "$shim_policy_diff_script"
 bash -n "$smt_script"
 bash -n "$heavy_budget_script"
 bash -n "$no_secrets_script"
+bash -n "$job_timeouts_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -131,6 +136,14 @@ echo "$governance_block" | grep -q 'verify-shim-policy-diff.sh' || {
 }
 echo "$governance_block" | grep -q 'verify-heavy-budget.sh' || {
   echo "ci_contract: governance job must run scripts/verify-heavy-budget.sh (NFR-P1)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-actions-pinned.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-actions-pinned.sh (NFR-P2 / supply chain)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-job-timeouts.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-job-timeouts.sh (NFR-P2)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q 'verify-no-secrets.sh' || {
@@ -319,5 +332,7 @@ grep -q 'verify-distillation-contract.sh' "$workflow" || {
   echo "ci_contract: $workflow must run scripts/verify-distillation-contract.sh" >&2
   exit 1
 }
+
+bash "$job_timeouts_script"
 
 echo "ci_contract: ok"

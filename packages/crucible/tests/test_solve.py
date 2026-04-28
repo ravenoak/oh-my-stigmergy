@@ -17,6 +17,36 @@ class TestSolve(unittest.TestCase):
         res = solve_allium_file(path)
         self.assertEqual(res.status, "sat")
 
+    def test_enums_fixture_sat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "enums.allium"
+        res = solve_allium_file(path)
+        self.assertEqual(res.status, "sat")
+
+    def test_required_fields_json_sat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "required_fields.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, _labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "sat")
+
+    def test_int_ranges_json_sat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "int_ranges.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, _labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "sat")
+
+    def test_collections_json_sat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "collections.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, _labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "sat")
+
     def test_unsat_core_explain(self) -> None:
         root = Path(__file__).resolve().parents[3]
         path = root / "tests" / "fixtures" / "crucible" / "transitions.allium"
@@ -82,6 +112,22 @@ class TestSolve(unittest.TestCase):
         self.assertIn("crucible_1", res.unsat_core)
         txt = explain_core(labels, res.unsat_core, path)
         self.assertIn("invariant_Contradiction_int_eq", txt)
+
+    def test_workflow_timeouts_json_sat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "workflow_timeouts.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, _labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "sat")
+
+    def test_workflow_timeouts_bad_unsat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "workflow_timeouts_bad.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, _labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "unsat")
 
     def test_collections_bad_unsat_core(self) -> None:
         root = Path(__file__).resolve().parents[3]

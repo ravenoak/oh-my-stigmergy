@@ -81,6 +81,18 @@ class TestCompileJsonFixtures(unittest.TestCase):
         golden = (root / "tests" / "fixtures" / "crucible" / "collections_bad.smt2").read_text(encoding="utf-8")
         self.assertEqual(compile_model_fixture(path), golden)
 
+    def test_workflow_timeouts_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "workflow_timeouts.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "workflow_timeouts.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
+    def test_workflow_timeouts_bad_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "workflow_timeouts_bad.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "workflow_timeouts_bad.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
 
 if __name__ == "__main__":
     unittest.main()

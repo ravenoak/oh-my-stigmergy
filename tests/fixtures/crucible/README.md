@@ -25,6 +25,10 @@ Deterministic SMT checking with an **Allium model → SMT** compiler in [`packag
 | [`collections.smt2`](collections.smt2) | Golden compiler output. |
 | [`collections_bad.model.json`](collections_bad.model.json) | Contradictory `card_eq` + `card_in_range` (**unsat**). |
 | [`collections_bad.smt2`](collections_bad.smt2) | Golden for `collections_bad.model.json`. |
+| [`workflow_timeouts.model.json`](workflow_timeouts.model.json) | Pure JSON witness for **NFR-P2** wall-clock bounds (`Int` + `int_gt` / `int_lt`); **sat**. |
+| [`workflow_timeouts.smt2`](workflow_timeouts.smt2) | Golden compiler output. |
+| [`workflow_timeouts_bad.model.json`](workflow_timeouts_bad.model.json) | Contradictory `int_eq` + `int_gt` on the same field (**unsat**). |
+| [`workflow_timeouts_bad.smt2`](workflow_timeouts_bad.smt2) | Golden for `workflow_timeouts_bad.model.json`. |
 
 `minimal.allium` / `minimal.smt2` remain a **hand-curated** pair for `scripts/verify-smt-golden.sh` only; `verify-crucible-compile.sh` skips `minimal.allium`.
 

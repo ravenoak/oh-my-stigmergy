@@ -63,7 +63,8 @@
       "entity": "WorkflowJob",
       "fields": {
         "id": "governance",
-        "outcome": "success"
+        "outcome": "success",
+        "ci_job_timeout_profile": "github_actions_allium_specs_v1"
       }
     }
   ],
@@ -240,6 +241,17 @@
             "failure",
             "skipped"
           ]
+        }
+      ]
+    },
+    {
+      "name": "WorkflowJobsHaveCiTimeoutProfile",
+      "all": [
+        {
+          "op": "len_gt",
+          "entity": "WorkflowJob",
+          "field": "ci_job_timeout_profile",
+          "bound": 0
         }
       ]
     },
