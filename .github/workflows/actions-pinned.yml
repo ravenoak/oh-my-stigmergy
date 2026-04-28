@@ -1,0 +1,23 @@
+# Enforce that all GitHub Actions workflows are pinned to immutable SHAs.
+name: actions-pinned
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actions-pinned-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Verify workflows are SHA-pinned
+        run: bash scripts/verify-actions-pinned.sh
+

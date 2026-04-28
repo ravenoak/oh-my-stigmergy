@@ -6,6 +6,7 @@ alwaysApply: true
 # GitHub Flow (repository policy)
 
 - **Never integrate substantive work by pushing directly to `shared` `main`** when a PR is expected: use a **`feature/<short-description>`** branch from updated `main`.
+- **Never commit on `main`**: if the working tree is dirty on `main`, immediately create a `feature/...` branch and commit there.
 - **Commits:** **Atomic** — one logical change per commit (revert-friendly, review-friendly).
 - **`main`:** Changes land **only through a pull request** with green CI ([`allium-specs`](../../.github/workflows/allium-specs.yml) job `check`).
 - **Merge strategy:** Use **Squash and merge** or **Rebase and merge** only. **Do not** use “Create a merge commit” for PRs into `main` — keep **linear history** ([docs/guides/github-flow.md](../../docs/guides/github-flow.md)).
