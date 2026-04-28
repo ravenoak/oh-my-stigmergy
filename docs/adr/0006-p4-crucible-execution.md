@@ -18,6 +18,13 @@ Accepted
 
 4. **No LLM** in any translation or policy evaluation path marked `implemented` in the RTM.
 
+5. **Phase 9 — integer ranges and collection cardinality (`implemented`):** The **`invariants`** JSON accepted by [`packages/crucible`](../../packages/crucible/) (including crucible-only `tests/fixtures/crucible/*.model.json` hand fixtures) also supports:
+   - **`int_range`**, **`int_eq`**, **`int_gt`**, **`int_lt`** — constraints over **`cur_<Entity>_<field> Int`**, declared lazily when a clause references an `Int`-typed field (`type_expr` exactly `"Int"`).
+   - **`card_in_range`**, **`card_eq`** — constraints over **`card_<Entity>_<field> Int`**, declared lazily when a clause references a field whose `type_expr` starts with **`List[`** (any element type string); each declared cardinality symbol is asserted **`(>= card_* 0)`** once. This is **cardinality-only**: no encoding of individual list elements, ordering, or membership in **`QF_UFLIA`**.
+   - **Malformed models** (`lo` / `hi` not integers, `lo > hi`, negative `card_eq` where incompatible with `card_in_range`, etc.) raise **`UnsupportedModelError`** at compile time.
+   - **Determinism** matches the rest of the compiler: entities and invariants sorted by name; unnamed mode conjoins clauses per invariant; named mode emits one **`:named`** assertion per clause with trace kinds `invariant_<name>_<op>`.
+   - **Not pursued in this repository:** element-level reasoning over collections (per-index constraints, element sorts, or sequence theory beyond a single non-negative Int witness). That would require a new ADR and likely a wider logic fragment.
+
 ## Consequences
 
 - Maturity upgrades for FR-4.x require updating this ADR when the mechanism changes.

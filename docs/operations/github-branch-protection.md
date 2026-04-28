@@ -53,15 +53,7 @@ After `gh auth login` with a token that can read branch protection:
 ./scripts/print-branch-protection-summary.sh
 ```
 
-### Branch protection evidence CI gate (currently disabled)
-
-Workflow [`.github/workflows/branch-protection-evidence.yml`](../../.github/workflows/branch-protection-evidence.yml) still runs on pushes and pull requests so any **required** status named **`branch-protection-evidence / check`** remains green, but it **no longer** runs [`scripts/verify-branch-protection-evidence-fresh.sh`](../../scripts/verify-branch-protection-evidence-fresh.sh). **Reason:** enforcing freshness depended on a parallel automation story (scheduled audit + `BP_ADMIN_TOKEN`); we paused that coupling until there is a clearer token strategy.
-
-**Future research (re-enable or replace):**
-
-- Prefer **`GITHUB_TOKEN`** only where the REST endpoints match [workflow `permissions`](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions); branch protection / rulesets **read** APIs map to **repository administration** and are **not** available to `GITHUB_TOKEN` via `permissions:`.
-- Next option to evaluate: a **GitHub App** whose installation token is minted in Actions ([authenticated API requests with a GitHub App](https://docs.github.com/en/apps/creating-github-apps/guides/making-authenticated-api-requests-with-a-github-app-in-a-github-actions-workflow)), scoped to **administration: read**, versus continuing to store a **classic or fine-grained PAT** in **`BP_ADMIN_TOKEN`**.
-- After a decision, restore the verify step in `branch-protection-evidence.yml` (and optionally add **`branch-protection-evidence / check`** to required checks again only if enforcement returns).
+**In-repo freshness gate:** There is no longer a separate CI workflow that checks a committed “evidence” JSON file. **Re-introducing** an automated freshness or evidence artefact tied to branch-protection reads requires an **ADR** (token model: GitHub App installation token vs PAT; what is asserted; how forks behave). Today the only mechanical check in-tree is the **scheduled / manual audit** below plus local [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh).
 
 ### GitHub Actions audit (scheduled + manual)
 

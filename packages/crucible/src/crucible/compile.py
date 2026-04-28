@@ -1,4 +1,4 @@
-"""Compile Allium `allium model` JSON to deterministic SMT-LIB (QF_UF) for transition graphs."""
+"""Compile Allium `allium model` JSON to deterministic SMT-LIB (QF_UFLIA) for transition graphs."""
 
 from __future__ import annotations
 
@@ -56,6 +56,97 @@ def _fields_needing_len(model: dict[str, Any]) -> set[tuple[str, str]]:
             if clause.get("op") in ("len_gt", "len_eq"):
                 need.add((str(clause.get("entity")), str(clause.get("field"))))
     return need
+
+
+def _field_type_map(model: dict[str, Any]) -> dict[tuple[str, str], str]:
+    out: dict[tuple[str, str], str] = {}
+    for ent in model.get("entities") or []:
+        ename = str(ent.get("name") or "")
+        for f in ent.get("fields") or []:
+            fn = str(f.get("name") or "")
+            if ename and fn:
+                out[(ename, fn)] = str(f.get("type_expr") or "")
+    return out
+
+
+def _phase9_card_refs(model: dict[str, Any]) -> set[tuple[str, str]]:
+    out: set[tuple[str, str]] = set()
+    for inv in model.get("invariants") or []:
+        for c in inv.get("all") or []:
+            if c.get("op") in ("card_in_range", "card_eq"):
+                out.add((str(c.get("entity")), str(c.get("field"))))
+    return out
+
+
+def _strict_json_int(val: Any, *, what: str) -> int:
+    if type(val) is not int:
+        raise UnsupportedModelError(f"{what} must be a JSON integer (not bool)")
+    return val
+
+
+def _cur_int_symbol(entity: str, field: str) -> str:
+    return f"cur_{entity}_{field}"
+
+
+def _card_symbol(entity: str, field: str) -> str:
+    return f"card_{entity}_{field}"
+
+
+def _ensure_int_cur_declared_unnamed(lines: list[str], declared: set[str], entity: str, field: str) -> str:
+    sym = _cur_int_symbol(entity, field)
+    key = f"{entity}.{field}"
+    if key not in declared:
+        if not _safe_ident(entity, field):
+            raise UnsupportedModelError(f"unsupported identifiers in {entity}.{field}")
+        lines.append(f"(declare-const {sym} Int)")
+        declared.add(key)
+    return sym
+
+
+def _ensure_int_cur_declared_named(lines: list[str], declared: set[str], entity: str, field: str) -> str:
+    sym = _cur_int_symbol(entity, field)
+    key = f"{entity}.{field}"
+    if key not in declared:
+        if not _safe_ident(entity, field):
+            raise UnsupportedModelError(f"unsupported identifiers in {entity}.{field}")
+        lines.append(f"(declare-const {sym} Int)")
+        declared.add(key)
+    return sym
+
+
+def _ensure_card_declared_unnamed(lines: list[str], declared: set[str], entity: str, field: str) -> str:
+    sym = _card_symbol(entity, field)
+    key = f"{entity}.{field}"
+    if key not in declared:
+        if not _safe_ident(entity, field):
+            raise UnsupportedModelError(f"unsupported identifiers in {entity}.{field}")
+        lines.append(f"(declare-const {sym} Int)")
+        lines.append(f"(assert (>= {sym} 0))")
+        declared.add(key)
+    return sym
+
+
+def _ensure_card_declared_named(
+    lines: list[str],
+    labels: list[AssertionLabel],
+    idx: list[int],
+    declared: set[str],
+    entity: str,
+    field: str,
+) -> str:
+    sym = _card_symbol(entity, field)
+    key = f"{entity}.{field}"
+    if key not in declared:
+        if not _safe_ident(entity, field):
+            raise UnsupportedModelError(f"unsupported identifiers in {entity}.{field}")
+        lines.append(f"(declare-const {sym} Int)")
+        formula = f"(>= {sym} 0)"
+        name = f"crucible_{idx[0]}"
+        idx[0] += 1
+        labels.append({"name": name, "entity": entity, "field": field, "kind": "card_nonneg"})
+        lines.append(f"(assert (! {formula} :named {name}))")
+        declared.add(key)
+    return sym
 
 
 def _len_symbol(entity: str, field: str) -> str:
@@ -117,7 +208,14 @@ def _emit_len_default_named(
     lines.append(f"(assert (! {formula} :named {name}))")
 
 
-def _emit_invariants_unnamed(lines: list[str], model: dict[str, Any], declared_lens: set[str]) -> None:
+def _emit_invariants_unnamed(
+    lines: list[str],
+    model: dict[str, Any],
+    declared_lens: set[str],
+    declared_int: set[str],
+    declared_cards: set[str],
+) -> None:
+    field_types = _field_type_map(model)
     for inv in sorted(model.get("invariants") or [], key=lambda x: str(x.get("name", ""))):
         inv_name = str(inv.get("name") or "inv")
         clauses = inv.get("all") or []
@@ -144,6 +242,66 @@ def _emit_invariants_unnamed(lines: list[str], model: dict[str, Any], declared_l
                     raise UnsupportedModelError(f"unsupported identifiers in invariant {inv_name}")
                 disj = " ".join(f"(= cur_{ent}_{fld} {ent}_{fld}_{v})" for v in vals)
                 parts.append(f"(or {disj})")
+            elif op == "int_range":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_range on non-Int field {ent}.{fld} in {inv_name}")
+                lo = _strict_json_int(c.get("lo"), what=f"int_range lo in {inv_name}")
+                hi = _strict_json_int(c.get("hi"), what=f"int_range hi in {inv_name}")
+                if lo > hi:
+                    raise UnsupportedModelError(f"int_range lo > hi in {inv_name}")
+                sym = _ensure_int_cur_declared_unnamed(lines, declared_int, ent, fld)
+                parts.append(f"(and (>= {sym} {lo}) (<= {sym} {hi}))")
+            elif op == "int_eq":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_eq on non-Int field {ent}.{fld} in {inv_name}")
+                val = _strict_json_int(c.get("value"), what=f"int_eq value in {inv_name}")
+                sym = _ensure_int_cur_declared_unnamed(lines, declared_int, ent, fld)
+                parts.append(f"(= {sym} {val})")
+            elif op == "int_gt":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_gt on non-Int field {ent}.{fld} in {inv_name}")
+                bound = _strict_json_int(c.get("bound"), what=f"int_gt bound in {inv_name}")
+                sym = _ensure_int_cur_declared_unnamed(lines, declared_int, ent, fld)
+                parts.append(f"(> {sym} {bound})")
+            elif op == "int_lt":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_lt on non-Int field {ent}.{fld} in {inv_name}")
+                bound = _strict_json_int(c.get("bound"), what=f"int_lt bound in {inv_name}")
+                sym = _ensure_int_cur_declared_unnamed(lines, declared_int, ent, fld)
+                parts.append(f"(< {sym} {bound})")
+            elif op == "card_in_range":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                ft = field_types.get((ent, fld), "")
+                if not ft.startswith("List["):
+                    raise UnsupportedModelError(f"card_in_range on non-List field {ent}.{fld} in {inv_name}")
+                lo = _strict_json_int(c.get("lo"), what=f"card_in_range lo in {inv_name}")
+                hi = _strict_json_int(c.get("hi"), what=f"card_in_range hi in {inv_name}")
+                if lo < 0 or hi < 0:
+                    raise UnsupportedModelError(f"card_in_range negative bound in {inv_name}")
+                if lo > hi:
+                    raise UnsupportedModelError(f"card_in_range lo > hi in {inv_name}")
+                sym = _ensure_card_declared_unnamed(lines, declared_cards, ent, fld)
+                parts.append(f"(and (>= {sym} {lo}) (<= {sym} {hi}))")
+            elif op == "card_eq":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                ft = field_types.get((ent, fld), "")
+                if not ft.startswith("List["):
+                    raise UnsupportedModelError(f"card_eq on non-List field {ent}.{fld} in {inv_name}")
+                val = _strict_json_int(c.get("value"), what=f"card_eq value in {inv_name}")
+                if val < 0:
+                    raise UnsupportedModelError(f"card_eq negative value in {inv_name}")
+                sym = _ensure_card_declared_unnamed(lines, declared_cards, ent, fld)
+                parts.append(f"(= {sym} {val})")
             else:
                 raise UnsupportedModelError(f"unsupported invariant op {op!r} in {inv_name}")
         if len(parts) == 1:
@@ -159,7 +317,10 @@ def _emit_invariants_named(
     idx: list[int],
     model: dict[str, Any],
     declared_lens: set[str],
+    declared_int: set[str],
+    declared_cards: set[str],
 ) -> None:
+    field_types = _field_type_map(model)
     for inv in sorted(model.get("invariants") or [], key=lambda x: str(x.get("name", ""))):
         inv_name = str(inv.get("name") or "inv")
         clauses = inv.get("all") or []
@@ -196,6 +357,90 @@ def _emit_invariants_named(
                 name = f"crucible_{idx[0]}"
                 idx[0] += 1
                 labels.append({"name": name, "entity": ent, "field": fld, "kind": f"invariant_{inv_name}_enum"})
+                lines.append(f"(assert (! {formula} :named {name}))")
+            elif op == "int_range":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_range on non-Int field {ent}.{fld} in {inv_name}")
+                lo = _strict_json_int(c.get("lo"), what=f"int_range lo in {inv_name}")
+                hi = _strict_json_int(c.get("hi"), what=f"int_range hi in {inv_name}")
+                if lo > hi:
+                    raise UnsupportedModelError(f"int_range lo > hi in {inv_name}")
+                sym = _ensure_int_cur_declared_named(lines, declared_int, ent, fld)
+                formula = f"(and (>= {sym} {lo}) (<= {sym} {hi}))"
+                name = f"crucible_{idx[0]}"
+                idx[0] += 1
+                labels.append({"name": name, "entity": ent, "field": fld, "kind": f"invariant_{inv_name}_int_range"})
+                lines.append(f"(assert (! {formula} :named {name}))")
+            elif op == "int_eq":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_eq on non-Int field {ent}.{fld} in {inv_name}")
+                val = _strict_json_int(c.get("value"), what=f"int_eq value in {inv_name}")
+                sym = _ensure_int_cur_declared_named(lines, declared_int, ent, fld)
+                formula = f"(= {sym} {val})"
+                name = f"crucible_{idx[0]}"
+                idx[0] += 1
+                labels.append({"name": name, "entity": ent, "field": fld, "kind": f"invariant_{inv_name}_int_eq"})
+                lines.append(f"(assert (! {formula} :named {name}))")
+            elif op == "int_gt":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_gt on non-Int field {ent}.{fld} in {inv_name}")
+                bound = _strict_json_int(c.get("bound"), what=f"int_gt bound in {inv_name}")
+                sym = _ensure_int_cur_declared_named(lines, declared_int, ent, fld)
+                formula = f"(> {sym} {bound})"
+                name = f"crucible_{idx[0]}"
+                idx[0] += 1
+                labels.append({"name": name, "entity": ent, "field": fld, "kind": f"invariant_{inv_name}_int_gt"})
+                lines.append(f"(assert (! {formula} :named {name}))")
+            elif op == "int_lt":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                if field_types.get((ent, fld)) != "Int":
+                    raise UnsupportedModelError(f"int_lt on non-Int field {ent}.{fld} in {inv_name}")
+                bound = _strict_json_int(c.get("bound"), what=f"int_lt bound in {inv_name}")
+                sym = _ensure_int_cur_declared_named(lines, declared_int, ent, fld)
+                formula = f"(< {sym} {bound})"
+                name = f"crucible_{idx[0]}"
+                idx[0] += 1
+                labels.append({"name": name, "entity": ent, "field": fld, "kind": f"invariant_{inv_name}_int_lt"})
+                lines.append(f"(assert (! {formula} :named {name}))")
+            elif op == "card_in_range":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                ft = field_types.get((ent, fld), "")
+                if not ft.startswith("List["):
+                    raise UnsupportedModelError(f"card_in_range on non-List field {ent}.{fld} in {inv_name}")
+                lo = _strict_json_int(c.get("lo"), what=f"card_in_range lo in {inv_name}")
+                hi = _strict_json_int(c.get("hi"), what=f"card_in_range hi in {inv_name}")
+                if lo < 0 or hi < 0:
+                    raise UnsupportedModelError(f"card_in_range negative bound in {inv_name}")
+                if lo > hi:
+                    raise UnsupportedModelError(f"card_in_range lo > hi in {inv_name}")
+                sym = _ensure_card_declared_named(lines, labels, idx, declared_cards, ent, fld)
+                formula = f"(and (>= {sym} {lo}) (<= {sym} {hi}))"
+                name = f"crucible_{idx[0]}"
+                idx[0] += 1
+                labels.append({"name": name, "entity": ent, "field": fld, "kind": f"invariant_{inv_name}_card_in_range"})
+                lines.append(f"(assert (! {formula} :named {name}))")
+            elif op == "card_eq":
+                ent = str(c.get("entity"))
+                fld = str(c.get("field"))
+                ft = field_types.get((ent, fld), "")
+                if not ft.startswith("List["):
+                    raise UnsupportedModelError(f"card_eq on non-List field {ent}.{fld} in {inv_name}")
+                val = _strict_json_int(c.get("value"), what=f"card_eq value in {inv_name}")
+                if val < 0:
+                    raise UnsupportedModelError(f"card_eq negative value in {inv_name}")
+                sym = _ensure_card_declared_named(lines, labels, idx, declared_cards, ent, fld)
+                formula = f"(= {sym} {val})"
+                name = f"crucible_{idx[0]}"
+                idx[0] += 1
+                labels.append({"name": name, "entity": ent, "field": fld, "kind": f"invariant_{inv_name}_card_eq"})
                 lines.append(f"(assert (! {formula} :named {name}))")
             else:
                 raise UnsupportedModelError(f"unsupported invariant op {op!r} in {inv_name}")
@@ -309,6 +554,8 @@ def _emit_standalone_field_unnamed(
     default_map: dict[tuple[str, str], Any],
     len_needs: set[tuple[str, str]],
     declared_lens: set[str],
+    card_refs: set[tuple[str, str]],
+    declared_cards: set[str],
 ) -> None:
     """Emit SMT for fields not covered by transition_graphs (enum-only, bool, required, String len)."""
     ename = str(ent["name"])
@@ -349,6 +596,13 @@ def _emit_standalone_field_unnamed(
             else sorted(ev)[0]
         )
         lines.append(f"(assert (= cur_{ename}_{fname} {ename}_{fname}_{default}))")
+    elif type_expr.startswith("List["):
+        key = (ename, fname)
+        if key in card_refs:
+            _ensure_card_declared_unnamed(lines, declared_cards, ename, fname)
+        return
+    elif type_expr == "Int":
+        return
     elif required:
         if not _safe_ident(ename, fname):
             raise UnsupportedModelError(f"unsupported identifiers in {ename}.{fname}")
@@ -374,6 +628,8 @@ def _emit_standalone_field_named(
     default_map: dict[tuple[str, str], Any],
     len_needs: set[tuple[str, str]],
     declared_lens: set[str],
+    card_refs: set[tuple[str, str]],
+    declared_cards: set[str],
 ) -> None:
     ename = str(ent["name"])
     fname = str(field["name"])
@@ -429,6 +685,13 @@ def _emit_standalone_field_named(
         idx[0] += 1
         labels.append({"name": name, "entity": ename, "field": fname, "kind": "enum_initial"})
         lines.append(f"(assert (! {formula} :named {name}))")
+    elif type_expr.startswith("List["):
+        key = (ename, fname)
+        if key in card_refs:
+            _ensure_card_declared_named(lines, labels, idx, declared_cards, ename, fname)
+        return
+    elif type_expr == "Int":
+        return
     elif required:
         if not _safe_ident(ename, fname):
             raise UnsupportedModelError(f"unsupported identifiers in {ename}.{fname}")
@@ -464,7 +727,10 @@ def compile_model_json_to_smt(model: dict[str, Any], *, named: bool = False) -> 
 
     default_map = _default_field_map(model)
     len_needs = _fields_needing_len(model)
+    card_refs = _phase9_card_refs(model)
     declared_lens: set[str] = set()
+    declared_int: set[str] = set()
+    declared_cards: set[str] = set()
 
     for ent in sorted(entities, key=lambda e: str(e.get("name", ""))):
         ename = str(ent["name"])
@@ -482,9 +748,11 @@ def compile_model_json_to_smt(model: dict[str, Any], *, named: bool = False) -> 
                 default_map=default_map,
                 len_needs=len_needs,
                 declared_lens=declared_lens,
+                card_refs=card_refs,
+                declared_cards=declared_cards,
             )
 
-    _emit_invariants_unnamed(lines, model, declared_lens)
+    _emit_invariants_unnamed(lines, model, declared_lens, declared_int, declared_cards)
 
     lines.append("(check-sat)")
     lines.append("(exit)")
@@ -507,7 +775,10 @@ def compile_named_model(model: dict[str, Any]) -> tuple[str, list[AssertionLabel
 
     default_map = _default_field_map(model)
     len_needs = _fields_needing_len(model)
+    card_refs = _phase9_card_refs(model)
     declared_lens: set[str] = set()
+    declared_int: set[str] = set()
+    declared_cards: set[str] = set()
 
     for ent in sorted(entities, key=lambda e: str(e.get("name", ""))):
         for tg in sorted(ent.get("transition_graphs") or [], key=lambda t: str(t.get("field", ""))):
@@ -526,9 +797,11 @@ def compile_named_model(model: dict[str, Any]) -> tuple[str, list[AssertionLabel
                 default_map=default_map,
                 len_needs=len_needs,
                 declared_lens=declared_lens,
+                card_refs=card_refs,
+                declared_cards=declared_cards,
             )
 
-    _emit_invariants_named(lines, labels, idx, model, declared_lens)
+    _emit_invariants_named(lines, labels, idx, model, declared_lens, declared_int, declared_cards)
 
     lines.append("(check-sat)")
     lines.append("(exit)")

@@ -57,6 +57,30 @@ class TestCompileJsonFixtures(unittest.TestCase):
         smt_b = compile_model_json_to_smt(json.loads(raw))
         self.assertEqual(smt_a, smt_b)
 
+    def test_int_ranges_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "int_ranges.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "int_ranges.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
+    def test_int_ranges_bad_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "int_ranges_bad.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "int_ranges_bad.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
+    def test_collections_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "collections.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "collections.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
+    def test_collections_bad_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "collections_bad.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "collections_bad.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
 
 if __name__ == "__main__":
     unittest.main()

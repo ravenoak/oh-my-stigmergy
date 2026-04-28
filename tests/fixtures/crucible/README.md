@@ -17,6 +17,14 @@ Deterministic SMT checking with an **Allium model → SMT** compiler in [`packag
 | [`invariants.smt2`](invariants.smt2) | Golden SMT-LIB (`QF_UFLIA`) after merge. |
 | [`invariants_bad.model.json`](invariants_bad.model.json) | Minimal model with contradictory invariant clauses (named compile → **unsat** + core). |
 | [`invariants_bad.smt2`](invariants_bad.smt2) | Golden for `invariants_bad.model.json`. |
+| [`int_ranges.model.json`](int_ranges.model.json) | `Int` field + `int_range` / `int_gt` invariants (Phase 9; **sat**). |
+| [`int_ranges.smt2`](int_ranges.smt2) | Golden compiler output. |
+| [`int_ranges_bad.model.json`](int_ranges_bad.model.json) | Contradictory `int_eq` + `int_range` on the same field (**unsat**). |
+| [`int_ranges_bad.smt2`](int_ranges_bad.smt2) | Golden for `int_ranges_bad.model.json`. |
+| [`collections.model.json`](collections.model.json) | `List[String]` field + `card_in_range` (Phase 9; **sat**). |
+| [`collections.smt2`](collections.smt2) | Golden compiler output. |
+| [`collections_bad.model.json`](collections_bad.model.json) | Contradictory `card_eq` + `card_in_range` (**unsat**). |
+| [`collections_bad.smt2`](collections_bad.smt2) | Golden for `collections_bad.model.json`. |
 
 `minimal.allium` / `minimal.smt2` remain a **hand-curated** pair for `scripts/verify-smt-golden.sh` only; `verify-crucible-compile.sh` skips `minimal.allium`.
 
