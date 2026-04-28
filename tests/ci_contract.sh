@@ -20,8 +20,10 @@ shim_policy_diff_script="scripts/verify-shim-policy-diff.sh"
 smt_script="scripts/verify-smt-golden.sh"
 crucible_contract="tests/crucible_shim_contract.sh"
 version_file="devtools/allium-cli.version"
+heavy_budget_script="scripts/verify-heavy-budget.sh"
+no_secrets_script="scripts/verify-no-secrets.sh"
 
-for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$crucible_contract" "$version_file" "devtools/uv.version" ".python-version" "pyproject.toml" "uv.lock" \
+for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "tests/fixtures/crucible/enums.allium" "tests/fixtures/crucible/enums.smt2" \
   "tests/fixtures/crucible/required_fields.model.json" "tests/fixtures/crucible/required_fields.smt2" \
   "tests/fixtures/crucible/invariants.allium" "tests/fixtures/crucible/invariants.overlay.json" "tests/fixtures/crucible/invariants.smt2" \
@@ -61,6 +63,8 @@ grep -q 'model.json' "$crucible_compile_script" || {
 bash -n "$shim_policy_script"
 bash -n "$shim_policy_diff_script"
 bash -n "$smt_script"
+bash -n "$heavy_budget_script"
+bash -n "$no_secrets_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -89,6 +93,16 @@ grep -q '^  check:' "$workflow" || {
   echo "ci_contract: $workflow must define check merge gate job" >&2
   exit 1
 }
+grep -q 'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24' "$workflow" || {
+  echo "ci_contract: $workflow must set FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 for Node-on-Actions policy" >&2
+  exit 1
+}
+for wf in .github/workflows/*.yml; do
+  grep -q 'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24' "$wf" || {
+    echo "ci_contract: $wf must set FORCE_JAVASCRIPT_ACTIONS_TO_NODE24" >&2
+    exit 1
+  }
+done
 grep -q 'needs: \[filter, governance, specs-and-packages\]' "$workflow" || {
   echo "ci_contract: $workflow check job must need filter, governance, specs-and-packages" >&2
   exit 1
@@ -113,6 +127,14 @@ echo "$governance_block" | grep -q 'verify-shim-policy.sh' || {
 }
 echo "$governance_block" | grep -q 'verify-shim-policy-diff.sh' || {
   echo "ci_contract: governance job must run scripts/verify-shim-policy-diff.sh (PR policy co-touch)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-heavy-budget.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-heavy-budget.sh (NFR-P1)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-no-secrets.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-no-secrets.sh (NFR-S2)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q "python-version: '3.13'" || {

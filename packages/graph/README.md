@@ -20,7 +20,15 @@ Without uv, from `packages/graph`: `PYTHONPATH=src python3.13 -m unittest discov
 ## `load_node`
 
 ```bash
-uv run python -m graph.load_node <repo_root> <node_id> [--depth N]
+uv run python -m graph.load_node <repo_root> <node_id> [--depth N] [--edge-kind IMPORTS,SOURCES,CALLS]
 ```
 
-`node_id` format: `relative/path.py#line` (1-based line number) for **line** cards, or `path#sym|meth|dec<byte_offset>` for Tree-sitter cards (see [`graph/ids.py`](src/graph/ids.py)). **`--depth`** is `0–3` (default `1`): larger values follow **resolved** `IMPORTS` / `SOURCES` / **`CALLS`** targets in deterministic BFS order and append neighbor card bodies (see [`graph/load_node.py`](src/graph/load_node.py)).
+`node_id` format: `relative/path.py#line` (1-based line number) for **line** cards, or `path#sym|meth|dec<byte_offset>` for Tree-sitter cards (see [`graph/ids.py`](src/graph/ids.py)). **`--depth`** is `0–3` (default `1`): larger values follow **resolved** `IMPORTS` / `SOURCES` / **`CALLS`** targets in deterministic BFS order and append neighbor card bodies (see [`graph/load_node.py`](src/graph/load_node.py)). **`--edge-kind`** filters which edge kinds participate in incident-edge listing and BFS traversal (default: all three).
+
+## `graph.aspect`
+
+```bash
+uv run python -m graph.aspect <repo_root> [--kind IMPORTS,SOURCES,CALLS]
+```
+
+Lists matching aspect edges as **TAB-separated** `kind`, `src`, `dst` rows for batch inspection (FR-2.2 tooling).

@@ -36,7 +36,7 @@ flowchart TB
 | Layer | Component | Technology (essay / options) | Status |
 |-------|-----------|------------------------------|--------|
 | Cognitive | Stance-driven agents | OpenCode, editors, vendor models | **Concrete** (tooling assumed) |
-| Coordination | SBP server | Node (in-process), SSE ([`packages/sbp-server`](../packages/sbp-server)); optional JSONL ledger ([ADR-0008](adr/0008-sbp-persistence.md)) | **Concrete** (reference slice; Redis optional later) |
+| Coordination | SBP server | Node (in-process), SSE ([`packages/sbp-server`](../packages/sbp-server)); optional JSONL ledger ([ADR-0008](adr/0008-sbp-persistence.md)); optional SQLite ([ADR-0011](adr/0011-sbp-sqlite-store.md)) | **Concrete** (reference slice; **Redis not pursued** — [BACKLOG.md](BACKLOG.md)) |
 | Epistemic | Graph engine / `load_node` | Python ([`packages/graph`](../packages/graph)); SQLite opt-in ([ADR-0007](adr/0007-graph-persistence.md)); Tree-sitter TBD | **Concrete (in-memory + SQLite)** — cards + IMPORTS graph + CLI |
 | Verification | Allium tools | Rust CLI / LSP ([allium-tools](https://github.com/juxt/allium-tools)) | **Concrete** — user supplies CLI |
 | Verification | Sublation bridge | Z3 on golden SMT ([`scripts/verify-smt-golden.sh`](../scripts/verify-smt-golden.sh)); shim prototype ([`devtools/crucible-shim`](../devtools/crucible-shim)) | **Partial** per [ADR-0006](adr/0006-p4-crucible-execution.md) |
@@ -68,7 +68,7 @@ Normative JSON Schema: [`packages/sbp-server/schemas/pheromone.json`](../package
 
 ## FR-1.3 (implemented) — transition hooks
 
-**Today:** [`spec/governance.allium`](../spec/governance.allium) models `TraceabilityRow` and `Pheromone` transitions. The vendor CLI **`allium model <file.allium>`** emits structured JSON (`transition_graphs` per entity); [`packages/transitions`](../packages/transitions/) merges every `spec/*.allium` model and exposes `TransitionTable.from_allium_specs(spec_dir)`. The heavy CI job runs `unittest` with `allium` on `PATH` so disallowed jumps fail the build.
+**Today:** [`spec/governance.allium`](../spec/governance.allium) models `TraceabilityRow`, `Pheromone` transitions, and governance slices for stance targets, ledger stores, code cards, and aspect edges (aligned with shipped packages). The vendor CLI **`allium model <file.allium>`** emits structured JSON (`transition_graphs` per entity); [`packages/transitions`](../packages/transitions/) merges every `spec/*.allium` model and exposes `TransitionTable.from_allium_specs(spec_dir)`. The heavy CI job runs `unittest` with `allium` on `PATH` so disallowed jumps fail the build.
 
 1. **Naming:** transition edges live only in `.allium`; no checked-in JSON sidecar.
 2. **Test harness:** Python `unittest` under `packages/transitions/tests/`.
