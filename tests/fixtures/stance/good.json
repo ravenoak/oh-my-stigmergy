@@ -1,0 +1,8 @@
+{
+  "agent_id": "fixture-agent",
+  "stance_vector": {
+    "security_auditing": 0.7,
+    "feature_implementation": 0.2
+  },
+  "olfactory_threshold": 0.15
+}

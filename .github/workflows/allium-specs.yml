@@ -223,8 +223,11 @@ jobs:
           command -v allium
           uv run python -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
 
-      - name: SBP server tests (FR-3.x; compaction.test.mjs decay-gc.test.mjs)
-        run: cd packages/sbp-server && npm test
+      - name: Stance package unit tests (FR-1.4)
+        run: uv run python -m unittest discover -s packages/stance/tests -p 'test_*.py' -v
+
+      - name: SBP server tests (FR-3.x; compaction.test.mjs decay-gc.test.mjs sqlite-store.test.mjs healthz.test.mjs multi-writer.test.mjs stance-registry.test.mjs)
+        run: cd packages/sbp-server && npm ci && npm test
 
       - name: Install Z3 (golden SMT)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq z3

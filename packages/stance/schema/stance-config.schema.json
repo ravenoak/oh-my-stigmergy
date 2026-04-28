@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ravenoak/oh-my-stigmergy/stance-config.schema.json",
+  "title": "StanceConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["agent_id", "stance_vector", "olfactory_threshold"],
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stance_vector": {
+      "type": "object",
+      "minProperties": 0,
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+      },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "olfactory_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

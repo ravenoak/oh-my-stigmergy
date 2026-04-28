@@ -13,8 +13,8 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 | Essay pillar (§8–9) | FR epic | NFR touchpoints | Current gap (summary) |
 |---------------------|---------|-----------------|------------------------|
 | Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 implemented; FR-1.3 implemented via `allium model` + `packages/transitions` |
-| Hound relation-first navigation | FR-2.x | NFR-C1 | Reference graph + SQLite; Python + TypeScript + shell ingestion + optional Tree-sitter symbol cards (see ADR-0007) |
-| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE; JSONL per [ADR-0008](adr/0008-sbp-persistence.md); compaction + decay GC per [ADR-0009](adr/0009-sbp-ledger-compaction-decay-gc.md); decay + load + NDJSON log contracts ([`docs/operations/sbp-slo.md`](operations/sbp-slo.md)); Redis scale still open |
+| Hound relation-first navigation | FR-2.x | NFR-C1 | Reference graph + SQLite; Python + TypeScript + shell ingestion + optional Tree-sitter symbol/method/decorator cards; **CALLS** edges + `load_node` BFS (see ADR-0002 / ADR-0007) |
+| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE; JSONL [ADR-0008](adr/0008-sbp-persistence.md); SQLite [ADR-0011](adr/0011-sbp-sqlite-store.md); compaction + decay GC [ADR-0009](adr/0009-sbp-ledger-compaction-decay-gc.md); healthz + writer lock + size signal; decay + load + NDJSON log contracts ([`docs/operations/sbp-slo.md`](operations/sbp-slo.md)); **Redis not pursued** (see [BACKLOG.md](BACKLOG.md)) |
 | Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | FR-4.2–4.3 + attested shim (args regex + audit + policy-diff co-touch); org-wide PATH/OPA **not pursued** ([BACKLOG.md](BACKLOG.md), [ADR-0004](adr/0004-verification-stack-layering.md)); ContextCov parity still out of scope per ADR-0004 |
 
 Sections **1–7** of the essay supply **motivation and critique** (ToCS, ContextCov, OMO, liquid delegation). They inform ADRs and guides but are not duplicated as extra FR rows here.
@@ -73,7 +73,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 | Milestone | Exit criteria |
 |-----------|----------------|
 | P3-schema | Versioned JSON Schema (in-repo) for pheromone records aligned with FR-3.2; stance config schema for essay §9.2.1 (documented in TDD) |
-| P3-ledger | FR-3.1: atomic publish API + observer stream (SSE or replacement); **durable JSONL** replay per [ADR-0008](adr/0008-sbp-persistence.md); load tests documented (still open for scale) |
+| P3-ledger | FR-3.1: atomic publish API + observer stream (SSE or replacement); **durable JSONL** replay per [ADR-0008](adr/0008-sbp-persistence.md); optional **SQLite** per [ADR-0011](adr/0011-sbp-sqlite-store.md); load tests documented in [sbp-slo.md](operations/sbp-slo.md) |
 | P3-pheromone | FR-3.2–FR-3.4: exponential decay + inflations, idempotency, floor, load p95, NDJSON log contract — see [`docs/operations/sbp-slo.md`](operations/sbp-slo.md) |
 
 ### Phase 4 — Sublation crucible (essay Epic 4 + §9.3.2)
@@ -97,6 +97,19 @@ Four milestones shipped as **sequenced PRs** (verification core → graph → SB
 | P5-d — Shim depth + OPA stance | **FR-4.1 / NFR-S1:** optional `args_regex` per allow row; `CRUCIBLE_SHIM_AUDIT_LOG` NDJSON on deny; `verify-shim-policy-diff.sh` (policy ↔ README PR co-touch); BACKLOG row org-wide PATH/OPA **not pursued** with ADR-0004 rationale; ADR-0006 updated. |
 
 **Phase 5 program exit:** all four rows above landed with green `allium-specs`; [BACKLOG.md](BACKLOG.md) mapping updated; this section stays canonical for the closeout scope.
+
+### Phase 6 — Full implementation and remediation closeout
+
+Four milestones shipped **sequentially** (Crucible invariants/defaults → stance schema + SBP registry → graph CALLS + symbol subroles → SBP SQLite + ops). **Exit:** RTM / `ci_contract` cite new fixtures, packages, env gates, and tests; [BACKLOG.md](BACKLOG.md) rows closed per plan; no `implemented` claims without evidence ([NFR-D1](requirements/NFR.md)).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P6-a — Crucible invariants + defaults | **FR-4.2 / FR-4.3:** `defaults` / `invariants` overlay + `QF_UFLIA` goldens (`invariants*.allium` / `invariants_bad.model.json`); ADR-0006 amended; `verify-crucible-compile.sh` + `test_solve.py` unsat on `invariants_bad`. |
+| P6-b — Stance schema + registry | **FR-1.4:** `packages/stance` JSON Schema + validator + `load_registry`; `SBP_STANCE_REGISTRY` in SBP; ADR-0010; TDD stance serialisation fixed; `packages/stance/tests` + `stance-registry.test.mjs`. |
+| P6-c — Graph CALLS + roles | **FR-2.1–FR-2.3:** `CALLS` edges; roles `method` / `decorator`; `card_id` prefix scheme; `load_node` traverses `CALLS`; SQLite full snapshot persist; ADR-0002 / ADR-0007 amended; `test_calls_edges.py` + corpus fixtures. |
+| P6-d — SBP SQLite + ops | **FR-3.1 / FR-3.2 / NFR-O2:** `SqliteLedgerStore` (`better-sqlite3`); mutual exclusive env with JSONL; JSONL writer lock + exit 75; `SBP_LEDGER_MAX_BYTES` rotation hook; `GET /healthz`; `compaction_done` logs; ADR-0011; runbook + SLO; `sqlite-store` / `healthz` / `multi-writer` tests. |
+
+**Phase 6 program exit:** all four rows above **green in CI**; [PRD.md](PRD.md) deferred-program paragraph cites ADR-0010 / ADR-0011 and amended ADRs; Redis backlog row **closed as not pursued** (replaced by ADR-0011).
 
 ## Backlog hygiene
 

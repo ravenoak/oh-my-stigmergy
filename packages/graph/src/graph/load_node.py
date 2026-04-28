@@ -6,12 +6,22 @@ import argparse
 import sys
 from pathlib import Path
 
+from graph.cards import Card
 from graph.ids import node_id
 from graph.index import GraphIndex
 
 
+def _callable_decl_text_matches(c: Card, name: str) -> bool:
+    t = c.text.strip()
+    if c.language == "python":
+        return t.startswith(f"def {name}(") or t.startswith(f"async def {name}(")
+    if c.language == "typescript":
+        return t.startswith(f"function {name}(") or t.startswith(f"export function {name}(")
+    return False
+
+
 def resolve_target_node(index: GraphIndex, dst: str) -> str | None:
-    """Map IMPORTS/SOURCES target string to a card node id when uniquely resolvable."""
+    """Map IMPORTS/SOURCES/CALLS target string to a card node id when uniquely resolvable."""
     raw = dst.strip().strip("'\"")
     if raw.startswith("./"):
         raw = raw[2:]
@@ -28,13 +38,31 @@ def resolve_target_node(index: GraphIndex, dst: str) -> str | None:
         return sorted(candidates)[0] if candidates else None
     stem = Path(raw).stem if "." in raw else raw
     candidates = [nid for nid in index.cards if Path(nid.rsplit("#", 1)[0]).stem == stem]
-    return sorted(set(candidates))[0] if candidates else None
+    if candidates:
+        # Prefer symbol/method/decorator cards over line#N so CALLS/imports land on declarations.
+        non_line = [n for n in candidates if not n.rsplit("#", 1)[-1].isdecimal()]
+        if non_line:
+            return sorted(non_line)[0]
+        return sorted(set(candidates))[0]
+    ident = raw.split(".")[-1].strip()
+    if ident and all(ch.isalnum() or ch == "_" for ch in ident):
+        hits = [
+            nid
+            for nid, c in index.cards.items()
+            if c.role in ("symbol", "method") and _callable_decl_text_matches(c, ident)
+        ]
+        if hits:
+            return sorted(hits)[0]
+    return None
+
+
+_EDGE_TRAVERSAL = frozenset({"IMPORTS", "SOURCES", "CALLS"})
 
 
 def edge_lines(index: GraphIndex, nid: str) -> list[str]:
     out: list[str] = []
     for src, dst, kind in sorted(index.edges, key=lambda e: (e[0], e[1], e[2])):
-        if src == nid and kind in ("IMPORTS", "SOURCES"):
+        if src == nid and kind in _EDGE_TRAVERSAL:
             out.append(f"### edge {kind} -> {dst}\n")
     return out
 
@@ -54,7 +82,7 @@ def load_slices(index: GraphIndex, nid: str, depth: int = 1) -> list[str]:
         next_frontier: list[str] = []
         for cur in sorted(frontier):
             for src, dst, kind in sorted(index.edges, key=lambda e: (e[0], e[1], e[2])):
-                if src != cur or kind not in ("IMPORTS", "SOURCES"):
+                if src != cur or kind not in _EDGE_TRAVERSAL:
                     continue
                 other = resolve_target_node(index, dst)
                 if other and other not in seen:
@@ -76,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
         "--depth",
         type=int,
         default=1,
-        help="0–3: BFS card hops beyond anchor (0 = anchor + incident edges only; 1 default; each +1 adds resolved IMPORTS/SOURCES targets)",
+        help="0–3: BFS card hops beyond anchor (0 = anchor + incident edges only; 1 default; each +1 adds resolved IMPORTS/SOURCES/CALLS targets)",
     )
     args = p.parse_args(argv)
     depth = max(0, min(args.depth, 3))

@@ -4,14 +4,18 @@
  * Usage: node bin/compact.mjs <ledger.jsonl>
  */
 import path from "node:path";
-import { compactJsonlLedger } from "../server.mjs";
+import { compactJsonlLedger, compactSqliteLedger } from "../server.mjs";
 
 const p = process.argv[2];
 if (!p) {
-  console.error("usage: node bin/compact.mjs <ledger.jsonl>");
+  console.error("usage: node bin/compact.mjs <ledger.jsonl|ledger.db>");
   process.exit(1);
 }
 const abs = path.resolve(p);
-const r = compactJsonlLedger(abs);
+const lower = abs.toLowerCase();
+const r =
+  lower.endsWith(".db") || lower.endsWith(".sqlite")
+    ? compactSqliteLedger(abs)
+    : compactJsonlLedger(abs);
 // stdout: machine-readable summary for scripts
 console.log(JSON.stringify(r));

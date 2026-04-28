@@ -30,10 +30,23 @@ class TestCompile(unittest.TestCase):
 
 
 class TestCompileJsonFixtures(unittest.TestCase):
+    def test_invariants_bad_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "invariants_bad.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "invariants_bad.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
     def test_required_fields_fixture_matches_golden(self) -> None:
         root = Path(__file__).resolve().parents[3]
         path = root / "tests" / "fixtures" / "crucible" / "required_fields.model.json"
         golden = (root / "tests" / "fixtures" / "crucible" / "required_fields.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
+    @unittest.skipUnless(shutil.which("allium"), "allium CLI not installed")
+    def test_invariants_allium_overlay_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "invariants.allium"
+        golden = (root / "tests" / "fixtures" / "crucible" / "invariants.smt2").read_text(encoding="utf-8")
         self.assertEqual(compile_model_fixture(path), golden)
 
     def test_required_bool_json_roundtrip(self) -> None:

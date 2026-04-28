@@ -1,0 +1,62 @@
+{
+  "defaults": [
+    {
+      "entity": "TraceabilityRow",
+      "fields": {
+        "requirement_id": "FR-0.2",
+        "maturity": "draft"
+      }
+    },
+    {
+      "entity": "Pheromone",
+      "fields": {
+        "id": "demo-pheromone",
+        "state": "open"
+      }
+    }
+  ],
+  "invariants": [
+    {
+      "name": "PheromonesWellFormed",
+      "all": [
+        {
+          "op": "len_gt",
+          "entity": "Pheromone",
+          "field": "id",
+          "bound": 0
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "Pheromone",
+          "field": "state",
+          "values": [
+            "open",
+            "claimed",
+            "done",
+            "expired"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TraceabilityRowsWellFormed",
+      "all": [
+        {
+          "op": "len_gt",
+          "entity": "TraceabilityRow",
+          "field": "requirement_id",
+          "bound": 0
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "TraceabilityRow",
+          "field": "maturity",
+          "values": [
+            "draft",
+            "published"
+          ]
+        }
+      ]
+    }
+  ]
+}

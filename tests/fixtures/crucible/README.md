@@ -12,6 +12,11 @@ Deterministic SMT checking with an **Allium model → SMT** compiler in [`packag
 | [`enums.smt2`](enums.smt2) | Golden compiler output (`cur_*` defaults to lexicographically smallest enum value). |
 | [`required_fields.model.json`](required_fields.model.json) | Hand-authored `allium model` JSON with `required: true` (extends vendor JSON for crucible-only fixtures). |
 | [`required_fields.smt2`](required_fields.smt2) | Golden compiler output for required bool + `defined_*` witness. |
+| [`invariants.allium`](invariants.allium) | Governance-sized Allium module for compiler regression (merged with overlay for goldens). |
+| [`invariants.overlay.json`](invariants.overlay.json) | Optional **`defaults` / `invariants`** overlay merged before compile (see [`packages/crucible`](../../../packages/crucible/)). |
+| [`invariants.smt2`](invariants.smt2) | Golden SMT-LIB (`QF_UFLIA`) after merge. |
+| [`invariants_bad.model.json`](invariants_bad.model.json) | Minimal model with contradictory invariant clauses (named compile → **unsat** + core). |
+| [`invariants_bad.smt2`](invariants_bad.smt2) | Golden for `invariants_bad.model.json`. |
 
 `minimal.allium` / `minimal.smt2` remain a **hand-curated** pair for `scripts/verify-smt-golden.sh` only; `verify-crucible-compile.sh` skips `minimal.allium`.
 

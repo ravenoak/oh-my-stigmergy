@@ -15,7 +15,7 @@ class Card:
     char_end: int
     text: str
     language: str = "python"
-    role: str = "line"  # line | symbol
+    role: str = "line"  # line | symbol | method | decorator
 
 
 def ingest_line_cards(root: Path, file_path: Path, *, language: str) -> list[Card]:

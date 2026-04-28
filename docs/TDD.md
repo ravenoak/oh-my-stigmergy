@@ -45,7 +45,7 @@ flowchart TB
 
 ### Agent stance configuration (reference)
 
-Agents may carry a **stance vector** and **olfactory threshold** as in the inspiration doc. Serialisation format is **not fixed** until an implementation ADR defines it.
+Agents may carry a **stance vector** and **olfactory threshold** as in the inspiration doc. **Normative serialisation** for standalone stance configuration files is defined in [ADR-0010](adr/0010-stance-configuration-schema.md): JSON Schema [`packages/stance/schema/stance-config.schema.json`](../packages/stance/schema/stance-config.schema.json), Python validator [`packages/stance/src/stance/validate.py`](../packages/stance/src/stance/validate.py), optional SBP allow-list via `SBP_STANCE_REGISTRY`.
 
 ### Pheromone record
 

@@ -50,6 +50,9 @@ class GraphIndex:
         store = SqliteCardStore(sqlite_path)
         try:
             store.init_schema()
+            store.conn.execute("DELETE FROM edges")
+            store.conn.execute("DELETE FROM cards")
+            store.conn.commit()
             store.upsert_cards(self.cards.values())
             store.add_imports(self.edges)
         finally:
@@ -61,8 +64,7 @@ class GraphIndex:
         store = SqliteCardStore(sqlite_path)
         try:
             cards: dict[str, Card] = {}
-            for c in store.iter_cards():
-                nid = card_id(c)
+            for nid, c in store.iter_card_rows():
                 cards[nid] = c
             edges = list(store.iter_edges())
             return cls(root=root, cards=cards, edges=edges)

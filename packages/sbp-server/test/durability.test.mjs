@@ -29,6 +29,7 @@ test("JsonlLedgerStore survives restart with identical ledger + claims", async (
   s1.closeAllConnections?.();
   s1.close();
   await once(s1, "close");
+  store1.releaseWriterLock();
 
   const store2 = new JsonlLedgerStore(ledgerPath);
   const { server: s2, ledger, claims } = createLedgerServer({ store: store2 });
@@ -37,6 +38,7 @@ test("JsonlLedgerStore survives restart with identical ledger + claims", async (
   s2.closeAllConnections?.();
   s2.close();
   await once(s2, "close");
+  store2.releaseWriterLock();
 });
 
 test("JsonlLedgerStore skips truncated tail line on replay", async () => {
@@ -65,6 +67,7 @@ test("JsonlLedgerStore skips truncated tail line on replay", async () => {
   server.closeAllConnections?.();
   server.close();
   await once(server, "close");
+  store.releaseWriterLock();
 });
 
 function post(url, body) {

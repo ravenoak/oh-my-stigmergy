@@ -60,6 +60,15 @@ class TestSolve(unittest.TestCase):
         txt = explain_core(labels, res.unsat_core, path)
         self.assertIn("deny_required", txt)
 
+    def test_invariants_bad_json_unsat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "invariants_bad.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "unsat")
+        self.assertGreater(len(labels), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

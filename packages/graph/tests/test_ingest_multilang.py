@@ -29,6 +29,7 @@ class TestIngestMultilang(unittest.TestCase):
         kinds = {e[2] for e in idx.edges}
         self.assertIn("IMPORTS", kinds)
         self.assertIn("SOURCES", kinds)
+        self.assertIn("CALLS", kinds)
         sym = [c for c in idx.cards.values() if c.language == "typescript" and c.role == "symbol"]
         self.assertTrue(any("helper" in c.text for c in sym), "expected Tree-sitter TS symbol for helper()")
 

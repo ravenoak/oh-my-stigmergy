@@ -21,9 +21,9 @@ Execution order follows [ROADMAP.md](ROADMAP.md). Reference slices for FR-2.x / 
 
 | Item | Phase | Dependency | Next unblocker |
 |------|-------|------------|----------------|
-| Graph — SQLite + Tree-sitter multi-language cards | P2+ | [ADR-0002](adr/0002-relation-first-retrieval.md) revision | ADR amendment + ingestion pipeline PR |
-| SBP — Redis persistence + sub-ms SLO | P3+ | Production hardening ADR | Load tests + operator runbook |
-| Crucible — extend Allium→SMT compiler beyond transition graphs | P4 | [ADR-0006](adr/0006-p4-crucible-execution.md) | Additional AST/model encoders + goldens as features grow |
+| Graph — deeper grammars / NetworkX (beyond Python+TS+shell **CALLS** slice) | P2+ | [ADR-0002](adr/0002-relation-first-retrieval.md) revision | New ADR if expanding languages or global resolution |
+| SBP — Redis persistence + sub-ms SLO | — | **Not pursued** | Default scale path is **SQLite** + `better-sqlite3` per [ADR-0011](adr/0011-sbp-sqlite-store.md); avoids external service in the default path (`NFR-D2`). |
+| Crucible — integer ranges / collection encoders (beyond Phase 6 invariant subset) | P4 | [ADR-0006](adr/0006-p4-crucible-execution.md) | Spec consumers + goldens before speculative encoders |
 | FR-4.1 — org-wide PATH / OPA parity | — | **Not pursued** | Would invent org-wide enforcement semantics and drift from [ADR-0004](adr/0004-verification-stack-layering.md) / fork-friendly model; use maintainer shim + [`verify-shim-policy-diff.sh`](../scripts/verify-shim-policy-diff.sh) instead ([ADR-0006](adr/0006-p4-crucible-execution.md)). |
 
 ## Ad hoc ideas

@@ -9,26 +9,40 @@ npm install
 node server.mjs
 ```
 
-### Durable ledger (JSONL)
+### Durable ledger (JSONL or SQLite)
 
-Append-only persistence is opt-in via **`SBP_LEDGER_JSONL`** (path to a `.jsonl` file). The server replays the log on startup; see [ADR-0008](../../docs/adr/0008-sbp-persistence.md).
+- **JSONL:** opt-in via **`SBP_LEDGER_JSONL`** (path to a `.jsonl` file). Replays on startup; see [ADR-0008](../../docs/adr/0008-sbp-persistence.md). Exclusive writer lock: `${path}.sbp-writer-lock` (second process → **exit 75**).
+- **SQLite:** opt-in via **`SBP_LEDGER_SQLITE`** (path ending in `.db` / `.sqlite`). See [ADR-0011](../../docs/adr/0011-sbp-sqlite-store.md). **Do not** set both `SBP_LEDGER_JSONL` and `SBP_LEDGER_SQLITE`.
 
 ```bash
 SBP_LEDGER_JSONL=/tmp/sbp-ledger.jsonl node server.mjs
+# or
+SBP_LEDGER_SQLITE=/tmp/sbp-ledger.db node server.mjs
 ```
 
-Optional **decay GC** (periodic compaction of the JSONL file): set **`SBP_DECAY_GC_INTERVAL_MS`** to a positive value (milliseconds). Intensity floor: **`SBP_DECAY_GC_FLOOR`** (default `0.01`). See [ADR-0009](../../docs/adr/0009-sbp-ledger-compaction-decay-gc.md) and [sbp-operator-runbook](../../docs/operations/sbp-operator-runbook.md).
+Optional **stance allow-list** (reject unknown `stanceTarget` with 400): **`SBP_STANCE_REGISTRY`** → JSON file or directory of `*.json` configs (union of `stance_vector` keys); see [ADR-0010](../../docs/adr/0010-stance-configuration-schema.md).
+
+Optional **decay GC** (periodic compaction): set **`SBP_DECAY_GC_INTERVAL_MS`** (milliseconds). Intensity floor: **`SBP_DECAY_GC_FLOOR`** (default `0.01`). **`SBP_LEDGER_MAX_BYTES`:** when set with decay GC enabled, oversize files trigger a **size-rotation** compaction pass. See [ADR-0009](../../docs/adr/0009-sbp-ledger-compaction-decay-gc.md), [ADR-0011](../../docs/adr/0011-sbp-sqlite-store.md), and [sbp-operator-runbook](../../docs/operations/sbp-operator-runbook.md).
+
+**Health:** `GET /healthz` → `{ ok, store, replayedAt, pheromones, claims }`.
 
 **Manual compaction** (stop writers first):
 
 ```bash
 node bin/compact.mjs /tmp/sbp-ledger.jsonl
+node bin/compact.mjs /tmp/sbp-ledger.db
 ```
 
 Programmatic use:
 
 ```javascript
-import { createLedgerServer, JsonlLedgerStore, compactJsonlLedger } from "./server.mjs";
+import {
+  createLedgerServer,
+  JsonlLedgerStore,
+  SqliteLedgerStore,
+  compactJsonlLedger,
+  compactSqliteLedger,
+} from "./server.mjs";
 
 const store = new JsonlLedgerStore("/tmp/ledger.jsonl");
 const { server } = createLedgerServer({ store });
@@ -43,4 +57,4 @@ npm test
 The script sets a **per-test timeout** so a stuck handler cannot hang the runner indefinitely. Avoid overlapping full `npm test` runs (multiple processes can contend for debug ports or file handles in constrained environments).
 
 
-Redis is **not** required for this reference slice; see [ADR-0005](../../docs/adr/0005-conflict-resolution-governance.md) before adding delegation or economic features.
+Redis is **not** pursued for the default scale path ([BACKLOG.md](../../docs/BACKLOG.md), [ADR-0011](../../docs/adr/0011-sbp-sqlite-store.md)); see [ADR-0005](../../docs/adr/0005-conflict-resolution-governance.md) before adding delegation or economic features.
