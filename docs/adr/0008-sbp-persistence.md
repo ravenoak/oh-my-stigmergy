@@ -14,7 +14,7 @@ The reference [`packages/sbp-server`](../../packages/sbp-server) keeps pheromone
 - **Event types:** `publish` (full validated pheromone body), `claim` (`id` + `token`), `inflate` (`id` only — intensity is recomputed on replay using the same rule as the in-memory server).
 - **Replay:** on startup, read the file line-by-line; **skip** lines that fail `JSON.parse` (covers truncated tail after crash). Apply events in order; duplicate `claim` lines for the same `id` are ignored (first claim wins).
 - **Default:** in-memory store when no path is passed to `createLedgerServer()` — existing tests unchanged.
-- **Redis / SQL:** out of scope for this ADR; park in [BACKLOG.md](../BACKLOG.md) if scale demands it.
+- **Redis / SQL:** JSONL scope for this ADR; **SQLite** ledger path is [ADR-0011](0011-sbp-sqlite-store.md) (`SBP_LEDGER_SQLITE`, `better-sqlite3`).
 
 ## Consequences
 

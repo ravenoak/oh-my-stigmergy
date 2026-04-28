@@ -15,7 +15,7 @@ Accepted
   - Surviving records are written as **`publish`** lines (full payload, including `publishedAt` and `inflations`) followed by **`claim`** lines where a claim exists, in **lexicographic `id` order** for deterministic bytes. Historical **`inflate`** lines are folded into `inflations` during replay and are not re-emitted.
   - Write to **`${filePath}.compact.tmp`** then **`renameSync`** over `filePath` (atomic replace on POSIX CI).
 - **Decay GC timer:** opt-in via **`SBP_DECAY_GC_INTERVAL_MS`** (positive integer, default **off**). When the standalone server runs with **`SBP_LEDGER_JSONL`**, it starts an in-process **`setInterval`** that invokes compaction on that path. Single-writer assumption unchanged from ADR-0008; operators should avoid concurrent writers during compaction (see runbook).
-- **Manual CLI:** `node packages/sbp-server/bin/compact.mjs <ledger.jsonl>` for ops (same compaction function).
+- **Manual CLI:** `node packages/sbp-server/bin/compact.mjs <ledger.jsonl|ledger.db>` for ops (JSONL vs SQLite auto-detected; see [ADR-0011](0011-sbp-sqlite-store.md) for `compactSqliteLedger`).
 
 ## Consequences
 

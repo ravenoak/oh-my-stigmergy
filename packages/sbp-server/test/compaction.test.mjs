@@ -52,3 +52,25 @@ test("compactJsonlLedger no-op when file missing", () => {
   const stats = compactJsonlLedger(path.join(os.tmpdir(), "no-such-ledger-xyz.jsonl"));
   assert.deepEqual(stats, { kept: 0, dropped: 0 });
 });
+
+test("compactJsonlLedger forceSizeRotation uses aggressive floor", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "sbp-compact-rot-"));
+  const ledgerPath = path.join(dir, "ledger.jsonl");
+  const nowMs = 2_000_000;
+  const id = "12121212-3434-4545-5656-676767676767";
+  const payload = {
+    id,
+    stanceTarget: "s",
+    baseIntensity: 0.5,
+    decayRate: 0,
+    publishedAt: nowMs,
+    inflations: 0,
+  };
+  const lines = [
+    stableStringify({ type: "publish", payload }),
+    stableStringify({ type: "claim", id, token: "tok" }),
+  ].join("\n");
+  fs.writeFileSync(ledgerPath, `${lines}\n`, "utf8");
+  const stats = compactJsonlLedger(ledgerPath, { nowMs, forceSizeRotation: true });
+  assert.ok(stats.dropped >= 1);
+});

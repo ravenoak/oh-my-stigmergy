@@ -3,6 +3,11 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import Database from "better-sqlite3";
+
+import { currentIntensity } from "./intensity.mjs";
+
+export { currentIntensity };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -13,14 +18,42 @@ function loadSchema() {
 
 export const schema = loadSchema();
 
-/** Deterministic decay: base * exp(-decayRate * dt_s) + inflations (FR-3.x). */
-export function currentIntensity(rec, nowMs = Date.now()) {
-  const t0 = typeof rec.publishedAt === "number" ? rec.publishedAt : nowMs;
-  const dtS = Math.max(0, (nowMs - t0) / 1000);
-  const base = rec.baseIntensity ?? 0;
-  const lam = rec.decayRate ?? 0;
-  const inf = rec.inflations ?? 0;
-  return base * Math.exp(-lam * dtS) + inf;
+/**
+ * Load union of `stance_vector` keys from a JSON file or every `*.json` in a directory
+ * (non-recursive, lexicographic order). JSON is not executed; invalid JSON throws at startup.
+ * @param {string} registryPath
+ * @returns {Set<string>}
+ */
+export function loadStanceRegistry(registryPath) {
+  const resolved = path.resolve(registryPath);
+  const targets = new Set();
+  /** @param {object} obj */
+  function collect(obj) {
+    const vec = obj && typeof obj === "object" ? obj.stance_vector : null;
+    if (!vec || typeof vec !== "object" || Array.isArray(vec)) {
+      throw new Error("stance registry entry missing stance_vector object");
+    }
+    for (const k of Object.keys(vec)) {
+      if (typeof k === "string" && k) targets.add(k);
+    }
+  }
+  const st = fs.statSync(resolved);
+  if (st.isFile()) {
+    collect(JSON.parse(fs.readFileSync(resolved, "utf8")));
+    return targets;
+  }
+  if (st.isDirectory()) {
+    const files = fs.readdirSync(resolved).filter((f) => f.endsWith(".json")).sort();
+    if (files.length === 0) {
+      throw new Error(`stance registry directory has no *.json: ${resolved}`);
+    }
+    for (const f of files) {
+      const full = path.join(resolved, f);
+      collect(JSON.parse(fs.readFileSync(full, "utf8")));
+    }
+    return targets;
+  }
+  throw new Error(`stance registry path not found: ${resolved}`);
 }
 
 export function validate(body) {
@@ -68,6 +101,16 @@ export class MemoryLedgerStore {
   ledger = new Map();
   /** @type {Map<string, string>} */
   claims = new Map();
+  /** @type {number | null} */
+  replayedAt = null;
+
+  storeKind() {
+    return "memory";
+  }
+
+  healthPing() {
+    return true;
+  }
 
   /** @param {object} rec full persisted record (includes publishedAt, inflations) */
   putRecord(rec) {
@@ -112,11 +155,48 @@ export class MemoryLedgerStore {
 export class JsonlLedgerStore extends MemoryLedgerStore {
   /**
    * @param {string} filePath absolute or cwd-relative log path
+   * @param {{ skipWriterLock?: boolean }} [opts] compaction replay skips the exclusive lock
    */
-  constructor(filePath) {
+  constructor(filePath, opts = {}) {
     super();
-    this.filePath = filePath;
+    this.filePath = path.resolve(filePath);
+    this.lockDir = `${this.filePath}.sbp-writer-lock`;
+    this._lockHeld = false;
+    if (!opts.skipWriterLock) {
+      try {
+        fs.mkdirSync(this.lockDir);
+        this._lockHeld = true;
+      } catch (e) {
+        if (e && e.code === "EEXIST") {
+          const err = new Error("sbp: ledger locked");
+          err.code = "ELEDGERLOCKED";
+          throw err;
+        }
+        throw e;
+      }
+    }
     this._replay();
+    this.replayedAt = Date.now();
+  }
+
+  storeKind() {
+    return "jsonl";
+  }
+
+  healthPing() {
+    fs.accessSync(this.filePath, fs.constants.R_OK);
+    return true;
+  }
+
+  /** Release exclusive writer lock (tests / graceful shutdown). */
+  releaseWriterLock() {
+    if (!this._lockHeld) return;
+    try {
+      fs.rmSync(this.lockDir, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
+    this._lockHeld = false;
   }
 
   _appendLine(obj) {
@@ -172,6 +252,121 @@ export class JsonlLedgerStore extends MemoryLedgerStore {
   }
 }
 
+/** SQLite ledger (ADR-0011) — mutually exclusive with JSONL env in the standalone entrypoint. */
+export class SqliteLedgerStore extends MemoryLedgerStore {
+  /**
+   * @param {string} dbPath absolute or cwd-relative path
+   */
+  constructor(dbPath) {
+    super();
+    this.dbPath = path.resolve(dbPath);
+    const dir = path.dirname(this.dbPath);
+    if (dir && dir !== ".") fs.mkdirSync(dir, { recursive: true });
+    this.db = new Database(this.dbPath);
+    this.db.pragma("journal_mode = WAL");
+    this.db.pragma("synchronous = NORMAL");
+    this.db.pragma("busy_timeout = 5000");
+    this._initSchema();
+    this._replayFromDb();
+    this.replayedAt = Date.now();
+  }
+
+  storeKind() {
+    return "sqlite";
+  }
+
+  healthPing() {
+    this.db.prepare("SELECT 1").get();
+    return true;
+  }
+
+  close() {
+    try {
+      this.db.close();
+    } catch {
+      /* ignore */
+    }
+  }
+
+  _initSchema() {
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS pheromones (
+        id TEXT PRIMARY KEY,
+        json TEXT NOT NULL,
+        published_at INTEGER NOT NULL,
+        inflations INTEGER NOT NULL DEFAULT 0
+      );
+      CREATE TABLE IF NOT EXISTS claims (
+        id TEXT PRIMARY KEY,
+        token TEXT NOT NULL,
+        claimed_at INTEGER NOT NULL
+      );
+    `);
+  }
+
+  _replayFromDb() {
+    const rows = this.db.prepare("SELECT id, json FROM pheromones ORDER BY id").all();
+    for (const row of rows) {
+      const p = JSON.parse(String(row.json));
+      super.putRecord(p);
+    }
+    const claims = this.db.prepare("SELECT id, token FROM claims ORDER BY id").all();
+    for (const c of claims) {
+      this.replayClaim(String(c.id), String(c.token));
+    }
+  }
+
+  publish(json) {
+    const rec = {
+      ...json,
+      publishedAt: Date.now(),
+      inflations: Number.isInteger(json.inflations) ? json.inflations : 0,
+    };
+    delete rec.intensity;
+    const payload = { ...rec };
+    const run = this.db.transaction(() => {
+      this.db
+        .prepare(
+          `INSERT OR REPLACE INTO pheromones (id, json, published_at, inflations) VALUES (@id, @json, @published_at, @inflations)`,
+        )
+        .run({
+          id: rec.id,
+          json: JSON.stringify(payload),
+          published_at: rec.publishedAt,
+          inflations: rec.inflations ?? 0,
+        });
+    });
+    run();
+    this.putRecord(rec);
+  }
+
+  claim(id, token) {
+    if (this.claims.has(id)) return false;
+    const run = this.db.transaction(() => {
+      this.db
+        .prepare(`INSERT OR IGNORE INTO claims (id, token, claimed_at) VALUES (?, ?, ?)`)
+        .run(id, token, Date.now());
+    });
+    run();
+    return super.claim(id, token);
+  }
+
+  inflate(id) {
+    if (!super.inflate(id)) return false;
+    const cur = this.ledger.get(id);
+    if (!cur) return false;
+    const copy = { ...cur };
+    delete copy.intensity;
+    const run = this.db.transaction(() => {
+      this.db
+        .prepare(`UPDATE pheromones SET json = ?, inflations = ? WHERE id = ?`)
+        .run(JSON.stringify(copy), cur.inflations ?? 0, id);
+    });
+    run();
+    return true;
+  }
+}
+
 /** Lexicographic JSON for deterministic compaction output (nested objects sorted). */
 export function stableStringify(value) {
   if (value === null || typeof value !== "object") {
@@ -195,14 +390,19 @@ export function compactJsonlLedger(filePath, opts = {}) {
     throw new Error("compactJsonlLedger: filePath required");
   }
   const floor =
-    opts.decayGcFloor !== undefined
-      ? opts.decayGcFloor
-      : Number(process.env.SBP_DECAY_GC_FLOOR ?? 0.01);
+    opts.forceSizeRotation === true
+      ? 1.0
+      : opts.decayGcFloor !== undefined
+        ? opts.decayGcFloor
+        : Number(process.env.SBP_DECAY_GC_FLOOR ?? 0.01);
   const nowMs = opts.nowMs ?? Date.now();
+  const t0 = Date.now();
+  let bytesBefore = 0;
+  if (fs.existsSync(filePath)) bytesBefore = fs.statSync(filePath).size;
   if (!fs.existsSync(filePath)) {
     return { kept: 0, dropped: 0 };
   }
-  const store = new JsonlLedgerStore(filePath);
+  const store = new JsonlLedgerStore(filePath, { skipWriterLock: true });
   /** @type {string[]} */
   const dropped = [];
   /** @type {{ id: string; rec: object; token: string | undefined }[]} */
@@ -231,7 +431,83 @@ export function compactJsonlLedger(filePath, opts = {}) {
   const tmp = `${filePath}.compact.tmp`;
   fs.writeFileSync(tmp, body, "utf8");
   fs.renameSync(tmp, filePath);
+  const bytesAfter = fs.existsSync(filePath) ? fs.statSync(filePath).size : 0;
+  sbpLog({
+    event: "compaction_done",
+    store: "jsonl",
+    kept: rows.length,
+    dropped: dropped.length,
+    durationMs: Date.now() - t0,
+    bytesBefore,
+    bytesAfter,
+  });
   return { kept: rows.length, dropped: dropped.length };
+}
+
+/**
+ * SQLite ledger compaction (ADR-0011): drop claimed rows with intensity strictly below floor.
+ * @param {string} dbPath
+ * @param {{ nowMs?: number; decayGcFloor?: number; forceSizeRotation?: boolean }} [opts]
+ */
+export function compactSqliteLedger(dbPath, opts = {}) {
+  if (!dbPath || typeof dbPath !== "string") {
+    throw new Error("compactSqliteLedger: dbPath required");
+  }
+  const floor =
+    opts.forceSizeRotation === true
+      ? 1.0
+      : opts.decayGcFloor !== undefined
+        ? opts.decayGcFloor
+        : Number(process.env.SBP_DECAY_GC_FLOOR ?? 0.01);
+  const nowMs = opts.nowMs ?? Date.now();
+  const t0 = Date.now();
+  let bytesBefore = 0;
+  if (fs.existsSync(dbPath)) bytesBefore = fs.statSync(dbPath).size;
+  if (!fs.existsSync(dbPath)) {
+    return { kept: 0, dropped: 0 };
+  }
+  const db = new Database(dbPath);
+  try {
+    db.pragma("busy_timeout = 5000");
+    const rows = db.prepare("SELECT id, json FROM pheromones").all();
+    const claims = new Map(
+      db
+        .prepare("SELECT id, token FROM claims")
+        .all()
+        .map((r) => [String(r.id), String(r.token)]),
+    );
+    /** @type {string[]} */
+    const dropIds = [];
+    for (const row of rows) {
+      const rec = JSON.parse(String(row.json));
+      const id = String(row.id);
+      const inten = currentIntensity(rec, nowMs);
+      if (claims.has(id) && inten < floor) {
+        dropIds.push(id);
+      }
+    }
+    const run = db.transaction(() => {
+      for (const id of dropIds) {
+        db.prepare("DELETE FROM claims WHERE id = ?").run(id);
+        db.prepare("DELETE FROM pheromones WHERE id = ?").run(id);
+      }
+    });
+    run();
+    const kept = Number(db.prepare("SELECT COUNT(*) AS c FROM pheromones").get().c);
+    const bytesAfter = fs.existsSync(dbPath) ? fs.statSync(dbPath).size : 0;
+    sbpLog({
+      event: "compaction_done",
+      store: "sqlite",
+      kept,
+      dropped: dropIds.length,
+      durationMs: Date.now() - t0,
+      bytesBefore,
+      bytesAfter,
+    });
+    return { kept, dropped: dropIds.length };
+  } finally {
+    db.close();
+  }
 }
 
 /**
@@ -257,9 +533,14 @@ export function scheduleDecayGc(filePath, opts = {}) {
   const ci = opts.clearInterval ?? clearInterval;
   const compact = opts.compact ?? compactJsonlLedger;
   const now = opts.nowMs ?? (() => Date.now());
+  const maxBytes = Number(process.env.SBP_LEDGER_MAX_BYTES ?? 0);
   const handle = si(() => {
     try {
-      compact(filePath, { nowMs: now() });
+      let forceSizeRotation = false;
+      if (maxBytes > 0 && fs.existsSync(filePath) && fs.statSync(filePath).size > maxBytes) {
+        forceSizeRotation = true;
+      }
+      compact(filePath, { nowMs: now(), forceSizeRotation });
     } catch (e) {
       sbpLog({ event: "decay_gc_error", err: String(e && e.message ? e.message : e) });
     }
@@ -268,10 +549,18 @@ export function scheduleDecayGc(filePath, opts = {}) {
 }
 
 /**
- * @param {{ store?: MemoryLedgerStore }} [options]
+ * @param {{
+ *   store?: MemoryLedgerStore;
+ *   stanceTargets?: Set<string> | null;
+ *   storeLabel?: "memory" | "jsonl" | "sqlite";
+ * }} [options]
  */
 export function createLedgerServer(options = {}) {
   const store = options.store ?? new MemoryLedgerStore();
+  /** @type {Set<string> | null} */
+  const stanceTargets = options.stanceTargets ?? null;
+  const storeLabel =
+    options.storeLabel ?? (typeof store.storeKind === "function" ? store.storeKind() : "memory");
   const clients = new Set();
 
   function broadcast(event, data) {
@@ -299,6 +588,25 @@ export function createLedgerServer(options = {}) {
       sbpLog({ event: "sse_open", path: "/stream" });
       return;
     }
+    if (req.method === "GET" && url.pathname === "/healthz") {
+      let ok = true;
+      try {
+        store.healthPing();
+      } catch {
+        ok = false;
+      }
+      const body = JSON.stringify({
+        ok,
+        store: storeLabel,
+        replayedAt: store.replayedAt ?? null,
+        pheromones: store.ledger.size,
+        claims: store.claims.size,
+      });
+      res.writeHead(ok ? 200 : 503, { "Content-Type": "application/json" });
+      res.end(body);
+      sbpLog({ event: "healthz", ok, store: storeLabel });
+      return;
+    }
     if (req.method === "GET" && url.pathname === "/pheromones") {
       const now = Date.now();
       const rows = [...store.ledger.values()].map((r) => withIntensity(r, now));
@@ -316,6 +624,15 @@ export function createLedgerServer(options = {}) {
         if (err) {
           res.writeHead(400).end(err);
           sbpLog({ event: "publish_error", id: json.id, err });
+          return;
+        }
+        if (stanceTargets && !stanceTargets.has(json.stanceTarget)) {
+          res.writeHead(400).end("stance_unknown");
+          sbpLog({
+            event: "stance_unknown",
+            id: json.id,
+            stanceTarget: json.stanceTarget,
+          });
           return;
         }
         store.publish(json);
@@ -363,13 +680,54 @@ export function createLedgerServer(options = {}) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const logPath = process.env.SBP_LEDGER_JSONL;
-  const store = logPath ? new JsonlLedgerStore(logPath) : new MemoryLedgerStore();
-  const decayGc = logPath ? scheduleDecayGc(logPath) : { stop: () => {} };
-  const { server } = createLedgerServer({ store });
+  const jsonlPath = (process.env.SBP_LEDGER_JSONL || "").trim();
+  const sqlitePath = (process.env.SBP_LEDGER_SQLITE || "").trim();
+  if (jsonlPath && sqlitePath) {
+    console.error("sbp: set only one of SBP_LEDGER_JSONL or SBP_LEDGER_SQLITE");
+    process.exit(1);
+  }
+  /** @type {MemoryLedgerStore} */
+  let store;
+  let decayPath = "";
+  /** @type {"memory"|"jsonl"|"sqlite"} */
+  let storeLabel = "memory";
+  try {
+    if (sqlitePath) {
+      store = new SqliteLedgerStore(sqlitePath);
+      decayPath = sqlitePath;
+      storeLabel = "sqlite";
+    } else if (jsonlPath) {
+      store = new JsonlLedgerStore(jsonlPath);
+      decayPath = jsonlPath;
+      storeLabel = "jsonl";
+    } else {
+      store = new MemoryLedgerStore();
+    }
+  } catch (e) {
+    if (e && e.code === "ELEDGERLOCKED") {
+      console.error(e.message || String(e));
+      process.exit(75);
+    }
+    throw e;
+  }
+  const compactFn =
+    storeLabel === "sqlite" ? compactSqliteLedger : storeLabel === "jsonl" ? compactJsonlLedger : null;
+  const decayGc =
+    decayPath && compactFn
+      ? scheduleDecayGc(decayPath, { compact: compactFn, ledgerStoreKind: storeLabel })
+      : { stop: () => {} };
+  const reg = (process.env.SBP_STANCE_REGISTRY || "").trim();
+  /** @type {Set<string> | null} */
+  let stanceTargets = null;
+  if (reg) {
+    stanceTargets = loadStanceRegistry(reg);
+  }
+  const { server } = createLedgerServer({ store, stanceTargets, storeLabel });
   const port = Number(process.env.PORT || 3847);
   server.listen(port, () => {
-    console.error(`sbp listening ${port}${logPath ? ` jsonl=${logPath}` : ""}`);
+    const extra =
+      storeLabel === "jsonl" ? ` jsonl=${jsonlPath}` : storeLabel === "sqlite" ? ` sqlite=${sqlitePath}` : "";
+    console.error(`sbp listening ${port}${extra}`);
   });
   const shutdownGc = () => decayGc.stop();
   process.once("SIGINT", shutdownGc);

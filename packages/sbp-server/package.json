@@ -7,5 +7,8 @@
     "start": "node server.mjs",
     "compact": "node bin/compact.mjs",
     "test": "node --test --test-timeout=120000"
+  },
+  "dependencies": {
+    "better-sqlite3": "11.7.0"
   }
 }

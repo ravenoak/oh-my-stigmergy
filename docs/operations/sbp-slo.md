@@ -22,7 +22,9 @@ Computed intensity (not stored as a single frozen field):
 
 [`packages/sbp-server/test/load.test.mjs`](../../packages/sbp-server/test/load.test.mjs) publishes **k = 80** pheromones then claims each id, measuring wall-clock per request.
 
-**Target on `ubuntu-24.04` GitHub-hosted runners:** **p95 &lt; 80 ms** per publish and per claim (generous vs sub-ms laptops; avoids flaky CI).
+**Target on `ubuntu-24.04` GitHub-hosted runners:** **p95 &lt; 80 ms** per publish and per claim (generous vs sub-ms laptops; avoids flaky CI). The same target applies when tests are pointed at an on-disk **SQLite** ledger (`SqliteLedgerStore`) per [ADR-0011](../adr/0011-sbp-sqlite-store.md).
+
+**Size rotation:** when **`SBP_LEDGER_MAX_BYTES`** is set with an opt-in decay GC interval, oversize ledgers trigger an extra compaction pass; operators may **`VACUUM`** SQLite copies offline after large deletes (runbook).
 
 Run locally:
 
@@ -32,12 +34,13 @@ cd packages/sbp-server && npm test -- test/load.test.mjs
 
 ## Ledger growth and GC
 
-- **Compaction** rewrites JSONL in place (claimed rows whose computed `currentIntensity` is below **`SBP_DECAY_GC_FLOOR`**, default `0.01`, are dropped). See [ADR-0009](../adr/0009-sbp-ledger-compaction-decay-gc.md).
-- **Opt-in timer:** **`SBP_DECAY_GC_INTERVAL_MS`** triggers periodic compaction when the standalone server runs with **`SBP_LEDGER_JSONL`**.
+- **Compaction** rewrites JSONL in place or **deletes** rows in SQLite (claimed rows whose computed `currentIntensity` is below **`SBP_DECAY_GC_FLOOR`**, default `0.01`, are dropped). See [ADR-0009](../adr/0009-sbp-ledger-compaction-decay-gc.md) and [ADR-0011](../adr/0011-sbp-sqlite-store.md).
+- **Opt-in timer:** **`SBP_DECAY_GC_INTERVAL_MS`** triggers periodic compaction when the standalone server runs with **`SBP_LEDGER_JSONL`** or **`SBP_LEDGER_SQLITE`**.
 - **Operator procedures:** [sbp-operator-runbook.md](sbp-operator-runbook.md) (stop writer → compact / rotate → verify).
 
 ## Related
 
 - [ADR-0008](../adr/0008-sbp-persistence.md) — JSONL durability.
 - [ADR-0009](../adr/0009-sbp-ledger-compaction-decay-gc.md) — compaction + decay GC.
+- [ADR-0011](../adr/0011-sbp-sqlite-store.md) — SQLite ledger.
 - [NFR.md](../requirements/NFR.md) **NFR-O2**, [FR.md](../requirements/FR.md) **FR-3.2** — RTM verification strings.
