@@ -137,16 +137,18 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 8 program exit:** `allium check spec/` clean; `verify-crucible-compile` + `ci_contract` green; honesty language in RTM for NFR-P1 / NFR-S2 matches runtime behaviour.
 
-### Phase 9 — Crucible expressiveness (charter only; implementation follows ADR-0006)
+### Phase 9 — Crucible expressiveness (**complete**)
 
-**Program:** extend [`packages/crucible`](../../packages/crucible/) with **integer ranges** and **collection** encoders beyond the Phase 6 invariant subset, with new goldens and RTM verification — **not** started until Phase 9 PR series opens.
+**Program:** extend [`packages/crucible`](../../packages/crucible/) with **integer-range** and **collection-cardinality** invariant encoders beyond the Phase 6 subset, with goldens and RTM verification in **`QF_UFLIA`**.
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P9-ADR | [ADR-0006](adr/0006-p4-crucible-execution.md) lists new constructs, solver expectations, and golden policy. |
-| P9-fixtures | New `tests/fixtures/crucible/` pairs (e.g. `integer_ranges.model.json` + `.smt2`) and `verify-crucible-compile.sh` coverage. |
-| P9-tests | `packages/crucible/tests` + optional `crucible.cli solve` extensions where sat/unsat stories exist. |
-| P9-trace | FR-4.2 / FR-4.3 rows + [RTM.md](traceability/RTM.md) cite the new gates; no `implemented` until evidence exists ([NFR-D1](requirements/NFR.md)). |
+| P9-ADR | [ADR-0006](adr/0006-p4-crucible-execution.md) decision (5) lists constructs, solver expectations, golden policy, and **not pursued** element-level list reasoning. |
+| P9-fixtures | `tests/fixtures/crucible/int_ranges{,_bad}.model.json` + `.smt2`, `collections{,_bad}.model.json` + `.smt2`; [`scripts/verify-crucible-compile.sh`](../../scripts/verify-crucible-compile.sh) coverage. |
+| P9-tests | [`packages/crucible/tests`](../../packages/crucible/tests) golden + unsat-core tests for the new fixtures. |
+| P9-trace | FR-4.2 / FR-4.3 + [RTM.md](traceability/RTM.md) cite the new gates ([NFR-D1](requirements/NFR.md)). |
+
+**Phase 9 program exit (2026-04-28):** `verify-crucible-compile` + `verify-smt-golden` + `packages/crucible` unittests green; element-level collection constraints remain **not pursued** per ADR-0006.
 
 ## Backlog hygiene
 
