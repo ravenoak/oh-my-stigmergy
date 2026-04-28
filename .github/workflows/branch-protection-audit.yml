@@ -1,5 +1,5 @@
-# Maintainer-only: verify remote branch protection matches devtools/branch-protection.json,
-# and update an in-repo evidence artifact that is enforced as a merge gate.
+# Maintainer-only: verify remote branch protection matches devtools/branch-protection.json.
+# Read-only on the repo: logs a human-readable summary; no commits or PRs.
 name: branch-protection-audit
 
 on:
@@ -7,13 +7,12 @@ on:
     - cron: "23 3 1 * *" # monthly 03:23 UTC on the 1st
   workflow_dispatch:
 
-# Review 2026-12-31: drop when GitHub Actions defaults to Node 24 for JS actions.
+# Review 2026-12-31: remove when GitHub Actions defaults to Node 24 for JS actions.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   verify:
@@ -37,40 +36,7 @@ jobs:
           GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
         run: bash scripts/verify-branch-protection-remote.sh
 
-      - name: Capture branch protection summary
+      - name: Log branch protection summary
         env:
           GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
-        run: bash scripts/print-branch-protection-summary.sh main > /tmp/branch_protection_summary.txt
-
-      - name: Update evidence artifact
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import json
-          from datetime import datetime, timezone
-          from pathlib import Path
-
-          summary_txt = Path("/tmp/branch_protection_summary.txt").read_text(encoding="utf-8").splitlines()
-          evidence = {
-              "verified": True,
-              "last_verified_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
-              "summary": summary_txt,
-          }
-          out = Path("docs/operations/branch-protection-evidence.json")
-          out.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-          print(f"Wrote {out}")
-          PY
-
-      - name: Open PR updating evidence
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
-        with:
-          commit-message: "chore(governance): refresh branch protection evidence"
-          title: "chore(governance): refresh branch protection evidence"
-          body: |
-            Automated update of `docs/operations/branch-protection-evidence.json` from the scheduled branch-protection audit.
-
-            Evidence freshness is no longer enforced in CI (see docs/operations/github-branch-protection.md); this PR still refreshes the summary artefact for maintainers.
-          branch: "automation/branch-protection-evidence"
-          delete-branch: true
-          add-paths: |
-            docs/operations/branch-protection-evidence.json
+        run: bash scripts/print-branch-protection-summary.sh main
