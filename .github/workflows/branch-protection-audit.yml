@@ -69,7 +69,7 @@ jobs:
           body: |
             Automated update of `docs/operations/branch-protection-evidence.json` from the scheduled branch-protection audit.
 
-            This keeps the merge gate `branch-protection-evidence / check` satisfied with fresh, verified evidence.
+            Evidence freshness is no longer enforced in CI (see docs/operations/github-branch-protection.md); this PR still refreshes the summary artefact for maintainers.
           branch: "automation/branch-protection-evidence"
           delete-branch: true
           add-paths: |
