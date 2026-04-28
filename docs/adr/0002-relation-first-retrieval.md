@@ -24,4 +24,4 @@ Cosine-similarity retrieval can return lookalike code that is topologically irre
 ## Verification
 
 - [`packages/graph/tests`](../../packages/graph/tests) unittest discovery in `allium-specs` covers byte cards, IMPORTS aspect edges, and `load_node` slice aggregation.
-- CI graph ingestion wall-clock budget is pinned with [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt) and enforced deterministically by [`scripts/verify-heavy-budget.sh`](../../scripts/verify-heavy-budget.sh) (see [NFR-P1](../requirements/NFR.md)).
+- CI graph ingestion wall-clock budget is pinned with [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt); the **`Graph package unit tests (FR-2.x)`** step in [`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml) sets **`timeout-minutes`** to `ceil(seconds / 60)` (hard kill on `ubuntu-24.04`). [`scripts/verify-heavy-budget.sh`](../../scripts/verify-heavy-budget.sh) asserts the pin, ADR text, and workflow timeout stay aligned (see [NFR-P1](../requirements/NFR.md)).

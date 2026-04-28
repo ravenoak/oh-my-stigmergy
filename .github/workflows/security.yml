@@ -1,6 +1,7 @@
 # OSS-only security gates for agentic development.
 name: security
 
+# Review 2026-12-31: remove when GitHub Actions defaults to Node 24 for JS actions.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 

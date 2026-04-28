@@ -277,6 +277,23 @@ echo "$heavy_block" | grep -q 'analyse-allium-specs.sh' || {
   echo "ci_contract: specs-and-packages must run scripts/analyse-allium-specs.sh" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q 'timeout-minutes: 2' || {
+  echo "ci_contract: specs-and-packages graph unittest step must set timeout-minutes: 2 (NFR-P1)" >&2
+  exit 1
+}
+
+gov_spec="spec/governance.allium"
+inv_overlay="tests/fixtures/crucible/invariants.overlay.json"
+for ent in RepositoryGovernance DistillationArtefact ShimAllowEntry WorkflowJob; do
+  grep -q "entity ${ent}" "$gov_spec" || {
+    echo "ci_contract: ${gov_spec} must declare entity ${ent} (Phase 8 governance slices)" >&2
+    exit 1
+  }
+  grep -q "\"entity\": \"${ent}\"" "$inv_overlay" || {
+    echo "ci_contract: ${inv_overlay} must include default overlay for ${ent}" >&2
+    exit 1
+  }
+done
 
 grep -q 'tests/ci_contract.sh' "$workflow" || {
   echo "ci_contract: $workflow must run tests/ci_contract.sh" >&2

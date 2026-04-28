@@ -1,6 +1,3 @@
 {
-  "allow_missing_spec_anchor": [
-    "FR-0.1"
-  ]
+  "allow_missing_spec_anchor": []
 }
-

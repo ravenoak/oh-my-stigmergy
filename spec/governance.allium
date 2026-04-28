@@ -1,5 +1,6 @@
 -- allium: 3
--- Repository governance: traceability row maturity (FR-1.1 domain slice).
+-- Repository governance: traceability (FR-1.1), coordination + graph slices (FR-2.x–FR-3.x),
+-- repository governance + distillation + shim + CI job intent (FR-0.1, FR-0.2, FR-1.2, FR-4.1).
 
 ------------------------------------------------------------
 -- Entities and Variants
@@ -46,6 +47,30 @@ entity AspectEdge {
     kind: imports | sources | calls
 }
 
+entity RepositoryGovernance {
+    charter_status: draft | amended | frozen
+
+    transitions charter_status {
+        draft -> amended
+        amended -> frozen
+        terminal: frozen
+    }
+}
+
+entity DistillationArtefact {
+    kind: spec | delta | gap
+    lifecycle: draft | published
+}
+
+entity ShimAllowEntry {
+    attestation: attested | tampered
+}
+
+entity WorkflowJob {
+    id: filter | governance | specs_and_packages | check
+    outcome: pending | success | failure | skipped
+}
+
 ------------------------------------------------------------
 -- Defaults
 ------------------------------------------------------------
@@ -76,6 +101,24 @@ default CodeCard seed_code_card = {
 
 default AspectEdge seed_aspect_edge = {
     kind: imports
+}
+
+default RepositoryGovernance seed_repository_governance = {
+    charter_status: draft
+}
+
+default DistillationArtefact seed_distillation_artefact = {
+    kind: spec,
+    lifecycle: draft
+}
+
+default ShimAllowEntry seed_shim_allow_entry = {
+    attestation: attested
+}
+
+default WorkflowJob seed_workflow_job = {
+    id: governance,
+    outcome: success
 }
 
 ------------------------------------------------------------
@@ -113,4 +156,26 @@ invariant CodeCardsWellFormed {
 invariant AspectEdgesWellFormed {
     for e in AspectEdges:
         e.kind = imports or e.kind = sources or e.kind = calls
+}
+
+invariant RepositoryGovernancesWellFormed {
+    for r in RepositoryGovernances:
+        r.charter_status = draft or r.charter_status = amended or r.charter_status = frozen
+}
+
+invariant DistillationArtefactsWellFormed {
+    for d in DistillationArtefacts:
+        (d.kind = spec or d.kind = delta or d.kind = gap)
+            and (d.lifecycle = draft or d.lifecycle = published)
+}
+
+invariant ShimAllowEntriesWellFormed {
+    for s in ShimAllowEntries:
+        s.attestation = attested or s.attestation = tampered
+}
+
+invariant WorkflowJobsWellFormed {
+    for w in WorkflowJobs:
+        (w.id = filter or w.id = governance or w.id = specs_and_packages or w.id = check)
+            and (w.outcome = pending or w.outcome = success or w.outcome = failure or w.outcome = skipped)
 }
