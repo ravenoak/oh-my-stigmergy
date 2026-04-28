@@ -1,6 +1,7 @@
 # Enforce that all GitHub Actions workflows are pinned to immutable SHAs.
 name: actions-pinned
 
+# Review 2026-12-31: remove when GitHub Actions defaults to Node 24 for JS actions.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 

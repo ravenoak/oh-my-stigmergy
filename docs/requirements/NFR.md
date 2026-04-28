@@ -13,7 +13,7 @@
 
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
-| NFR-P1 | Heavy-job graph ingestion on GitHub-hosted runners stays within the wall-clock budget recorded for relation-first retrieval (ADR-0002). | P2 | implemented | [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt); deterministic gate [`scripts/verify-heavy-budget.sh`](../../scripts/verify-heavy-budget.sh) in `allium-specs` **`governance`** job |
+| NFR-P1 | Heavy-job graph ingestion on GitHub-hosted runners stays within the wall-clock budget recorded for relation-first retrieval (ADR-0002). | P2 | implemented | [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt); **`timeout-minutes`** on the graph unittest step in [`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml); deterministic gate [`scripts/verify-heavy-budget.sh`](../../scripts/verify-heavy-budget.sh) in `allium-specs` **`governance`** job |
 
 ## Observability
 
@@ -34,7 +34,7 @@
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
 | NFR-S1 | Generated policy or SMT tooling must not execute unreviewed LLM-produced evaluators as the sole safety gate. | P4 | implemented | [`devtools/crucible-shim/policy.maintainer.json`](../../devtools/crucible-shim/policy.maintainer.json), [`scripts/verify-shim-policy.sh`](../../scripts/verify-shim-policy.sh) | **Deterministic today:** policy body SHA-256 attestation verified in CI + before wrap; [`scripts/verify-shim-policy-diff.sh`](../../scripts/verify-shim-policy-diff.sh) on PRs; [`tests/crucible_shim_contract.sh`](../../tests/crucible_shim_contract.sh) exercises allow/deny/`args_regex`/audit/tamper/missing-attestation. |
-| NFR-S2 | Pull requests must not add obvious secret/token patterns without allow-listed justification. | P1 | implemented | [`scripts/verify-no-secrets.sh`](../../scripts/verify-no-secrets.sh) on PR diffs (substring [`devtools/secret-allowlist.txt`](../../devtools/secret-allowlist.txt)); complements OSS **`gitleaks`** scan in [`security.yml`](../../.github/workflows/security.yml) |
+| NFR-S2 | Pull requests must not add obvious secret/token patterns without allow-listed justification. | P1 | implemented | [`scripts/verify-no-secrets.sh`](../../scripts/verify-no-secrets.sh) on PR diffs (substring [`devtools/secret-allowlist.txt`](../../devtools/secret-allowlist.txt)); **fail-loud in CI** when diff refs cannot be resolved; complements OSS **`gitleaks`** scan in [`security.yml`](../../.github/workflows/security.yml) |
 
 ## Accessibility of process
 

@@ -55,7 +55,11 @@ After `gh auth login` with a token that can read branch protection:
 
 ### GitHub Actions audit (scheduled + manual)
 
-Repository workflow [`.github/workflows/branch-protection-audit.yml`](../../.github/workflows/branch-protection-audit.yml) runs monthly (UTC) and on **`workflow_dispatch`**. Configure repository secret **`BP_ADMIN_TOKEN`** (admin-capable token able to read branch protection / rulesets via `gh api`) so `verify-branch-protection-remote.sh` + evidence refresh can run in Actions; if the secret is absent, verification steps are **skipped** with a notice (workflow stays green).
+Repository workflow [`.github/workflows/branch-protection-audit.yml`](../../.github/workflows/branch-protection-audit.yml) runs monthly (UTC) and on **`workflow_dispatch`** on the **canonical** remote `ravenoak/oh-my-stigmergy` only (forks skip the job).
+
+**Required:** repository secret **`BP_ADMIN_TOKEN`** — a **classic PAT or fine-grained token** with **`administration: read`** (or repo admin) so `gh api` can read branch protection / rulesets. The audit job **fails** if the secret is missing or invalid. Rotate the token before expiry and update the secret; record rotation dates in this section when you change it.
+
+**Expiry / rotation:** set a calendar reminder (e.g. 90-day PAT rotation). When rotating, generate a new token, update **`BP_ADMIN_TOKEN`**, re-run the workflow from **Actions → branch-protection-audit → Run workflow**, and confirm green.
 
 ## Verification
 
@@ -68,4 +72,4 @@ After you enable protection (UI, rulesets, or `./scripts/apply-branch-protection
 | Date | Owner | Notes |
 |------|-------|-------|
 | 2026-04-27 | oh-my-stigmergy | **Required check enforced** — `main` requires **`allium-specs / check`** before merge (maintainer-confirmed in GitHub UI / rules). |
-| 2026-04-28 | oh-my-stigmergy | **Rulesets-aware verification** — [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) supports classic protection **and** repository rulesets (required contexts + merge-method checks). Paste [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) output here after each audit; scheduled audit workflow runs monthly when **`BP_ADMIN_TOKEN`** is configured. |
+| 2026-04-28 | oh-my-stigmergy | **Rulesets-aware verification** — [`scripts/verify-branch-protection-remote.sh`](../../scripts/verify-branch-protection-remote.sh) supports classic protection **and** repository rulesets (required contexts + merge-method checks). Paste [`scripts/print-branch-protection-summary.sh`](../../scripts/print-branch-protection-summary.sh) output here after each audit; scheduled audit requires **`BP_ADMIN_TOKEN`** on the canonical remote (workflow fails if absent). |

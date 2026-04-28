@@ -118,11 +118,35 @@ Single tracked program to eliminate drift between behavioural intent (`spec/gove
 | Milestone | Exit criteria |
 |-----------|----------------|
 | P7-a — Spec + anchors | [`spec/governance.allium`](../../spec/governance.allium) models **stance**, **ledger store**, **aspect edges**, and **code-card** slices aligned with packages; FR anchors cite `spec/` where behavioural intent applies; [`scripts/verify-fr-spec-anchors.sh`](../../scripts/verify-fr-spec-anchors.sh) + [`devtools/fr-anchor-allow.json`](../../devtools/fr-anchor-allow.json) enforce anchor hygiene; crucible governance fixtures stay golden-clean (`verify-crucible-compile`). |
-| P7-b — Conflict governance | [ADR-0005](../adr/0005-conflict-resolution-governance.md) **`Accepted`** — automatic delegation remains **not pursued** until a successor ADR; branch-protection audit documents rulesets-aware verification + optional `BP_ADMIN_TOKEN`. |
+| P7-b — Conflict governance | [ADR-0005](../adr/0005-conflict-resolution-governance.md) **`Accepted`** — automatic delegation remains **not pursued** until a successor ADR; branch-protection audit documents rulesets-aware verification (Phase 8 makes `BP_ADMIN_TOKEN` **required** on the canonical remote). |
 | P7-c — Graph ergonomics + CI hygiene | `graph.aspect` CLI + `load_node --edge-kind`; mint **NFR-P1** (heavy-job budget script + [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt)) and **NFR-S2** (PR diff secret-pattern gate + [`devtools/secret-allowlist.txt`](../../devtools/secret-allowlist.txt)); amend [ADR-0002](../adr/0002-relation-first-retrieval.md) verification clause. |
 | P7-d — Docs + Actions stance | [PRD.md](PRD.md) / [TDD.md](TDD.md) / [BACKLOG.md](BACKLOG.md) honesty pass (no “Redis optional” ambiguity — replaced by SQLite path); [ROADMAP.md](ROADMAP.md) records Phase 7; workflows set `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` for Node-on-Actions forward compatibility. |
 
 **Phase 7 program exit:** RTM rows cite new gates; `tests/ci_contract.sh` locks wiring; no new `implemented` claims without verification ([NFR-D1](requirements/NFR.md)).
+
+### Phase 8 — Operational truth and spec coverage closure
+
+Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR-S2** / governance intent were only weakly enforced, and extends [`spec/governance.allium`](../../spec/governance.allium) with repository-level slices (`RepositoryGovernance`, `DistillationArtefact`, `ShimAllowEntry`, `WorkflowJob`) so FR-0.1 / FR-0.2 / FR-1.2 / FR-4.1 have explicit Allium anchors.
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P8-a — NFR-P1 operational | Graph unittest step in **`allium-specs`** has **`timeout-minutes`** matching `ceil(devtools/ci-heavy-budget-seconds.txt / 60)`; [`scripts/verify-heavy-budget.sh`](../../scripts/verify-heavy-budget.sh) asserts workflow + pin + ADR alignment. |
+| P8-b — No optional skip-paths | [`branch-protection-audit.yml`](../../.github/workflows/branch-protection-audit.yml) runs only on **`ravenoak/oh-my-stigmergy`** and **fails** without `BP_ADMIN_TOKEN`; [`scripts/verify-no-secrets.sh`](../../scripts/verify-no-secrets.sh) **fails loud in CI** when diff refs cannot be resolved. |
+| P8-c — Spec coverage | Four new entities + defaults + invariants in `spec/governance.allium`; crucible fixture parity; [`devtools/fr-anchor-allow.json`](../../devtools/fr-anchor-allow.json) allow-list empty; FR/RTM anchors updated; `ci_contract` locks entity + overlay rows. |
+| P8-d — Roadmap + Phase 9 charter | This section + Phase 9 below; [BACKLOG.md](BACKLOG.md) crucible row promoted; [PRD.md](PRD.md) cites Phase 8/9; workflow comments set **2026-12-31** review for `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`. |
+
+**Phase 8 program exit:** `allium check spec/` clean; `verify-crucible-compile` + `ci_contract` green; honesty language in RTM for NFR-P1 / NFR-S2 matches runtime behaviour.
+
+### Phase 9 — Crucible expressiveness (charter only; implementation follows ADR-0006)
+
+**Program:** extend [`packages/crucible`](../../packages/crucible/) with **integer ranges** and **collection** encoders beyond the Phase 6 invariant subset, with new goldens and RTM verification — **not** started until Phase 9 PR series opens.
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P9-ADR | [ADR-0006](adr/0006-p4-crucible-execution.md) lists new constructs, solver expectations, and golden policy. |
+| P9-fixtures | New `tests/fixtures/crucible/` pairs (e.g. `integer_ranges.model.json` + `.smt2`) and `verify-crucible-compile.sh` coverage. |
+| P9-tests | `packages/crucible/tests` + optional `crucible.cli solve` extensions where sat/unsat stories exist. |
+| P9-trace | FR-4.2 / FR-4.3 rows + [RTM.md](traceability/RTM.md) cite the new gates; no `implemented` until evidence exists ([NFR-D1](requirements/NFR.md)). |
 
 ## Backlog hygiene
 

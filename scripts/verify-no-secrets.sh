@@ -23,6 +23,10 @@ elif [[ -n "${VERIFY_SECRET_DIFF_RANGE:-}" ]]; then
 fi
 
 if [[ -z "${diff_range}" ]]; then
+  if [[ "${CI:-}" == "true" ]]; then
+    echo "verify-no-secrets: CI requires GITHUB_BASE_REF (pull_request) or VERIFY_SECRET_DIFF_RANGE" >&2
+    exit 1
+  fi
   echo "verify-no-secrets: skip (set GITHUB_BASE_REF or VERIFY_SECRET_DIFF_RANGE for a git diff range)"
   exit 0
 fi
@@ -34,6 +38,10 @@ if [[ "${left}" == "${diff_range}" ]]; then
   exit 1
 fi
 if ! git rev-parse --verify "${left}^{commit}" >/dev/null 2>&1 || ! git rev-parse --verify "${right}^{commit}" >/dev/null 2>&1; then
+  if [[ "${CI:-}" == "true" ]]; then
+    echo "verify-no-secrets: cannot resolve ${diff_range} in CI (fetch-depth / refs)" >&2
+    exit 1
+  fi
   echo "verify-no-secrets: skip (cannot resolve ${diff_range} — shallow clone or missing refs)"
   exit 0
 fi

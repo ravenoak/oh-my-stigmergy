@@ -39,6 +39,32 @@
       "fields": {
         "kind": "imports"
       }
+    },
+    {
+      "entity": "RepositoryGovernance",
+      "fields": {
+        "charter_status": "draft"
+      }
+    },
+    {
+      "entity": "DistillationArtefact",
+      "fields": {
+        "kind": "spec",
+        "lifecycle": "draft"
+      }
+    },
+    {
+      "entity": "ShimAllowEntry",
+      "fields": {
+        "attestation": "attested"
+      }
+    },
+    {
+      "entity": "WorkflowJob",
+      "fields": {
+        "id": "governance",
+        "outcome": "success"
+      }
     }
   ],
   "invariants": [
@@ -134,6 +160,86 @@
           "entity": "StanceTarget",
           "field": "name",
           "bound": 0
+        }
+      ]
+    },
+    {
+      "name": "RepositoryGovernancesWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "RepositoryGovernance",
+          "field": "charter_status",
+          "values": [
+            "draft",
+            "amended",
+            "frozen"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DistillationArtefactsWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "DistillationArtefact",
+          "field": "kind",
+          "values": [
+            "spec",
+            "delta",
+            "gap"
+          ]
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "DistillationArtefact",
+          "field": "lifecycle",
+          "values": [
+            "draft",
+            "published"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ShimAllowEntriesWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "ShimAllowEntry",
+          "field": "attestation",
+          "values": [
+            "attested",
+            "tampered"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "WorkflowJobsWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "WorkflowJob",
+          "field": "id",
+          "values": [
+            "filter",
+            "governance",
+            "specs_and_packages",
+            "check"
+          ]
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "WorkflowJob",
+          "field": "outcome",
+          "values": [
+            "pending",
+            "success",
+            "failure",
+            "skipped"
+          ]
         }
       ]
     },

@@ -7,6 +7,7 @@ on:
     - cron: "23 3 1 * *" # monthly 03:23 UTC on the 1st
   workflow_dispatch:
 
+# Review 2026-12-31: drop when GitHub Actions defaults to Node 24 for JS actions.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
@@ -16,29 +17,32 @@ permissions:
 
 jobs:
   verify:
+    if: github.repository == 'ravenoak/oh-my-stigmergy'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Require BP_ADMIN_TOKEN repository secret
+        env:
+          BP_ADMIN_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BP_ADMIN_TOKEN}" ]; then
+            echo "::error::BP_ADMIN_TOKEN is required on ravenoak/oh-my-stigmergy for branch-protection-audit (admin-capable token for gh api)." >&2
+            exit 1
+          fi
+
       - name: Verify remote branch protection
-        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         env:
           GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
         run: bash scripts/verify-branch-protection-remote.sh
 
-      - name: Notice skipping branch protection verify
-        if: ${{ secrets.BP_ADMIN_TOKEN == '' }}
-        run: |
-          echo "::notice::Skipping verify-branch-protection-remote — add repository secret BP_ADMIN_TOKEN (admin-capable) to run verification in Actions."
-
       - name: Capture branch protection summary
-        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         env:
           GH_TOKEN: ${{ secrets.BP_ADMIN_TOKEN }}
         run: bash scripts/print-branch-protection-summary.sh main > /tmp/branch_protection_summary.txt
 
       - name: Update evidence artifact
-        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -58,7 +62,6 @@ jobs:
           PY
 
       - name: Open PR updating evidence
-        if: ${{ secrets.BP_ADMIN_TOKEN != '' }}
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           commit-message: "chore(governance): refresh branch protection evidence"
