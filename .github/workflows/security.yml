@@ -44,8 +44,8 @@ jobs:
       - name: Python dependency vulnerability audit (pip-audit)
         run: |
           set -euo pipefail
-          uv run python -m pip install --disable-pip-version-check pip-audit
-          uv run pip-audit
+          uv export --frozen --all-extras --all-groups --format requirements-txt -o /tmp/requirements.txt
+          uvx pip-audit -r /tmp/requirements.txt
 
       - name: Static analysis (Semgrep OSS)
         run: |
