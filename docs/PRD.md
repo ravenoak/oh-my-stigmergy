@@ -53,7 +53,7 @@ High-level goals below; **ordered milestones, explicit sequencing stances, and p
 
 ## Deferred program of record (P2–P4)
 
-Requirements in [requirements/FR.md](requirements/FR.md) that remain **planned** or **partial** with further work (for example deeper P4 crucible per [ADR-0006](adr/0006-p4-crucible-execution.md)) advance **only** along [ROADMAP.md](ROADMAP.md) when each initiative has a **scoped ADR** (where required) and a **dedicated PR series** with RTM verification. Use [BACKLOG.md](BACKLOG.md) to park or promote ideas without silently implying shipped maturity.
+Requirements in [requirements/FR.md](requirements/FR.md) that remain **planned** or **partial** with further work advance **only** along [ROADMAP.md](ROADMAP.md) **Phase 5** and later phases when each initiative has a **scoped ADR** (where required) and a **dedicated PR series** with RTM verification. Phase 5 explicitly hardens: **P4 crucible** encoders and goldens ([ADR-0006](adr/0006-p4-crucible-execution.md)), **graph** multi-language + `load_node` depth ([ADR-0002](adr/0002-relation-first-retrieval.md), [ADR-0007](adr/0007-graph-persistence.md)), **SBP** JSONL compaction/decay GC ([ADR-0009](adr/0009-sbp-ledger-compaction-decay-gc.md)), and **shim** policy depth (`args_regex`, audit log, `verify-shim-policy-diff.sh`) — **not** org-wide PATH/OPA enforcement (**not pursued**, [BACKLOG.md](BACKLOG.md), [ADR-0004](adr/0004-verification-stack-layering.md)). Use [BACKLOG.md](BACKLOG.md) to park or promote ideas without silently implying shipped maturity.
 
 ## References
 

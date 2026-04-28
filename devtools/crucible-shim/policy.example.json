@@ -4,7 +4,8 @@
   "allow": [
     {
       "command": "echo",
-      "argv_prefix": []
+      "argv_prefix": [],
+      "args_regex": "^allowed-arg$"
     },
     {
       "command": "git",

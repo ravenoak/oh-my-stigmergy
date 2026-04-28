@@ -4,11 +4,12 @@
   "allow": [
     {
       "command": "echo",
-      "argv_prefix": []
+      "argv_prefix": [],
+      "args_regex": "^ok$"
     }
   ],
   "attestation": {
-    "sha256": "a40100c08e2f511abf1b4c64b557154b69e00c3e5c8df8b18b1940cc36715e5a",
+    "sha256": "e55d7a8a23f25e9f9406ce9ae1132a17cdccdf256e0377a8316102a46ab29838",
     "signed_by": "oh-my-stigmergy",
     "signed_at": "2026-04-27T00:00:00Z"
   }

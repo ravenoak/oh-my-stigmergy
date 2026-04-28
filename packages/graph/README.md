@@ -1,6 +1,6 @@
 # Graph package (FR-2.1–FR-2.3)
 
-Byte-addressed **code cards** and an **imports** aspect graph for Python sources under a repository root.
+Byte-addressed **code cards** and **IMPORTS** / **SOURCES** aspect edges for **Python**, **TypeScript**, and **shell** under a repository root (optional Tree-sitter **symbol** cards for Python + TypeScript when bindings are installed).
 
 **Python:** 3.13 only for this package ([`.python-version`](../../.python-version); `requires-python` in `pyproject.toml` excludes 3.14+).
 
@@ -20,7 +20,7 @@ Without uv, from `packages/graph`: `PYTHONPATH=src python3.13 -m unittest discov
 ## `load_node`
 
 ```bash
-python -m graph.load_node <repo_root> <node_id>
+uv run python -m graph.load_node <repo_root> <node_id> [--depth N]
 ```
 
-`node_id` format: `relative/path.py#line` (1-based line number).
+`node_id` format: `relative/path.py#line` (1-based line number). **`--depth`** is `0–3` (default `1`): larger values follow **resolved** `IMPORTS` / `SOURCES` targets in deterministic BFS order and append neighbor card bodies (see [`graph/load_node.py`](src/graph/load_node.py)).

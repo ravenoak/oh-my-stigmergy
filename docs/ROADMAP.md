@@ -14,8 +14,8 @@ The essay’s target system has **four layers** (cognitive agents, SBP coordinat
 |---------------------|---------|-----------------|------------------------|
 | Intent elicitation / Allium | FR-1.x | NFR-O1, NFR-C1 | FR-1.2 implemented; FR-1.3 implemented via `allium model` + `packages/transitions` |
 | Hound relation-first navigation | FR-2.x | NFR-C1 | Reference graph + SQLite; Python + TypeScript + shell ingestion + optional Tree-sitter symbol cards (see ADR-0007) |
-| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE; JSONL per [ADR-0008](adr/0008-sbp-persistence.md); decay + load + NDJSON log contracts ([`docs/operations/sbp-slo.md`](operations/sbp-slo.md)); Redis scale still open |
-| Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | FR-4.2–4.3 + attested shim shipped; ContextCov parity still out of scope per ADR-0004 |
+| SBP blackboard | FR-3.x | NFR-O2 | Reference ledger + SSE; JSONL per [ADR-0008](adr/0008-sbp-persistence.md); compaction + decay GC per [ADR-0009](adr/0009-sbp-ledger-compaction-decay-gc.md); decay + load + NDJSON log contracts ([`docs/operations/sbp-slo.md`](operations/sbp-slo.md)); Redis scale still open |
+| Sublation crucible (ContextCov, SMT, Z3) | FR-4.x | NFR-S1, NFR-D2 | FR-4.2–4.3 + attested shim (args regex + audit + policy-diff co-touch); org-wide PATH/OPA **not pursued** ([BACKLOG.md](BACKLOG.md), [ADR-0004](adr/0004-verification-stack-layering.md)); ContextCov parity still out of scope per ADR-0004 |
 
 Sections **1–7** of the essay supply **motivation and critique** (ToCS, ContextCov, OMO, liquid delegation). They inform ADRs and guides but are not duplicated as extra FR rows here.
 
@@ -84,6 +84,19 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 | P4-translate | FR-4.2 → `implemented`: [`packages/crucible`](../../packages/crucible/) + [`scripts/verify-crucible-compile.sh`](../../scripts/verify-crucible-compile.sh) golden `diff`; no LLM in translation path |
 | P4-solve | FR-4.3 → `implemented`: `crucible.cli solve spec/` + named assertions + `explain_core` (see TDD / RTM) |
 | P4-shim | FR-4.1 + NFR-S1 → `implemented`: deny-by-default attested policy + contract tests (see RTM) |
+
+### Phase 5 — Depth and operability closeout (P2–P4 hardening)
+
+Four milestones shipped as **sequenced PRs** (verification core → graph → SBP ops → shim stance). Exit: RTM / `ci_contract` cite the new gates; no new `implemented` claims without tests ([NFR-D1](requirements/NFR.md)).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P5-a — Crucible depth | **FR-4.2 / FR-4.3:** enum + `required`/bool encoders beyond transition graphs; goldens under `tests/fixtures/crucible/`; `verify-crucible-compile.sh` loops all `*.allium` (excluding `minimal.allium` hand pair) + `*.model.json`; ADR-0006 lists constructs; crucible unittests + Z3 goldens green. |
+| P5-b — Graph depth | **FR-2.1–FR-2.3:** TypeScript symbol cards (`tree-sitter-typescript`) + `load_node --depth` (BFS `IMPORTS`/`SOURCES`); ADR-0002 + ADR-0007 aligned; graph unittests + `uv.lock` pin. |
+| P5-c — SBP operability | **FR-3.1 / FR-3.2 / NFR-O2:** [ADR-0009](adr/0009-sbp-ledger-compaction-decay-gc.md) — `compactJsonlLedger`, CLI `bin/compact.mjs`, opt-in `SBP_DECAY_GC_INTERVAL_MS`, operator [runbook](operations/sbp-operator-runbook.md); no Redis; compaction + decay-GC tests in `npm test`. |
+| P5-d — Shim depth + OPA stance | **FR-4.1 / NFR-S1:** optional `args_regex` per allow row; `CRUCIBLE_SHIM_AUDIT_LOG` NDJSON on deny; `verify-shim-policy-diff.sh` (policy ↔ README PR co-touch); BACKLOG row org-wide PATH/OPA **not pursued** with ADR-0004 rationale; ADR-0006 updated. |
+
+**Phase 5 program exit:** all four rows above landed with green `allium-specs`; [BACKLOG.md](BACKLOG.md) mapping updated; this section stays canonical for the closeout scope.
 
 ## Backlog hygiene
 

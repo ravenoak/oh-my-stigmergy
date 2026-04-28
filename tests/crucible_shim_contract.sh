@@ -5,6 +5,11 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 maint="${repo_root}/devtools/crucible-shim/policy.maintainer.json"
+tampered="$(mktemp)"
+no_att="$(mktemp)"
+audit="$(mktemp)"
+trap 'rm -f "$tampered" "$no_att" "$audit"' EXIT
+
 bash "${repo_root}/scripts/verify-shim-policy.sh" "$maint"
 
 if POLICY_FILE="$maint" bash devtools/crucible-shim/wrap.sh true; then
@@ -23,9 +28,29 @@ out="$(POLICY_FILE="$maint" bash devtools/crucible-shim/wrap.sh echo ok)"
   exit 1
 }
 
-tampered="$(mktemp)"
-no_att="$(mktemp)"
-trap 'rm -f "$tampered" "$no_att"' EXIT
+if POLICY_FILE="$maint" bash devtools/crucible-shim/wrap.sh echo disallowed; then
+  echo "crucible_shim_contract: expected block for echo with bad args (args_regex)" >&2
+  exit 1
+fi
+
+if CRUCIBLE_SHIM_AUDIT_LOG="$audit" POLICY_FILE="$maint" bash devtools/crucible-shim/wrap.sh echo disallowed; then
+  echo "crucible_shim_contract: expected deny for audit test" >&2
+  exit 1
+fi
+[[ -s "$audit" ]] || {
+  echo "crucible_shim_contract: expected audit log file" >&2
+  exit 1
+}
+python3 <<PY
+import json
+from pathlib import Path
+line = Path("${audit}").read_text(encoding="utf-8").strip().splitlines()[-1]
+row = json.loads(line)
+assert row.get("event") == "shim_denied"
+assert isinstance(row.get("ts"), int)
+assert row.get("argv") == ["echo", "disallowed"]
+PY
+
 sed 's/"echo"/"echox"/' "$maint" >"$tampered"
 if bash scripts/verify-shim-policy.sh "$tampered"; then
   echo "crucible_shim_contract: expected attestation failure on tampered policy" >&2

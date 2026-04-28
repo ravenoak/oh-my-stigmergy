@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import json
 import shutil
 import unittest
 from pathlib import Path
 
-from crucible.compile import compile_allium_file, compile_model_json_to_smt
+from crucible.compile import compile_allium_file, compile_model_fixture, compile_model_json_to_smt
 
 
 @unittest.skipUnless(shutil.which("allium"), "allium CLI not installed")
@@ -20,6 +21,28 @@ class TestCompile(unittest.TestCase):
         smt = compile_model_json_to_smt({"entities": [], "version": 3})
         self.assertIn("(check-sat)", smt)
         self.assertIn("(exit)", smt)
+
+    def test_enums_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "enums.allium"
+        golden = (root / "tests" / "fixtures" / "crucible" / "enums.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
+
+class TestCompileJsonFixtures(unittest.TestCase):
+    def test_required_fields_fixture_matches_golden(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "required_fields.model.json"
+        golden = (root / "tests" / "fixtures" / "crucible" / "required_fields.smt2").read_text(encoding="utf-8")
+        self.assertEqual(compile_model_fixture(path), golden)
+
+    def test_required_bool_json_roundtrip(self) -> None:
+        raw = (Path(__file__).resolve().parents[3] / "tests/fixtures/crucible/required_fields.model.json").read_text(
+            encoding="utf-8",
+        )
+        smt_a = compile_model_json_to_smt(json.loads(raw))
+        smt_b = compile_model_json_to_smt(json.loads(raw))
+        self.assertEqual(smt_a, smt_b)
 
 
 if __name__ == "__main__":

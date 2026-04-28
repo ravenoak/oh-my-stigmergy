@@ -144,6 +144,13 @@ jobs:
       - name: Crucible shim policy attestation (FR-4.1 / NFR-S1)
         run: bash scripts/verify-shim-policy.sh
 
+      - name: Crucible shim policy diff co-touch (FR-4.1)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/verify-shim-policy-diff.sh
+
   specs-and-packages:
     needs: filter
     if: needs.filter.outputs.relevant == 'true'
@@ -216,7 +223,7 @@ jobs:
           command -v allium
           uv run python -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
 
-      - name: SBP server tests (FR-3.x)
+      - name: SBP server tests (FR-3.x; compaction.test.mjs decay-gc.test.mjs)
         run: cd packages/sbp-server && npm test
 
       - name: Install Z3 (golden SMT)

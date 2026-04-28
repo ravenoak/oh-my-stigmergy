@@ -13,7 +13,11 @@
         "required": ["command", "argv_prefix"],
         "properties": {
           "command": { "type": "string" },
-          "argv_prefix": { "type": "array", "items": { "type": "string" } }
+          "argv_prefix": { "type": "array", "items": { "type": "string" } },
+          "args_regex": {
+            "type": "string",
+            "description": "Optional anchored full-match regex against argv tail after argv_prefix (single-line, space-joined)"
+          }
         }
       }
     },

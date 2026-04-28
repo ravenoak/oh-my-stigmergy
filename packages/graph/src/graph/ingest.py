@@ -10,11 +10,16 @@ from graph.ids import node_id
 
 try:
     import tree_sitter_python as tspython
+    import tree_sitter_typescript as tsts
     from tree_sitter import Language, Parser
 
     _PY_LANGUAGE = Language(tspython.language())
+    _TS_LANGUAGE = Language(tsts.language_typescript())
+    _TSX_LANGUAGE = Language(tsts.language_tsx())
 except ImportError:  # pragma: no cover - dev env without bindings
     _PY_LANGUAGE = None  # type: ignore[misc, assignment]
+    _TS_LANGUAGE = None  # type: ignore[misc, assignment]
+    _TSX_LANGUAGE = None  # type: ignore[misc, assignment]
 
 
 _SH_SOURCE = re.compile(r"(?:^|\n)\s*(?:source|\.\s+)\s*([^\s#;`]+)", re.MULTILINE)
@@ -49,6 +54,49 @@ def _python_symbol_cards(root: Path, file_path: Path) -> list[Card]:
             char_end=end,
             text=text,
             language="python",
+            role="symbol",
+        )
+        for line, start, end, text in acc
+    ]
+
+
+def _typescript_symbol_cards(root: Path, file_path: Path) -> list[Card]:
+    if _TS_LANGUAGE is None or _TSX_LANGUAGE is None:
+        return []
+    rel = str(file_path.relative_to(root))
+    source = file_path.read_bytes()
+    lang = _TSX_LANGUAGE if file_path.suffix.lower() == ".tsx" else _TS_LANGUAGE
+    parser = Parser(lang)
+    tree = parser.parse(source)
+
+    interesting = {
+        "function_declaration",
+        "class_declaration",
+        "interface_declaration",
+        "type_alias_declaration",
+    }
+
+    def walk(node, acc: list[tuple[int, int, int, str]]) -> None:
+        if node.type in interesting:
+            name_child = node.child_by_field_name("name")
+            if name_child:
+                line = source[: node.start_byte].count(b"\n") + 1
+                snippet = source[node.start_byte : node.end_byte].decode("utf-8", errors="replace")
+                first = snippet.splitlines()[0][:200] if snippet else node.type
+                acc.append((line, node.start_byte, node.end_byte, first))
+        for i in range(node.child_count):
+            walk(node.child(i), acc)
+
+    acc: list[tuple[int, int, int, str]] = []
+    walk(tree.root_node, acc)
+    return [
+        Card(
+            file_path=rel,
+            line=line,
+            char_start=start,
+            char_end=end,
+            text=text,
+            language="typescript",
             role="symbol",
         )
         for line, start, end, text in acc
@@ -92,6 +140,7 @@ def ingest_file(root: Path, file_path: Path) -> tuple[list[Card], list[tuple[str
 
     if suf in (".ts", ".tsx"):
         cards = ingest_line_cards(root, file_path, language="typescript")
+        cards.extend(_typescript_symbol_cards(root, file_path))
         text = file_path.read_text(encoding="utf-8", errors="replace")
         for target in extract_typescript_imports(text):
             edges.append((src_anchor_line(), target, "IMPORTS"))

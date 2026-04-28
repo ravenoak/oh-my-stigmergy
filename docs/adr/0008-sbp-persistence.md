@@ -18,7 +18,7 @@ The reference [`packages/sbp-server`](../../packages/sbp-server) keeps pheromone
 
 ## Consequences
 
-- Disk growth is unbounded without rotation — acceptable for a reference implementation; production deployments should add compaction or external storage via a future ADR.
+- Disk growth is unbounded without rotation — mitigated by in-tree **compaction / decay GC** in [ADR-0009](0009-sbp-ledger-compaction-decay-gc.md) (reference implementation; operators still manage backups).
 - Concurrent multi-writer processes are not supported (single-file append); matches reference-server expectations.
 
 ## Verification
