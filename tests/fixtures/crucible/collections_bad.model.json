@@ -1,0 +1,35 @@
+{
+  "version": 3,
+  "entities": [
+    {
+      "name": "Bag",
+      "kind": "internal",
+      "fields": [
+        {
+          "name": "items",
+          "type_expr": "List[String]"
+        }
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "name": "Contradiction",
+      "all": [
+        {
+          "op": "card_eq",
+          "entity": "Bag",
+          "field": "items",
+          "value": 0
+        },
+        {
+          "op": "card_in_range",
+          "entity": "Bag",
+          "field": "items",
+          "lo": 1,
+          "hi": 5
+        }
+      ]
+    }
+  ]
+}

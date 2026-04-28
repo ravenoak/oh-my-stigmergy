@@ -1,0 +1,35 @@
+{
+  "version": 3,
+  "entities": [
+    {
+      "name": "Counter",
+      "kind": "internal",
+      "fields": [
+        {
+          "name": "value",
+          "type_expr": "Int"
+        }
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "name": "Contradiction",
+      "all": [
+        {
+          "op": "int_eq",
+          "entity": "Counter",
+          "field": "value",
+          "value": 5
+        },
+        {
+          "op": "int_range",
+          "entity": "Counter",
+          "field": "value",
+          "lo": 10,
+          "hi": 20
+        }
+      ]
+    }
+  ]
+}

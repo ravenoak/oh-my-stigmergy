@@ -2,7 +2,7 @@
 
 **Python 3.13** only ([`.python-version`](../../.python-version)).
 
-Deterministic **`allium model` → SMT-LIB 2.0** for transition-bearing entities.
+Deterministic **`allium model` → SMT-LIB 2.0** (**QF_UFLIA**) for transition-bearing entities, enum/bool/required fields, string-length witnesses, and Phase 9 **integer** + **list-cardinality** invariant ops (see [ADR-0006](../../docs/adr/0006-p4-crucible-execution.md) decision (5)).
 
 From the repo root after [`uv sync`](../../CONTRIBUTING.md) (`allium` on `PATH`):
 

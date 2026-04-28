@@ -69,6 +69,34 @@ class TestSolve(unittest.TestCase):
         self.assertEqual(res.status, "unsat")
         self.assertGreater(len(labels), 0)
 
+    def test_int_ranges_bad_unsat_core(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "int_ranges_bad.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, labels = compile_named_model(model)
+        smt = smt.replace("(check-sat)\n(exit)", "")
+        smt += "(check-sat)\n(get-unsat-core)\n(exit)\n"
+        res = run_z3(smt)
+        self.assertEqual(res.status, "unsat")
+        self.assertIn("crucible_0", res.unsat_core)
+        self.assertIn("crucible_1", res.unsat_core)
+        txt = explain_core(labels, res.unsat_core, path)
+        self.assertIn("invariant_Contradiction_int_eq", txt)
+
+    def test_collections_bad_unsat_core(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "collections_bad.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, labels = compile_named_model(model)
+        smt = smt.replace("(check-sat)\n(exit)", "")
+        smt += "(check-sat)\n(get-unsat-core)\n(exit)\n"
+        res = run_z3(smt)
+        self.assertEqual(res.status, "unsat")
+        self.assertIn("crucible_1", res.unsat_core)
+        self.assertIn("crucible_2", res.unsat_core)
+        txt = explain_core(labels, res.unsat_core, path)
+        self.assertIn("invariant_Contradiction_card_eq", txt)
+
 
 if __name__ == "__main__":
     unittest.main()

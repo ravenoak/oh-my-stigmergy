@@ -1,0 +1,29 @@
+{
+  "version": 3,
+  "entities": [
+    {
+      "name": "Bag",
+      "kind": "internal",
+      "fields": [
+        {
+          "name": "items",
+          "type_expr": "List[String]"
+        }
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "name": "NonEmptyBounded",
+      "all": [
+        {
+          "op": "card_in_range",
+          "entity": "Bag",
+          "field": "items",
+          "lo": 1,
+          "hi": 5
+        }
+      ]
+    }
+  ]
+}
