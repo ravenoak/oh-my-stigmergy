@@ -89,12 +89,14 @@ class SqliteCardStore:
         )
         self.conn.commit()
 
-    def iter_cards(self) -> list[Card]:
+    def iter_card_rows(self) -> list[tuple[str, Card]]:
+        """Return persisted ``(id, Card)`` pairs (ids must match ``edges`` FK semantics)."""
         cur = self.conn.execute(
-            "SELECT path, line, char_start, char_end, text, language, role FROM cards ORDER BY path, line, char_start"
+            "SELECT id, path, line, char_start, char_end, text, language, role FROM cards ORDER BY path, line, char_start"
         )
-        return [
-            Card(
+        out: list[tuple[str, Card]] = []
+        for r in cur.fetchall():
+            c = Card(
                 file_path=str(r["path"]),
                 line=int(r["line"]),
                 char_start=int(r["char_start"]),
@@ -103,8 +105,11 @@ class SqliteCardStore:
                 language=str(r["language"]),
                 role=str(r["role"]),
             )
-            for r in cur.fetchall()
-        ]
+            out.append((str(r["id"]), c))
+        return out
+
+    def iter_cards(self) -> list[Card]:
+        return [c for _, c in self.iter_card_rows()]
 
     def iter_edges(self) -> list[tuple[str, str, str]]:
         cur = self.conn.execute("SELECT src, dst, kind FROM edges ORDER BY src, dst, kind")

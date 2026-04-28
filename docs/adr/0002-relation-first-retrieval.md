@@ -17,8 +17,8 @@ Cosine-similarity retrieval can return lookalike code that is topologically irre
 
 - **Implementation binding (2026):** the reference graph lives under [`packages/graph`](../../packages/graph) (Python, stdlib + in-memory index). Optional **SQLite** persistence is documented in child [ADR-0007](0007-graph-persistence.md). **Not** committed by default: NetworkX—remains a future ADR revision if scale requires it.
 - CI time budget for graph ingestion: **≤ 2 minutes** wall-clock on `ubuntu-24.04` for the unittest job scanning the repo checkout (exclude `.git`, `node_modules`, `.venv`, `__pycache__`, `dist`, `build`).
-- First-class languages in scope for **line cards + aspect edges:** **Python** (`.py`), **TypeScript** (`.ts`, `.tsx`), **shell** (`.sh`). **Optional symbol cards** (Tree-sitter): **Python** and **TypeScript** via `tree-sitter-python` / `tree-sitter-typescript` (see [ADR-0007](0007-graph-persistence.md)); additional grammars require an ADR amendment.
-- `load_node` supports **depth-bounded** BFS over `IMPORTS` / `SOURCES` edges with deterministic ordering (see [`packages/graph/src/graph/load_node.py`](../../packages/graph/src/graph/load_node.py)).
+- First-class languages in scope for **line cards + aspect edges:** **Python** (`.py`), **TypeScript** (`.ts`, `.tsx`), **shell** (`.sh`). **Optional symbol cards** (Tree-sitter): **Python** and **TypeScript** via `tree-sitter-python` / `tree-sitter-typescript` (see [ADR-0007](0007-graph-persistence.md)); additional grammars require an ADR amendment. **CALLS** edges (best-effort callee text) and symbol subroles **`method`** / **`decorator`** are emitted for those same languages; **no** deeper resolution (type-level edges, global name resolution) in this ADR — would exceed the CI graph budget without proportional retrieval value.
+- `load_node` supports **depth-bounded** BFS over `IMPORTS` / `SOURCES` / **`CALLS`** edges with deterministic ordering (see [`packages/graph/src/graph/load_node.py`](../../packages/graph/src/graph/load_node.py)).
 - If a vendor or internal tool replaces this approach, update this ADR rather than pretending the essay’s names are binding.
 
 ## Verification

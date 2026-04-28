@@ -12,8 +12,8 @@ Accepted
 
 - **Primary store for the next scale step:** Python stdlib `sqlite3` with an on-disk database file or `:memory:` for tests.
 - **Languages in scope:** **Python** (`.py`), **TypeScript** (`.ts`, `.tsx`), and **shell** (`.sh`) via [`packages/graph/src/graph/ingest.py`](../../packages/graph/src/graph/ingest.py). Python symbol cards use **`tree-sitter`** + **`tree-sitter-python`**; TypeScript symbol cards use **`tree-sitter`** + **`tree-sitter-typescript`** (installed via workspace `uv sync` on CI; `ubuntu-24.04` / CPython 3.13). When those bindings are unavailable (`ImportError`), ingestion **degrades** to line cards + regex edges only (no symbol cards for that language).
-- **Persistence:** `cards` rows carry `language` and `role` (`line` | `symbol`); stable ids use [`card_id`](../../packages/graph/src/graph/ids.py) for symbol rows.
-- **Default API:** [`GraphIndex`](../../packages/graph/src/graph/index.py) remains **in-memory** (`GraphIndex.build`). Callers opt in via `GraphIndex.persist_to_sqlite(path)` and `GraphIndex.from_sqlite(path, root=...)`.
+- **Persistence:** `cards` rows carry `language` and `role` (`line` | `symbol` | `method` | `decorator`); stable ids use [`card_id`](../../packages/graph/src/graph/ids.py) (`{path}#{line}` for line cards; `{path}#sym|meth|dec{char_start}` for non-line cards to avoid collisions when multiple symbols share a start offset).
+- **Default API:** [`GraphIndex`](../../packages/graph/src/graph/index.py) remains **in-memory** (`GraphIndex.build`). Callers opt in via `GraphIndex.persist_to_sqlite(path)` and `GraphIndex.from_sqlite(path, root=...)`. **`persist_to_sqlite` replaces** the target database’s `cards` and `edges` tables on each call (full snapshot) so card ids stay consistent with the in-memory index after encoder or `card_id` changes.
 - **CI budget:** unchanged from ADR-0002 (graph unittest job wall-clock ≤ ~2 minutes on `ubuntu-24.04`); ingestion tests target [`tests/fixtures/graph-corpus/`](../../tests/fixtures/graph-corpus/) rather than the full repo.
 
 ## Consequences
