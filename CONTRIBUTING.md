@@ -35,7 +35,7 @@ After the first green `allium-specs` run on `main`, enable **branch protection**
 
 ## Python version
 
-Use **Python 3.13** for local runs of `packages/graph`, `packages/crucible`, and `packages/transitions` (see [`.python-version`](.python-version)). **Do not** use Python 3.14 or newer for those packages: `pyproject.toml` files require `>=3.13,<3.14`. In CI, both `governance` and `specs-and-packages` jobs use [`actions/setup-python`](https://github.com/actions/setup-python) with `3.13`.
+Use **Python 3.13** for local runs of `packages/graph`, `packages/crucible`, `packages/transitions`, and `packages/stance` (see [`.python-version`](.python-version)). **Do not** use Python 3.14 or newer for those packages: `pyproject.toml` files require `>=3.13,<3.14`. In CI, both `governance` and `specs-and-packages` jobs use [`actions/setup-python`](https://github.com/actions/setup-python) with `3.13`.
 
 ### Python environments ([uv](https://docs.astral.sh/uv/))
 
@@ -51,6 +51,7 @@ Run tests through the synced environment, for example:
 
 ```bash
 uv run python -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
+uv run python -m unittest discover -s packages/stance/tests -p 'test_*.py' -v
 ```
 
 ## Allium CLI and local validation

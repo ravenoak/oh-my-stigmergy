@@ -21,7 +21,11 @@ version_file="devtools/allium-cli.version"
 
 for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$crucible_contract" "$version_file" "devtools/uv.version" ".python-version" "pyproject.toml" "uv.lock" \
   "tests/fixtures/crucible/enums.allium" "tests/fixtures/crucible/enums.smt2" \
-  "tests/fixtures/crucible/required_fields.model.json" "tests/fixtures/crucible/required_fields.smt2"; do
+  "tests/fixtures/crucible/required_fields.model.json" "tests/fixtures/crucible/required_fields.smt2" \
+  "tests/fixtures/crucible/invariants.allium" "tests/fixtures/crucible/invariants.overlay.json" "tests/fixtures/crucible/invariants.smt2" \
+  "tests/fixtures/crucible/invariants_bad.model.json" "tests/fixtures/crucible/invariants_bad.smt2" \
+  "packages/stance/schema/stance-config.schema.json" "packages/stance/src/stance/validate.py" "packages/stance/src/stance/registry.py" \
+  "tests/fixtures/stance/good.json"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -154,6 +158,10 @@ echo "$heavy_block" | grep -q 'packages/transitions/tests' || {
   echo "ci_contract: specs-and-packages must run transitions unit tests under packages/transitions/tests" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q 'packages/stance/tests' || {
+  echo "ci_contract: specs-and-packages must run stance unit tests under packages/stance/tests" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'command -v allium' || {
   echo "ci_contract: specs-and-packages must assert allium is on PATH before transitions tests" >&2
   exit 1
@@ -168,6 +176,34 @@ echo "$heavy_block" | grep -q 'compaction.test.mjs' || {
 }
 echo "$heavy_block" | grep -q 'decay-gc.test.mjs' || {
   echo "ci_contract: SBP npm test must cover decay GC scheduler (decay-gc.test.mjs)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'stance-registry.test.mjs' || {
+  echo "ci_contract: SBP npm test must mention stance-registry.test.mjs" >&2
+  exit 1
+}
+grep -q 'better-sqlite3' packages/sbp-server/package.json || {
+  echo "ci_contract: packages/sbp-server/package.json must depend on better-sqlite3" >&2
+  exit 1
+}
+grep -q 'better-sqlite3' packages/sbp-server/package-lock.json || {
+  echo "ci_contract: packages/sbp-server/package-lock.json must lock better-sqlite3" >&2
+  exit 1
+}
+test -f packages/sbp-server/test/sqlite-store.test.mjs || {
+  echo "ci_contract: missing packages/sbp-server/test/sqlite-store.test.mjs" >&2
+  exit 1
+}
+test -f packages/sbp-server/test/healthz.test.mjs || {
+  echo "ci_contract: missing packages/sbp-server/test/healthz.test.mjs" >&2
+  exit 1
+}
+test -f packages/sbp-server/test/multi-writer.test.mjs || {
+  echo "ci_contract: missing packages/sbp-server/test/multi-writer.test.mjs" >&2
+  exit 1
+}
+grep -qr 'CALLS' packages/graph/tests || {
+  echo "ci_contract: graph tests must reference CALLS edges" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'npm test' || {
