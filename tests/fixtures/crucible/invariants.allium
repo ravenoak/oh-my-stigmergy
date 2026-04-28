@@ -1,0 +1,58 @@
+-- allium: 3
+-- Repository governance: traceability row maturity (FR-1.1 domain slice).
+
+------------------------------------------------------------
+-- Entities and Variants
+------------------------------------------------------------
+
+entity TraceabilityRow {
+    requirement_id: String
+    maturity: draft | published
+
+    transitions maturity {
+        draft -> published
+        terminal: published
+    }
+}
+
+entity Pheromone {
+    id: String
+    state: open | claimed | done | expired
+
+    transitions state {
+        open -> claimed
+        claimed -> done
+        open -> expired
+        terminal: done
+        terminal: expired
+    }
+}
+
+------------------------------------------------------------
+-- Defaults
+------------------------------------------------------------
+
+default TraceabilityRow seed_traceability_row = {
+    requirement_id: "FR-0.2",
+    maturity: draft
+}
+
+default Pheromone seed_pheromone = {
+    id: "demo-pheromone",
+    state: open
+}
+
+------------------------------------------------------------
+-- Invariants
+------------------------------------------------------------
+
+invariant TraceabilityRowsWellFormed {
+    for row in TraceabilityRows:
+        length(row.requirement_id) > 0 and (row.maturity = draft or row.maturity = published)
+}
+
+invariant PheromonesWellFormed {
+    for p in Pheromones:
+        length(p.id) > 0
+            and (p.state = open or p.state = claimed or p.state = done or p.state = expired)
+}

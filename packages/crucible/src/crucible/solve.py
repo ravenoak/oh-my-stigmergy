@@ -6,7 +6,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from crucible.compile import _run_allium_model, compile_named_model
+from crucible.compile import _run_allium_model, compile_named_model, merge_overlay_model
 
 
 @dataclass(frozen=True)
@@ -66,12 +66,14 @@ def explain_core(labels: list[dict[str, str]], unsat_core: tuple[str, ...], sour
 
 def solve_allium_file(path: Path) -> SolveResult:
     model = _run_allium_model(path)
+    model = merge_overlay_model(path, model)
     smt, _labels = compile_named_model(model)
     return run_z3(smt)
 
 
 def solve_allium_file_with_contradiction(path: Path, extra_named_assert: str) -> SolveResult:
     model = _run_allium_model(path)
+    model = merge_overlay_model(path, model)
     smt, _labels = compile_named_model(model)
     smt = smt.replace("(check-sat)\n(exit)", "")
     smt += extra_named_assert.rstrip() + "\n(check-sat)\n(get-unsat-core)\n(exit)\n"
@@ -83,6 +85,7 @@ def solve_spec_dir(spec_dir: Path) -> int:
     failures = 0
     for path in sorted(spec_dir.glob("*.allium")):
         model = _run_allium_model(path)
+        model = merge_overlay_model(path, model)
         entities = model.get("entities") or []
         if not any(e.get("transition_graphs") for e in entities):
             continue

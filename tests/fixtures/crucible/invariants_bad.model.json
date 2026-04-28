@@ -1,0 +1,82 @@
+{
+  "entities": [
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type_expr": "String"
+        },
+        {
+          "enum_values": [
+            "open",
+            "claimed",
+            "done",
+            "expired"
+          ],
+          "name": "state",
+          "type_expr": "open | claimed | done | expired"
+        }
+      ],
+      "kind": "internal",
+      "name": "Pheromone",
+      "transition_graphs": [
+        {
+          "edges": [
+            {
+              "from": "open",
+              "to": "claimed"
+            },
+            {
+              "from": "claimed",
+              "to": "done"
+            },
+            {
+              "from": "open",
+              "to": "expired"
+            }
+          ],
+          "field": "state",
+          "states": [
+            "claimed",
+            "done",
+            "expired",
+            "open"
+          ],
+          "terminal": [
+            "done",
+            "expired"
+          ]
+        }
+      ]
+    }
+  ],
+  "version": 3,
+  "defaults": [
+    {
+      "entity": "Pheromone",
+      "fields": {
+        "id": "demo-pheromone",
+        "state": "open"
+      }
+    }
+  ],
+  "invariants": [
+    {
+      "name": "BadLen",
+      "all": [
+        {
+          "op": "len_gt",
+          "entity": "Pheromone",
+          "field": "id",
+          "bound": 0
+        },
+        {
+          "op": "len_eq",
+          "entity": "Pheromone",
+          "field": "id",
+          "value": 0
+        }
+      ]
+    }
+  ]
+}
