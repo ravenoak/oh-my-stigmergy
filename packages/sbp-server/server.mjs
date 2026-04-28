@@ -172,6 +172,101 @@ export class JsonlLedgerStore extends MemoryLedgerStore {
   }
 }
 
+/** Lexicographic JSON for deterministic compaction output (nested objects sorted). */
+export function stableStringify(value) {
+  if (value === null || typeof value !== "object") {
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((v) => stableStringify(v)).join(",")}]`;
+  }
+  const keys = Object.keys(value).sort();
+  return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(value[k])}`).join(",")}}`;
+}
+
+/**
+ * Replay JSONL ledger, drop claimed rows with currentIntensity < floor, rewrite atomically (ADR-0009).
+ * @param {string} filePath
+ * @param {{ nowMs?: number; decayGcFloor?: number }} [opts]
+ * @returns {{ kept: number; dropped: number }}
+ */
+export function compactJsonlLedger(filePath, opts = {}) {
+  if (!filePath || typeof filePath !== "string") {
+    throw new Error("compactJsonlLedger: filePath required");
+  }
+  const floor =
+    opts.decayGcFloor !== undefined
+      ? opts.decayGcFloor
+      : Number(process.env.SBP_DECAY_GC_FLOOR ?? 0.01);
+  const nowMs = opts.nowMs ?? Date.now();
+  if (!fs.existsSync(filePath)) {
+    return { kept: 0, dropped: 0 };
+  }
+  const store = new JsonlLedgerStore(filePath);
+  /** @type {string[]} */
+  const dropped = [];
+  /** @type {{ id: string; rec: object; token: string | undefined }[]} */
+  const rows = [];
+  for (const id of [...store.ledger.keys()].sort()) {
+    const rec = store.ledger.get(id);
+    if (!rec) continue;
+    const inten = currentIntensity(rec, nowMs);
+    const token = store.claims.get(id);
+    const claimed = token !== undefined;
+    if (inten < floor && claimed) {
+      dropped.push(id);
+      continue;
+    }
+    rows.push({ id, rec, token });
+  }
+  let body = "";
+  for (const { id, rec, token } of rows) {
+    const payload = { ...rec };
+    delete payload.intensity;
+    body += `${stableStringify({ type: "publish", payload })}\n`;
+    if (token !== undefined) {
+      body += `${stableStringify({ type: "claim", id, token })}\n`;
+    }
+  }
+  const tmp = `${filePath}.compact.tmp`;
+  fs.writeFileSync(tmp, body, "utf8");
+  fs.renameSync(tmp, filePath);
+  return { kept: rows.length, dropped: dropped.length };
+}
+
+/**
+ * Opt-in periodic compaction (ADR-0009). `setInterval` / `clearInterval` injectable for tests.
+ * @param {string} filePath
+ * @param {{
+ *   intervalMs?: number;
+ *   nowMs?: () => number;
+ *   setInterval?: typeof setInterval;
+ *   clearInterval?: typeof clearInterval;
+ *   compact?: typeof compactJsonlLedger;
+ * }} [opts]
+ */
+export function scheduleDecayGc(filePath, opts = {}) {
+  const intervalMs =
+    opts.intervalMs !== undefined
+      ? opts.intervalMs
+      : Number(process.env.SBP_DECAY_GC_INTERVAL_MS ?? 0);
+  if (!intervalMs || intervalMs <= 0 || !filePath) {
+    return { stop: () => {} };
+  }
+  const si = opts.setInterval ?? setInterval;
+  const ci = opts.clearInterval ?? clearInterval;
+  const compact = opts.compact ?? compactJsonlLedger;
+  const now = opts.nowMs ?? (() => Date.now());
+  const handle = si(() => {
+    try {
+      compact(filePath, { nowMs: now() });
+    } catch (e) {
+      sbpLog({ event: "decay_gc_error", err: String(e && e.message ? e.message : e) });
+    }
+  }, intervalMs);
+  return { stop: () => ci(handle) };
+}
+
 /**
  * @param {{ store?: MemoryLedgerStore }} [options]
  */
@@ -270,9 +365,13 @@ export function createLedgerServer(options = {}) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const logPath = process.env.SBP_LEDGER_JSONL;
   const store = logPath ? new JsonlLedgerStore(logPath) : new MemoryLedgerStore();
+  const decayGc = logPath ? scheduleDecayGc(logPath) : { stop: () => {} };
   const { server } = createLedgerServer({ store });
   const port = Number(process.env.PORT || 3847);
   server.listen(port, () => {
     console.error(`sbp listening ${port}${logPath ? ` jsonl=${logPath}` : ""}`);
   });
+  const shutdownGc = () => decayGc.stop();
+  process.once("SIGINT", shutdownGc);
+  process.once("SIGTERM", shutdownGc);
 }

@@ -5,7 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -43,9 +45,31 @@ def is_allowed(policy: dict[str, Any], argv: list[str]) -> bool:
         if rule.get("command") != base:
             continue
         prefix = list(rule.get("argv_prefix") or [])
-        if rest[: len(prefix)] == prefix:
-            return True
+        if rest[: len(prefix)] != prefix:
+            continue
+        tail = rest[len(prefix) :]
+        args_regex = rule.get("args_regex")
+        if args_regex:
+            if not isinstance(args_regex, str):
+                continue
+            try:
+                pattern = re.compile(args_regex)
+            except re.error:
+                continue
+            tail_s = " ".join(tail)
+            if not pattern.fullmatch(tail_s):
+                continue
+        return True
     return False
+
+
+def audit_denied_append(log_path: Path, argv: list[str]) -> None:
+    """Append one NDJSON line (same shape family as SBP sbpLog: leading ts + event)."""
+    row = {"ts": int(time.time() * 1000), "event": "shim_denied", "argv": argv}
+    line = json.dumps(row, separators=(",", ":")) + "\n"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as f:
+        f.write(line)
 
 
 def main() -> int:
@@ -57,8 +81,21 @@ def main() -> int:
             return 1
         print("policy_gate: attestation ok")
         return 0
+    if len(sys.argv) >= 4 and sys.argv[1] == "--audit-denied":
+        log_path = Path(sys.argv[2])
+        if sys.argv[3] != "--":
+            print("usage: policy_gate.py --audit-denied <log.ndjson> -- <argv…>", file=sys.stderr)
+            return 2
+        argv = sys.argv[4:] if len(sys.argv) > 4 else []
+        try:
+            audit_denied_append(log_path, argv)
+        except OSError as e:
+            print(str(e), file=sys.stderr)
+            return 1
+        return 0
     if len(sys.argv) < 3:
         print("usage: policy_gate.py --verify-attestation <policy.json>", file=sys.stderr)
+        print("   or: policy_gate.py --audit-denied <log.ndjson> -- <argv…>", file=sys.stderr)
         print("   or: policy_gate.py <policy.json> <command> [args…]", file=sys.stderr)
         return 2
     policy_path = Path(sys.argv[1])

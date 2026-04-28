@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "entities": [
+    {
+      "name": "Seal",
+      "kind": "internal",
+      "fields": [
+        {
+          "name": "verified",
+          "type_expr": "bool",
+          "enum_values": ["bool"],
+          "required": true
+        }
+      ]
+    }
+  ]
+}

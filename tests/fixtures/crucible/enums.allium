@@ -1,0 +1,8 @@
+-- allium: 3
+-- Enum-only field (no transition graph) for crucible golden (FR-4.2).
+
+module CrucibleEnums {
+    entity Ticket {
+        phase: planning | active | done
+    }
+}
