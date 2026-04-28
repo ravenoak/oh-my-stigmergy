@@ -8,12 +8,14 @@ dependencies = [
     "oh-my-stigmergy-graph[dev]",
     "oh-my-stigmergy-crucible",
     "oh-my-stigmergy-transitions",
+    "oh-my-stigmergy-stance",
 ]
 
 [tool.uv.sources]
 oh-my-stigmergy-graph = { workspace = true }
 oh-my-stigmergy-crucible = { workspace = true }
 oh-my-stigmergy-transitions = { workspace = true }
+oh-my-stigmergy-stance = { workspace = true }
 
 [dependency-groups]
 # Workspace-wide tools; install with: uv sync --all-groups (see CONTRIBUTING.md)
@@ -24,4 +26,5 @@ members = [
     "packages/graph",
     "packages/crucible",
     "packages/transitions",
+    "packages/stance",
 ]
