@@ -63,7 +63,7 @@ Each phase **ends** only when listed criteria are met and RTM rows are updated w
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P2-ADR | [ADR-0007](adr/0007-graph-persistence.md) records SQLite + **Python / TypeScript / shell** ingestion and CI `tree-sitter-languages` install; ADR-0002 revision remains optional for NetworkX / retrieval depth |
+| P2-ADR | [ADR-0007](adr/0007-graph-persistence.md) records SQLite + **Python / TypeScript / shell** ingestion and CI **`uv sync`** for the Python workspace (`tree-sitter` / `tree-sitter-python`); ADR-0002 revision remains optional for NetworkX / retrieval depth |
 | P2-core | FR-2.1: byte-accurate code cards stored and indexed |
 | P2-graph | FR-2.2: at least one aspect graph pipeline with tests |
 | P2-tool | FR-2.3: `load_node` (or renamed equivalent) contract tests per ADR-0002 verification clause |

@@ -48,7 +48,7 @@ jobs:
           fi
           is_heavy() {
             case "$1" in
-              spec/*|packages/*|scripts/*|tests/*|devtools/*|docs/requirements/*|docs/traceability/*|docs/adr/*|.github/workflows/*)
+              spec/*|packages/*|scripts/*|tests/*|devtools/*|docs/requirements/*|docs/traceability/*|docs/adr/*|.github/workflows/*|.python-version)
                 return 0
                 ;;
               *)
@@ -106,6 +106,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
       - name: CI contract (merge gate wiring)
         run: bash tests/ci_contract.sh
 
@@ -148,6 +153,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version-file: devtools/uv.version
+          enable-cache: true
+
+      - name: Sync Python workspace (locked)
+        run: uv sync --frozen --all-extras --all-groups
+
       - name: Cache Cargo and allium-cli install
         uses: actions/cache@v4
         with:
@@ -186,33 +205,19 @@ jobs:
       - name: Crucible compile golden diff (FR-4.2)
         run: bash scripts/verify-crucible-compile.sh
 
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-graph-${{ hashFiles('packages/graph/pyproject.toml') }}
-
-      - name: Install graph tree-sitter wheels (FR-2.x multi-language)
-        run: python3 -m pip install tree-sitter-languages
-
       - name: Graph package unit tests (FR-2.x)
-        env:
-          PYTHONPATH: ${{ github.workspace }}/packages/graph/src
-        run: python3 -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
+        run: uv run python -m unittest discover -s packages/graph/tests -p 'test_*.py' -v
 
       - name: Crucible compiler unit tests
-        env:
-          PYTHONPATH: ${{ github.workspace }}/packages/crucible/src
-        run: python3 -m unittest discover -s packages/crucible/tests -p 'test_*.py' -v
+        run: uv run python -m unittest discover -s packages/crucible/tests -p 'test_*.py' -v
 
       - name: Transitions harness (FR-1.3)
-        env:
-          PYTHONPATH: ${{ github.workspace }}/packages/transitions/src
         run: |
           command -v allium
-          python3 -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
+          uv run python -m unittest discover -s packages/transitions/tests -p 'test_*.py' -v
 
       - name: SBP server tests (FR-3.x)
-        run: cd packages/sbp-server && node --test
+        run: cd packages/sbp-server && npm test
 
       - name: Install Z3 (golden SMT)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq z3
@@ -221,9 +226,7 @@ jobs:
         run: bash scripts/verify-smt-golden.sh
 
       - name: Crucible solve spec/ (FR-4.3)
-        env:
-          PYTHONPATH: ${{ github.workspace }}/packages/crucible/src
-        run: python3 -m crucible.cli solve "${{ github.workspace }}/spec"
+        run: uv run python -m crucible.cli solve "${{ github.workspace }}/spec"
 
       - name: Crucible shim contract (FR-4.1 / NFR-S1)
         run: bash tests/crucible_shim_contract.sh

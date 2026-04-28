@@ -161,9 +161,9 @@ export class JsonlLedgerStore extends MemoryLedgerStore {
   }
 
   claim(id, token) {
+    if (this.claims.has(id)) return false;
     this._appendLine({ type: "claim", id, token });
-    super.claim(id, token);
-    return true;
+    return super.claim(id, token);
   }
 
   inflate(id) {

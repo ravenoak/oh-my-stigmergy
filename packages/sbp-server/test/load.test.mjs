@@ -12,41 +12,43 @@ test("bulk publish + claim stays within CI SLO (p95)", async () => {
   const port = server.address().port;
   const base = `http://127.0.0.1:${port}`;
 
-  const ids = [];
-  const publishTimes = [];
-  for (let i = 0; i < k; i += 1) {
-    const id = randomUUID();
-    ids.push(id);
-    const body = JSON.stringify({
-      id,
-      stanceTarget: "load",
-      baseIntensity: 1,
-      decayRate: 0.01,
-    });
-    const t0 = performance.now();
-    await drain(await post(`${base}/pheromones`, body));
-    publishTimes.push(performance.now() - t0);
+  try {
+    const ids = [];
+    const publishTimes = [];
+    for (let i = 0; i < k; i += 1) {
+      const id = randomUUID();
+      ids.push(id);
+      const body = JSON.stringify({
+        id,
+        stanceTarget: "load",
+        baseIntensity: 1,
+        decayRate: 0.01,
+      });
+      const t0 = performance.now();
+      await drain(await post(`${base}/pheromones`, body));
+      publishTimes.push(performance.now() - t0);
+    }
+
+    const claimTimes = [];
+    for (const id of ids) {
+      const t0 = performance.now();
+      await drain(await post(`${base}/pheromones/${id}/claim`, ""));
+      claimTimes.push(performance.now() - t0);
+    }
+
+    const p95 = (arr) => {
+      const s = [...arr].sort((a, b) => a - b);
+      return s[Math.floor(0.95 * (s.length - 1))];
+    };
+    /** CI SLO (see docs/operations/sbp-slo.md) */
+    const sloMs = 80;
+    assert.ok(p95(publishTimes) < sloMs, `publish p95 ${p95(publishTimes)}ms`);
+    assert.ok(p95(claimTimes) < sloMs, `claim p95 ${p95(claimTimes)}ms`);
+  } finally {
+    server.closeAllConnections?.();
+    server.close();
+    await once(server, "close");
   }
-
-  const claimTimes = [];
-  for (const id of ids) {
-    const t0 = performance.now();
-    await drain(await post(`${base}/pheromones/${id}/claim`, ""));
-    claimTimes.push(performance.now() - t0);
-  }
-
-  const p95 = (arr) => {
-    const s = [...arr].sort((a, b) => a - b);
-    return s[Math.floor(0.95 * (s.length - 1))];
-  };
-  /** CI SLO (see docs/operations/sbp-slo.md) */
-  const sloMs = 80;
-  assert.ok(p95(publishTimes) < sloMs, `publish p95 ${p95(publishTimes)}ms`);
-  assert.ok(p95(claimTimes) < sloMs, `claim p95 ${p95(claimTimes)}ms`);
-
-  server.closeAllConnections?.();
-  server.close();
-  await once(server, "close");
 });
 
 function post(url, body) {

@@ -9,20 +9,23 @@ from graph.cards import Card, extract_import_targets, ingest_line_cards
 from graph.ids import node_id
 
 try:
-    from tree_sitter_languages import get_parser
-except ImportError:  # pragma: no cover - dev env without wheels
-    get_parser = None  # type: ignore[misc, assignment]
+    import tree_sitter_python as tspython
+    from tree_sitter import Language, Parser
+
+    _PY_LANGUAGE = Language(tspython.language())
+except ImportError:  # pragma: no cover - dev env without bindings
+    _PY_LANGUAGE = None  # type: ignore[misc, assignment]
 
 
 _SH_SOURCE = re.compile(r"(?:^|\n)\s*(?:source|\.\s+)\s*([^\s#;`]+)", re.MULTILINE)
 
 
 def _python_symbol_cards(root: Path, file_path: Path) -> list[Card]:
-    if get_parser is None:
+    if _PY_LANGUAGE is None:
         return []
     rel = str(file_path.relative_to(root))
     source = file_path.read_bytes()
-    parser = get_parser("python")
+    parser = Parser(_PY_LANGUAGE)
     tree = parser.parse(source)
 
     def walk(node, acc: list[tuple[int, int, int, str]]) -> None:

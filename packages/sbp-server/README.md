@@ -32,4 +32,7 @@ const { server } = createLedgerServer({ store });
 npm test
 ```
 
+The script sets a **per-test timeout** so a stuck handler cannot hang the runner indefinitely. Avoid overlapping full `npm test` runs (multiple processes can contend for debug ports or file handles in constrained environments).
+
+
 Redis is **not** required for this reference slice; see [ADR-0005](../../docs/adr/0005-conflict-resolution-governance.md) before adding delegation or economic features.

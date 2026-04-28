@@ -18,12 +18,16 @@ smt_script="scripts/verify-smt-golden.sh"
 crucible_contract="tests/crucible_shim_contract.sh"
 version_file="devtools/allium-cli.version"
 
-for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$smt_script" "$crucible_contract" "$version_file"; do
+for f in "$workflow" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$smt_script" "$crucible_contract" "$version_file" "devtools/uv.version" ".python-version" "pyproject.toml" "uv.lock"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
   }
 done
+grep -qE '^3\.13$' .python-version || {
+  echo "ci_contract: .python-version must be 3.13 (not 3.14+)" >&2
+  exit 1
+}
 
 bash -n "$check_script"
 bash -n "$analyse_script"
@@ -84,6 +88,10 @@ echo "$governance_block" | grep -q 'verify-shim-policy.sh' || {
   echo "ci_contract: governance job must run scripts/verify-shim-policy.sh" >&2
   exit 1
 }
+echo "$governance_block" | grep -q "python-version: '3.13'" || {
+  echo "ci_contract: governance job must pin Python 3.13 (setup-python)" >&2
+  exit 1
+}
 
 heavy_block="$(awk '/^  specs-and-packages:/,/^  check:/' "$workflow")"
 echo "$heavy_block" | grep -q 'actions/cache@v4' || {
@@ -94,6 +102,10 @@ echo "$heavy_block" | grep -q 'devtools/allium-cli.version' || {
   echo "ci_contract: specs-and-packages must reference devtools/allium-cli.version" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q "python-version: '3.13'" || {
+  echo "ci_contract: specs-and-packages job must pin Python 3.13 (setup-python)" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'verify-crucible-compile.sh' || {
   echo "ci_contract: specs-and-packages must run scripts/verify-crucible-compile.sh" >&2
   exit 1
@@ -102,8 +114,16 @@ echo "$heavy_block" | grep -q 'packages/crucible/tests' || {
   echo "ci_contract: specs-and-packages must run packages/crucible/tests unittest" >&2
   exit 1
 }
-echo "$heavy_block" | grep -q 'tree-sitter-languages' || {
-  echo "ci_contract: specs-and-packages must pip install tree-sitter-languages for graph" >&2
+echo "$heavy_block" | grep -q 'uv sync' || {
+  echo "ci_contract: specs-and-packages must sync the uv workspace (uv sync)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'frozen' || {
+  echo "ci_contract: specs-and-packages must use locked uv sync (--frozen)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'astral-sh/setup-uv' || {
+  echo "ci_contract: specs-and-packages must install uv (astral-sh/setup-uv)" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'packages/graph/tests' || {
@@ -120,6 +140,10 @@ echo "$heavy_block" | grep -q 'command -v allium' || {
 }
 echo "$heavy_block" | grep -q 'packages/sbp-server' || {
   echo "ci_contract: specs-and-packages must run SBP tests under packages/sbp-server" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'npm test' || {
+  echo "ci_contract: specs-and-packages must run SBP via npm test (bounded node:test script)" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'verify-smt-golden.sh' || {

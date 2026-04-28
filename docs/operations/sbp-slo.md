@@ -1,6 +1,6 @@
 # SBP reference server — SLOs and load tests
 
-The in-tree ledger under [`packages/sbp-server`](../../packages/sbp-server) is a **reference** implementation (not production scale). Deterministic checks live in `node --test`.
+The in-tree ledger under [`packages/sbp-server`](../../packages/sbp-server) is a **reference** implementation (not production scale). Deterministic checks live in `node --test` (bounded per-test timeouts; run via `npm test` in that package).
 
 ## Intensity model
 
@@ -27,7 +27,7 @@ Computed intensity (not stored as a single frozen field):
 Run locally:
 
 ```bash
-cd packages/sbp-server && node --test test/load.test.mjs
+cd packages/sbp-server && npm test -- test/load.test.mjs
 ```
 
 ## Related
