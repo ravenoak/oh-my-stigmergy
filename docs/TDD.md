@@ -16,10 +16,10 @@ flowchart TB
     Agents[Stance_driven_agents]
   end
   subgraph coord [Coordination_layer]
-    SBP[SBP_blackboard_optional]
+    SBP[SBP_server_reference]
   end
   subgraph epistemic [Epistemic_layer]
-    Graph[Relation_first_navigation_optional]
+    Graph[Graph_load_node_reference]
   end
   subgraph verify [Verification_layer]
     AlliumCLI[allium_CLI]
@@ -37,9 +37,9 @@ flowchart TB
 |-------|-----------|------------------------------|--------|
 | Cognitive | Stance-driven agents | OpenCode, editors, vendor models | **Concrete** (tooling assumed) |
 | Coordination | SBP server | Node (in-process), SSE ([`packages/sbp-server`](../packages/sbp-server)); optional JSONL ledger ([ADR-0008](adr/0008-sbp-persistence.md)); optional SQLite ([ADR-0011](adr/0011-sbp-sqlite-store.md)) | **Concrete** (reference slice; **Redis not pursued** — [BACKLOG.md](BACKLOG.md)) |
-| Epistemic | Graph engine / `load_node` | Python ([`packages/graph`](../packages/graph)); SQLite opt-in ([ADR-0007](adr/0007-graph-persistence.md)); Tree-sitter TBD | **Concrete (in-memory + SQLite)** — cards + IMPORTS graph + CLI |
+| Epistemic | Graph engine / `load_node` | Python ([`packages/graph`](../packages/graph)); SQLite opt-in ([ADR-0007](adr/0007-graph-persistence.md)); Tree-sitter **Python + TypeScript/TSX** symbol / method / decorator cards when bindings are installed; shell line cards + `SOURCES` (no Tree-sitter for shell) | **Concrete (in-memory + SQLite)** — cards, `IMPORTS` / `SOURCES` / `CALLS`, CLI per [ADR-0002](adr/0002-relation-first-retrieval.md) |
 | Verification | Allium tools | Rust CLI / LSP ([allium-tools](https://github.com/juxt/allium-tools)) | **Concrete** — user supplies CLI |
-| Verification | Sublation bridge | Z3 on golden SMT ([`scripts/verify-smt-golden.sh`](../scripts/verify-smt-golden.sh)); shim prototype ([`devtools/crucible-shim`](../devtools/crucible-shim)); Phase 8 tightens CI budget + secret-scan honesty per [ROADMAP.md](ROADMAP.md) | **Partial** per [ADR-0006](adr/0006-p4-crucible-execution.md) |
+| Verification | Sublation bridge | Z3 on golden SMT ([`scripts/verify-smt-golden.sh`](../scripts/verify-smt-golden.sh)); `allium model` → SMT subset + solve path ([`packages/crucible`](../packages/crucible)); maintainer shim ([`devtools/crucible-shim`](../devtools/crucible-shim)); CI budget + secret-scan per [ROADMAP.md](ROADMAP.md) Phase 7–8 | **Partial** per [ADR-0006](adr/0006-p4-crucible-execution.md) — **scoped** golden compile + solve + shim contracts; **not pursued:** essay-scale ContextCov / Hashline AST parity and org-wide OPA/PATH enforcement ([ADR-0004](adr/0004-verification-stack-layering.md), [BACKLOG.md](BACKLOG.md)) |
 
 ## Data artefacts
 
