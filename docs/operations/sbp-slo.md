@@ -17,6 +17,11 @@ Computed intensity (not stored as a single frozen field):
 
 - Set **`SBP_LOG_FILE`** to append **NDJSON** lines `{ ts, event, ... }` for HTTP lifecycle events.
 - Set **`SBP_LOG_STDERR=1`** to mirror the same NDJSON to stderr (used in tests).
+- To summarize an existing log into coordination metrics, use:
+
+```bash
+cd packages/sbp-server && npm run metrics -- /path/to/sbp.ndjson
+```
 
 ## Load / latency contract (CI)
 
