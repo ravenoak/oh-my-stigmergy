@@ -26,7 +26,7 @@ Alternatives considered:
 
 - New FR epic **FR-5.x** (cognitive layer integration) and RTM verification rows.
 - CI gains `scripts/verify-opencode-plugin-contract.sh` and `npm test` under `packages/opencode-plugin` once implementation lands.
-- Maintainers may publish the package to npm under the `@oh-my-stigmergy` scope when ready; versioning is independent of the monorepo’s other packages.
+- **Publish gate (npm):** the package remains **`private: true`** in [`packages/opencode-plugin/package.json`](../../packages/opencode-plugin/package.json) until maintainers land an explicit **publish PR** that: (1) documents semver/tag strategy in this ADR or a short appendix; (2) keeps [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh) aligned (today it requires `private: true`—relax only with RTM + FR co-touch); (3) confirms **repository `LICENSE`** at repo root matches the **`license`** field in `package.json`. **Scope:** `@oh-my-stigmergy/opencode-plugin` on npm; **versioning** stays independent of other monorepo packages. **Peer expectation:** OpenCode plugin API per `@opencode-ai/plugin` pin in `package-lock.json`; consumers follow [OpenCode plugins](https://opencode.ai/docs/plugins/) install rules.
 
 ## Verification
 
@@ -34,3 +34,4 @@ Alternatives considered:
 - `cd packages/opencode-plugin && npm ci && npm test` in `allium-specs` **specs-and-packages** (`plugin.test.mjs`, `events.test.mjs`, `tools-schema.test.mjs`, `metrics.test.mjs`).
 - **Operational signal:** optional append-only NDJSON audit log via `STIGMERGY_AUDIT_LOG_FILE` (`src/auditLog.mjs`); offline summary via `npm run metrics -- <file>` — same honesty boundary as SBP: host `client.app.log` remains best-effort; audit file is explicit and machine-summarizable.
 - Crucible goldens `tests/fixtures/crucible/opencode_plugin*.model.json` exercise governance-aligned model slices (`verify-crucible-compile.sh`, `verify-smt-golden.sh`).
+- **Phase 12 (adoption):** `bash scripts/verify-opencode-golden-path.sh` — golden-path guide exists and root docs link to it ([FR-5.4](../../requirements/FR.md)).

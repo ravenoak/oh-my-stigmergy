@@ -25,8 +25,12 @@ no_secrets_script="scripts/verify-no-secrets.sh"
 job_timeouts_script="scripts/verify-job-timeouts.sh"
 job_timeouts_json="devtools/ci-job-timeouts.json"
 opencode_plugin_contract_script="scripts/verify-opencode-plugin-contract.sh"
+opencode_golden_path_script="scripts/verify-opencode-golden-path.sh"
 
 for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
+  "LICENSE" \
+  "docs/guides/opencode-stigmergy-golden-path.md" \
+  "$opencode_golden_path_script" \
   "$opencode_plugin_contract_script" \
   "packages/opencode-plugin/package.json" "packages/opencode-plugin/package-lock.json" "packages/opencode-plugin/README.md" \
   "packages/opencode-plugin/src/auditLog.mjs" \
@@ -79,6 +83,7 @@ bash -n "$heavy_budget_script"
 bash -n "$no_secrets_script"
 bash -n "$job_timeouts_script"
 bash -n "$opencode_plugin_contract_script"
+bash -n "$opencode_golden_path_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -161,6 +166,10 @@ echo "$governance_block" | grep -q 'verify-no-secrets.sh' || {
 }
 echo "$governance_block" | grep -q 'verify-opencode-plugin-contract.sh' || {
   echo "ci_contract: governance job must run scripts/verify-opencode-plugin-contract.sh (FR-5.1 / Phase 11)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-opencode-golden-path.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-opencode-golden-path.sh (FR-5.4 / Phase 12)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q "python-version: '3.13'" || {

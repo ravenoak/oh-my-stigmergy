@@ -17,6 +17,7 @@ The inspiration essay’s TDD places the **cognitive layer** on the **OpenCode f
 - **[Documentation index](docs/README.md)** — Constitution, PRD, TDD, FR/NFR, RTM, ADRs  
 - **[AGENTS.md](AGENTS.md)** — Entry point for coding agents  
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — Skills restore, Allium CLI, CI, doc rules, [GitHub Flow](docs/guides/github-flow.md)  
+- **[docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md)** — Clone → SBP → OpenCode plugin → graph (Phase 12 operator path)  
 - **[docs/guides/agent-session-budgets.md](docs/guides/agent-session-budgets.md)** — Session and token discipline (NFR-C1)  
 - **[oh-my-stigmergy_inspiration.md](oh-my-stigmergy_inspiration.md)** — Background essay (non-normative narrative)
 
@@ -27,4 +28,4 @@ The inspiration essay’s TDD places the **cognitive layer** on the **OpenCode f
 
 ## License
 
-Add a `LICENSE` file when the project chooses a license.
+This repository is licensed under the [MIT License](LICENSE).
