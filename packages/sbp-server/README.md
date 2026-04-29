@@ -54,6 +54,17 @@ const { server } = createLedgerServer({ store });
 npm test
 ```
 
+## Metrics (audit log summary)
+
+SBP can emit an append-only NDJSON audit log via **`SBP_LOG_FILE`** (see `docs/operations/sbp-slo.md`).
+To summarize a captured log into machine-readable coordination metrics:
+
+```bash
+npm run metrics -- /path/to/sbp.ndjson
+```
+
+This prints a JSON summary (event counts, claim conflicts, compaction activity, etc.) to stdout.
+
 The script sets a **per-test timeout** so a stuck handler cannot hang the runner indefinitely. Avoid overlapping full `npm test` runs (multiple processes can contend for debug ports or file handles in constrained environments).
 
 

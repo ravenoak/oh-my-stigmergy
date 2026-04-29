@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.mjs",
     "compact": "node bin/compact.mjs",
+    "metrics": "node bin/metrics.mjs",
     "test": "node --test --test-timeout=120000"
   },
   "dependencies": {
