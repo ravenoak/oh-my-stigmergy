@@ -21,10 +21,13 @@ for f in \
   packages/opencode-plugin/src/sbpClient.mjs \
   packages/opencode-plugin/src/tools.mjs \
   packages/opencode-plugin/src/events.mjs \
+  packages/opencode-plugin/src/orchestration.mjs \
+  packages/opencode-plugin/schema/orchestration.schema.json \
   packages/opencode-plugin/bin/metrics.mjs \
   packages/opencode-plugin/test/plugin.test.mjs \
   packages/opencode-plugin/test/events.test.mjs \
   packages/opencode-plugin/test/tools-schema.test.mjs \
+  packages/opencode-plugin/test/orchestration.test.mjs \
   packages/opencode-plugin/test/metrics.test.mjs; do
   test -f "$f" || {
     echo "verify-opencode-plugin-contract: missing $f" >&2
@@ -46,8 +49,8 @@ if pkg.get("name") != want_name:
 if pkg.get("type") != "module":
     print("verify-opencode-plugin-contract: package.json must set type: module", file=sys.stderr)
     raise SystemExit(1)
-if not bool(pkg.get("private")):
-    print("verify-opencode-plugin-contract: package.json must set private: true until publish policy exists", file=sys.stderr)
+if bool(pkg.get("private")):
+    print("verify-opencode-plugin-contract: package.json must set private: false for npm publish (ADR-0012)", file=sys.stderr)
     raise SystemExit(1)
 exports = pkg.get("exports") or {}
 if exports.get(".") != "./src/index.mjs":
@@ -79,3 +82,26 @@ if (typeof m.StigmergyPlugin !== 'function') {
 }
 console.log('verify-opencode-plugin-contract: ok (export smoke)');
 "
+
+echo "verify-opencode-plugin-contract: npm pack (tarball contains entry)"
+pack_line="$( ( cd packages/opencode-plugin && npm pack 2>/dev/null ) | tail -1 )"
+test -n "${pack_line}" || {
+  echo "verify-opencode-plugin-contract: npm pack produced no output" >&2
+  exit 1
+}
+tarball="packages/opencode-plugin/${pack_line}"
+test -f "${tarball}" || {
+  echo "verify-opencode-plugin-contract: missing ${tarball}" >&2
+  exit 1
+}
+python3 <<PY
+import tarfile
+import sys
+t = tarfile.open("${tarball}", "r:*")
+names = [m.name for m in t.getmembers()]
+if not any(n.endswith("package/src/index.mjs") for n in names):
+    print("verify-opencode-plugin-contract: tarball must contain package/src/index.mjs", file=sys.stderr)
+    sys.exit(1)
+print("verify-opencode-plugin-contract: ok (npm pack)")
+PY
+rm -f "${tarball}"

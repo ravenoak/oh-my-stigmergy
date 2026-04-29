@@ -2,7 +2,7 @@
 
 ## Purpose
 
-oh-my-stigmergy exists to **stress-test conclusions, preserve intention across sessions, and map real complexity** in agentic software work. It is **not** optimized for discovery under time pressure or for decisions that require immediate action.
+oh-my-stigmergy exists to **stress-test conclusions, preserve intention across sessions, and map real complexity** in agentic software work — **including** traceable OpenCode integration via stigmergy ([ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). It is **not** optimized for discovery under time pressure or for decisions that require immediate action.
 
 ## Core commitments
 

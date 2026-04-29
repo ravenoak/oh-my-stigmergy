@@ -140,6 +140,18 @@ default OpenCodePluginTool seed_opencode_plugin_tool = {
     transport: http
 }
 
+default OpenCodePluginTool seed_opencode_orchestration_actionable = {
+    name: "stigmergy_actionable",
+    kind: stigmergy,
+    transport: http
+}
+
+default OpenCodePluginTool seed_opencode_orchestration_resolve = {
+    name: "stigmergy_resolve_model",
+    kind: stigmergy,
+    transport: http
+}
+
 default OpenCodePluginEvent seed_opencode_plugin_event = {
     kind: session_idle,
     floor_band: low

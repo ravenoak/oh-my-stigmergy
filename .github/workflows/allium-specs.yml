@@ -141,6 +141,9 @@ jobs:
       - name: OpenCode golden path doc (FR-5.4 / Phase 12)
         run: bash scripts/verify-opencode-golden-path.sh
 
+      - name: Stigmergic orchestration charter docs (FR-6.2 / Phase 13)
+        run: bash scripts/verify-stigmergy-orchestration-doc.sh
+
       - name: Requirement ID traceability
         run: bash scripts/verify-requirement-traceability.sh
 

@@ -4,20 +4,19 @@ Intention-first agentic SDLC workspace: behavioural specs ([Allium](https://juxt
 
 [![allium-specs](https://github.com/ravenoak/oh-my-stigmergy/actions/workflows/allium-specs.yml/badge.svg?branch=main)](https://github.com/ravenoak/oh-my-stigmergy/actions/workflows/allium-specs.yml?query=branch%3Amain)
 
-## Positioning: stigmergy and the OpenCode ecosystem
+## Positioning: stigmergy and OpenCode
 
-The inspiration essay’s TDD places the **cognitive layer** on the **OpenCode framework** and the **coordination layer** on the SBP bus ([oh-my-stigmergy_inspiration.md](oh-my-stigmergy_inspiration.md) §9.1). **[oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)** (OMO) supplies **hierarchical orchestration** (Sisyphus, sub-agents, hooks, MCPs). **oh-my-stigmergy** supplies the **shared medium** — Allium specs, relation-first **graph** ([`packages/graph`](packages/graph)), **SBP** ([`packages/sbp-server`](packages/sbp-server)), deterministic **crucible** ([`packages/crucible`](packages/crucible)), and CI/traceability.
+The inspiration essay’s TDD places the **cognitive layer** on the **OpenCode framework** and the **coordination layer** on the SBP bus ([oh-my-stigmergy_inspiration.md](oh-my-stigmergy_inspiration.md) §9.1). **oh-my-stigmergy** delivers the **shared medium** — Allium specs, relation-first **graph** ([`packages/graph`](packages/graph)), **SBP** ([`packages/sbp-server`](packages/sbp-server)), deterministic **crucible** ([`packages/crucible`](packages/crucible)), CI/traceability — and the **recommended OpenCode extension**: **[`packages/opencode-plugin`](packages/opencode-plugin)** (`@oh-my-stigmergy/opencode-plugin`) with **stigmergic orchestration** (ledger-backed helpers and stance→model policy per [ADR-0013](docs/adr/0013-stigmergic-opencode-orchestration.md)). [ADR-0012](docs/adr/0012-opencode-plugin-architecture.md) is **Accepted**.
 
-**Standalone OpenCode bridge:** an in-tree npm package **[`packages/opencode-plugin`](packages/opencode-plugin)** (`@oh-my-stigmergy/opencode-plugin`) wires OpenCode sessions to that medium over **HTTP** (to a running SBP) and **shell** (to `graph.load_node` / `graph.aspect`), **without** living inside OMO. Requirements **FR-5.1–FR-5.3** are **`implemented`** with CI + contract tests; [ADR-0012](docs/adr/0012-opencode-plugin-architecture.md) is **Accepted** ([docs/ROADMAP.md](docs/ROADMAP.md) Phase **11**).
-
-**Using both:** keep OpenCode + oh-my-openagent for harness/orchestration where you want it; add this repo’s plugin when you want agents to **read and write pheromones** and pull **graph-grounded** slices alongside spec-first gates.
+**Not the recommended path for this product:** [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) (OMO) — hierarchical harness (Sisyphus, MCPs). If you used OMO before, see [docs/guides/migration-from-oh-my-openagent.md](docs/guides/migration-from-oh-my-openagent.md).
 
 ## Quick links
 
 - **[Documentation index](docs/README.md)** — Constitution, PRD, TDD, FR/NFR, RTM, ADRs  
 - **[AGENTS.md](AGENTS.md)** — Entry point for coding agents  
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — Skills restore, Allium CLI, CI, doc rules, [GitHub Flow](docs/guides/github-flow.md)  
-- **[docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md)** — Clone → SBP → OpenCode plugin → graph (Phase 12 operator path)  
+- **[docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md)** — Clone → SBP → OpenCode plugin → graph  
+- **[docs/guides/migration-from-oh-my-openagent.md](docs/guides/migration-from-oh-my-openagent.md)** — Moving from OMO to stigmergy-first OpenCode ([ADR-0013](docs/adr/0013-stigmergic-opencode-orchestration.md))  
 - **[docs/guides/agent-session-budgets.md](docs/guides/agent-session-budgets.md)** — Session and token discipline (NFR-C1)  
 - **[oh-my-stigmergy_inspiration.md](oh-my-stigmergy_inspiration.md)** — Background essay (non-normative narrative)
 

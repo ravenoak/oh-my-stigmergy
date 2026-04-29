@@ -1,6 +1,6 @@
 # Documentation map
 
-This folder is the canonical **governance and specification surface** for oh-my-stigmergy. The long-form essay [`oh-my-stigmergy_inspiration.md`](../oh-my-stigmergy_inspiration.md) remains background reading; normative intent lives here and in [`spec/`](../spec/). **Product positioning** (stigmergy vs OpenCode plugin harnesses such as [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)): see the root [`README.md`](../README.md#positioning-stigmergy-and-the-opencode-ecosystem).
+This folder is the canonical **governance and specification surface** for oh-my-stigmergy. The long-form essay [`oh-my-stigmergy_inspiration.md`](../oh-my-stigmergy_inspiration.md) remains background reading; **where it conflicts with [FR.md](requirements/FR.md), [RTM.md](traceability/RTM.md), or [ROADMAP.md](ROADMAP.md), those documents win.** Normative intent lives here and in [`spec/`](../spec/). **OpenCode:** stigmergic orchestration is documented under [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md); see root [`README.md`](../README.md).
 
 | Document | Audience | Update when |
 |----------|----------|-------------|
@@ -20,6 +20,7 @@ This folder is the canonical **governance and specification surface** for oh-my-
 | [guides/github-flow.md](guides/github-flow.md) | Contributors and agents | Feature branches, atomic commits, PR-only merges, `gh` |
 | [guides/distillation-playbook.md](guides/distillation-playbook.md) | Architects and agents | FR-1.2 distil workflow |
 | [guides/opencode-stigmergy-golden-path.md](guides/opencode-stigmergy-golden-path.md) | Operators and contributors | FR-5.4 clone → SBP → OpenCode plugin → graph verification ([Phase 12](ROADMAP.md)) |
+| [guides/migration-from-oh-my-openagent.md](guides/migration-from-oh-my-openagent.md) | Operators leaving OMO | FR-6.x / [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md) |
 
 **Phases** used in requirement rows: **P0** (governance and specs in-repo), **P1** (intent tooling and workflows), **P2** (relation-first code navigation), **P3** (stigmergic coordination runtime), **P4** (deterministic verification beyond Allium CLI).
 

@@ -1,6 +1,6 @@
 # Agent instructions
 
-**oh-my-stigmergy** is an intention-first, traceability-heavy workspace for agentic software development research and practice. It emphasizes **stigmergy** (specs, graph, SBP ledger, deterministic checks). The in-tree OpenCode bridge is [`packages/opencode-plugin`](packages/opencode-plugin) (FR-5.x, [ADR-0012](docs/adr/0012-opencode-plugin-architecture.md)); it complements harness plugins such as [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) — see [README.md](README.md#positioning-stigmergy-and-the-opencode-ecosystem).
+**oh-my-stigmergy** is an intention-first, traceability-heavy workspace for agentic software development research and practice. It emphasizes **stigmergy** (specs, graph, SBP ledger, deterministic checks). The **recommended** OpenCode integration is [`packages/opencode-plugin`](packages/opencode-plugin) (FR-5.x / FR-6.x, [ADR-0012](docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](docs/adr/0013-stigmergic-opencode-orchestration.md)). Migration from [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent): [docs/guides/migration-from-oh-my-openagent.md](docs/guides/migration-from-oh-my-openagent.md).
 
 ## Start here
 

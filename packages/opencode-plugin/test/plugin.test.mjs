@@ -24,7 +24,7 @@ function toolCtx(over = {}) {
   };
 }
 
-test("StigmergyPlugin exposes six tools and logs init", async () => {
+test("StigmergyPlugin exposes eight tools and logs init", async () => {
   const prev = process.env.SBP_URL;
   process.env.SBP_URL = "http://127.0.0.1:9";
   const logs = [];
@@ -43,7 +43,7 @@ test("StigmergyPlugin exposes six tools and logs init", async () => {
     },
   });
   assert.ok(hooks.tool);
-  assert.equal(Object.keys(hooks.tool).length, 6);
+  assert.equal(Object.keys(hooks.tool).length, 8);
   assert.ok(logs.some((b) => b.message === "StigmergyPlugin_initialized"));
   process.env.SBP_URL = prev;
 });
