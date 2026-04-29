@@ -257,6 +257,9 @@ jobs:
       - name: SBP server tests (FR-3.x; stream.test.mjs rotation.test.mjs compaction.test.mjs decay-gc.test.mjs sqlite-store.test.mjs healthz.test.mjs multi-writer.test.mjs stance-registry.test.mjs)
         run: cd packages/sbp-server && npm ci && npm test
 
+      - name: OpenCode plugin tests (FR-5.x; plugin.test.mjs events.test.mjs tools-schema.test.mjs)
+        run: cd packages/opencode-plugin && npm ci && npm test
+
       - name: Install Z3 (golden SMT)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq z3
 

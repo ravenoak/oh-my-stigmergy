@@ -1,0 +1,212 @@
+import { tool } from "@opencode-ai/plugin";
+
+/**
+ * @param {{ sbp: ReturnType<import("./sbpClient.mjs").createSbpClient>; client: any; $: any; repoRoot: string }} opts
+ */
+export function buildTools({ sbp, client, $, repoRoot }) {
+  const z = tool.schema;
+
+  const publishSchema = z.object({
+    id: z.string().min(1),
+    stanceTarget: z.string().min(1),
+    baseIntensity: z.number(),
+    decayRate: z.number(),
+    payloadJson: z.string().optional(),
+  });
+  const idSchema = z.object({ id: z.string().min(1) });
+  const loadNodeSchema = z.object({
+    node_id: z.string().min(1),
+    depth: z.number().int().min(0).max(3).optional(),
+    edge_kind: z.string().optional(),
+  });
+  const aspectSchema = z.object({ kinds: z.string().optional() });
+
+  async function slog(level, message, extra = {}) {
+    try {
+      if (client?.app?.log) {
+        await client.app.log({
+          body: {
+            service: "@oh-my-stigmergy/opencode-plugin",
+            level,
+            message,
+            extra,
+          },
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** @param {import("@opencode-ai/plugin").ToolContext} context */
+  function rootDir(context) {
+    return (repoRoot || context.worktree || context.directory || process.cwd()).trim();
+  }
+
+  return {
+    stigmergy_publish: tool({
+      description:
+        "Publish a pheromone to the SBP ledger (POST /pheromones). Requires SBP_URL and a running sbp-server.",
+      args: {
+        id: z.string().min(1),
+        stanceTarget: z.string().min(1),
+        baseIntensity: z.number(),
+        decayRate: z.number(),
+        payloadJson: z.string().optional(),
+      },
+      async execute(args, _context) {
+        const parsed = publishSchema.safeParse(args);
+        if (!parsed.success) {
+          return `validation_error:${parsed.error.message}`;
+        }
+        const a = parsed.data;
+        try {
+          /** @type {Record<string, unknown>} */
+          const body = {
+            id: a.id,
+            stanceTarget: a.stanceTarget,
+            baseIntensity: a.baseIntensity,
+            decayRate: a.decayRate,
+          };
+          if (a.payloadJson) {
+            try {
+              body.payload = JSON.parse(a.payloadJson);
+            } catch (e) {
+              return `payloadJson_invalid:${String(e?.message || e)}`;
+            }
+          }
+          const { ok, status, text } = await sbp.publish(body);
+          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          await slog("info", "stigmergy_publish_ok", { id: a.id });
+          return "ok";
+        } catch (e) {
+          await slog("warn", "stigmergy_publish_exception", { err: String(e?.message || e) });
+          return `sbp_error:${String(e?.message || e)}`;
+        }
+      },
+    }),
+
+    stigmergy_pheromones: tool({
+      description: "List current pheromones from SBP (GET /pheromones).",
+      args: {},
+      async execute(_args, _context) {
+        try {
+          const { ok, status, text } = await sbp.listPheromones();
+          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          return text || "[]";
+        } catch (e) {
+          return `sbp_error:${String(e?.message || e)}`;
+        }
+      },
+    }),
+
+    stigmergy_claim: tool({
+      description: "Claim a pheromone id (POST /pheromones/:id/claim).",
+      args: { id: z.string().min(1) },
+      async execute(args, _context) {
+        const parsed = idSchema.safeParse(args);
+        if (!parsed.success) {
+          return `validation_error:${parsed.error.message}`;
+        }
+        try {
+          const { ok, status, text } = await sbp.claim(parsed.data.id);
+          if (status === 409) return "claimed_conflict:409";
+          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          return "ok";
+        } catch (e) {
+          return `sbp_error:${String(e?.message || e)}`;
+        }
+      },
+    }),
+
+    stigmergy_inflate: tool({
+      description: "Inflate a pheromone (POST /pheromones/:id/inflate).",
+      args: { id: z.string().min(1) },
+      async execute(args, _context) {
+        const parsed = idSchema.safeParse(args);
+        if (!parsed.success) {
+          return `validation_error:${parsed.error.message}`;
+        }
+        try {
+          const { ok, status, text } = await sbp.inflate(parsed.data.id);
+          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          return "ok";
+        } catch (e) {
+          return `sbp_error:${String(e?.message || e)}`;
+        }
+      },
+    }),
+
+    graph_load_node: tool({
+      description:
+        "Run graph.load_node (uv run python -m graph.load_node). Args: node_id, optional depth (0–3), optional edge_kind (IMPORTS,SOURCES,CALLS).",
+      args: {
+        node_id: z.string().min(1),
+        depth: z.number().int().min(0).max(3).optional(),
+        edge_kind: z.string().optional(),
+      },
+      async execute(args, context) {
+        const parsed = loadNodeSchema.safeParse(args);
+        if (!parsed.success) {
+          return `validation_error:${parsed.error.message}`;
+        }
+        const a = parsed.data;
+        const root = rootDir(context);
+        if (typeof $ !== "function") {
+          return "graph_error:shell_$ unavailable in this context";
+        }
+        try {
+          const d = a.depth;
+          const ek = a.edge_kind?.trim();
+          /** Bun / OpenCode shell template */
+          if (d !== undefined && d !== null && ek) {
+            const out = await $`uv run python -m graph.load_node ${root} ${a.node_id} --depth ${d} --edge-kind ${ek}`.cwd(root);
+            return typeof out.text === "function" ? await out.text() : String(out);
+          }
+          if (d !== undefined && d !== null) {
+            const out = await $`uv run python -m graph.load_node ${root} ${a.node_id} --depth ${d}`.cwd(root);
+            return typeof out.text === "function" ? await out.text() : String(out);
+          }
+          if (ek) {
+            const out = await $`uv run python -m graph.load_node ${root} ${a.node_id} --edge-kind ${ek}`.cwd(root);
+            return typeof out.text === "function" ? await out.text() : String(out);
+          }
+          const out = await $`uv run python -m graph.load_node ${root} ${a.node_id}`.cwd(root);
+          return typeof out.text === "function" ? await out.text() : String(out);
+        } catch (e) {
+          return `graph_error:${String(e?.message || e)}`;
+        }
+      },
+    }),
+
+    graph_aspect: tool({
+      description:
+        "Run graph.aspect (uv run python -m graph.aspect). Optional kinds: comma-separated IMPORTS,SOURCES,CALLS.",
+      args: {
+        kinds: z.string().optional(),
+      },
+      async execute(args, context) {
+        const parsed = aspectSchema.safeParse(args);
+        if (!parsed.success) {
+          return `validation_error:${parsed.error.message}`;
+        }
+        const a = parsed.data;
+        const root = rootDir(context);
+        if (typeof $ !== "function") {
+          return "graph_error:shell_$ unavailable in this context";
+        }
+        try {
+          const k = a.kinds?.trim();
+          if (k) {
+            const out = await $`uv run python -m graph.aspect ${root} --kind ${k}`.cwd(root);
+            return typeof out.text === "function" ? await out.text() : String(out);
+          }
+          const out = await $`uv run python -m graph.aspect ${root}`.cwd(root);
+          return typeof out.text === "function" ? await out.text() : String(out);
+        } catch (e) {
+          return `graph_error:${String(e?.message || e)}`;
+        }
+      },
+    }),
+  };
+}
