@@ -1,0 +1,4 @@
+# Phase 15 — Orchestration operator closeout (FR-6.3)
+
+- **Reason:** This change set adds [`scripts/verify-opencode-operator-docs.sh`](../../../scripts/verify-opencode-operator-docs.sh), extends [`tests/ci_contract.sh`](../../../tests/ci_contract.sh), and wires [`.github/workflows/allium-specs.yml`](../../../.github/workflows/allium-specs.yml) for FR-6.3 / Phase 15. Behavioural intent for orchestration remains in [`spec/governance.allium`](../../../spec/governance.allium) (existing slices); operator runbooks and compatibility text are **non-normative procedure**, not new Allium entities — no reverse-distillation slice required beyond this waiver per FR-1.2.
+- **Follow-up:** When orchestration policy gains new requirement IDs anchored only in docs, extend `spec/governance.allium` in the same change set.

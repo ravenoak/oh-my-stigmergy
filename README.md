@@ -16,6 +16,9 @@ The inspiration essay’s TDD places the **cognitive layer** on the **OpenCode f
 - **[AGENTS.md](AGENTS.md)** — Entry point for coding agents  
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — Skills restore, Allium CLI, CI, doc rules, [GitHub Flow](docs/guides/github-flow.md)  
 - **[docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md)** — Clone → SBP → OpenCode plugin → graph  
+- **[docs/guides/opencode-model-routing-playbook.md](docs/guides/opencode-model-routing-playbook.md)** — Stance→model policy, actionable caps ([FR-6.3](docs/requirements/FR.md))  
+- **[docs/operations/opencode-compatibility.md](docs/operations/opencode-compatibility.md)** — Pinned `@opencode-ai/plugin`, events, limits ([Phase 15](docs/ROADMAP.md))  
+- **[docs/operations/opencode-plugin-release.md](docs/operations/opencode-plugin-release.md)** — npm publish runbook  
 - **[docs/guides/migration-from-oh-my-openagent.md](docs/guides/migration-from-oh-my-openagent.md)** — Moving from OMO to stigmergy-first OpenCode ([ADR-0013](docs/adr/0013-stigmergic-opencode-orchestration.md))  
 - **[docs/guides/agent-session-budgets.md](docs/guides/agent-session-budgets.md)** — Session and token discipline (NFR-C1)  
 - **[oh-my-stigmergy_inspiration.md](oh-my-stigmergy_inspiration.md)** — Background essay (non-normative narrative)

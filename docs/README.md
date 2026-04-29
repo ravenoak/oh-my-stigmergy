@@ -21,6 +21,9 @@ This folder is the canonical **governance and specification surface** for oh-my-
 | [guides/distillation-playbook.md](guides/distillation-playbook.md) | Architects and agents | FR-1.2 distil workflow |
 | [guides/opencode-stigmergy-golden-path.md](guides/opencode-stigmergy-golden-path.md) | Operators and contributors | FR-5.4 clone → SBP → OpenCode plugin → graph verification ([Phase 12](ROADMAP.md)) |
 | [guides/migration-from-oh-my-openagent.md](guides/migration-from-oh-my-openagent.md) | Operators leaving OMO | FR-6.x / [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md) |
+| [guides/opencode-model-routing-playbook.md](guides/opencode-model-routing-playbook.md) | Operators | FR-6.3 stance→model policy and actionable caps ([Phase 15](ROADMAP.md)) |
+| [operations/opencode-compatibility.md](operations/opencode-compatibility.md) | Operators / upgrades | Pinned `@opencode-ai/plugin`; must match `package.json` ([FR-6.3](requirements/FR.md)) |
+| [operations/opencode-plugin-release.md](operations/opencode-plugin-release.md) | Maintainers | npm publish runbook for `@oh-my-stigmergy/opencode-plugin` |
 
 **Phases** used in requirement rows: **P0** (governance and specs in-repo), **P1** (intent tooling and workflows), **P2** (relation-first code navigation), **P3** (stigmergic coordination runtime), **P4** (deterministic verification beyond Allium CLI).
 

@@ -30,14 +30,14 @@ Execution order follows [ROADMAP.md](ROADMAP.md). Reference slices for FR-2.x / 
 
 ## oh-my-openagent (OMO) feature parity (explicit gaps)
 
-Not shipped in Phase 14; promote rows individually with FR IDs + verification.
+Disposition is **final** for first-party scope; promote **new** rows only with FR IDs + verification.
 
-| Item | Phase | Target FR | Next unblocker |
-|------|-------|-----------|----------------|
-| Sisyphus-style named sub-agent roster inside OpenCode | P3+ | TBD | Requires OpenCode multi-session API guarantees + ADR; not a mega-prompt in-tree ([ADR-0003](adr/0003-stigmergy-vs-orchestrator.md)). |
-| `ultrawork` / branded one-shot multi-agent flows | — | — | Product UX outside stigmergy medium; **won’t fix** unless chartered separately. |
-| Curated MCP bundle parity (Exa, Context7, etc.) | P3+ | TBD | Optional MCP ADR; separate from [`packages/opencode-plugin`](../../packages/opencode-plugin). |
-| Claude Code compatibility shim layer | — | — | Upstream OMO scope; **not pursued** in-repo ([ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). |
+| Item | Phase | Disposition | Next unblocker |
+|------|-------|-------------|----------------|
+| Sisyphus-style named sub-agent roster inside OpenCode | P3+ | **deferred-upstream** | Requires stable OpenCode multi-session API + successor ADR; **no** in-tree mega-prompt router ([ADR-0003](adr/0003-stigmergy-vs-orchestrator.md), [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). |
+| `ultrawork` / branded one-shot multi-agent flows | — | **won’t fix** | Product UX outside stigmergy medium unless separately chartered. |
+| Curated MCP bundle parity (Exa, Context7, etc.) | P3+ | **not pursued (first-party)** | Operators may configure MCP in OpenCode outside this plugin; optional future ADR if a **separate** MCP server is in-scope. |
+| Claude Code compatibility shim layer | — | **not pursued** | Upstream OMO scope ([ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). |
 
 ## Ad hoc ideas
 

@@ -14,7 +14,7 @@ Accepted
 
 1. **Recommended operator path:** OpenCode + `@oh-my-stigmergy/opencode-plugin` + running SBP + graph CLIs. **oh-my-openagent** is **not** documented as part of the supported story for achieving stigmergic multi-agent goals in this repository (users may install it unofficially).
 2. **Orchestration semantics** live in the **shared medium**: pheromone list/claim/publish (existing FR-3.x API) plus **plugin tools** that surface **actionable** work (intensity vs olfactory threshold) and **stance → model identifier** resolution from a **JSON policy** ([`packages/opencode-plugin/schema/orchestration.schema.json`](../../packages/opencode-plugin/schema/orchestration.schema.json)).
-3. **No vendoring** of OMO. Parity gaps are tracked in [BACKLOG.md](../BACKLOG.md) with FR targets.
+3. **No vendoring** of OMO. OMO parity gaps are listed in [BACKLOG.md](../BACKLOG.md) with **explicit dispositions** (`deferred-upstream`, `not pursued`, `won’t fix`)—not open-ended TBD rows.
 4. **Honesty:** Multi-session parallelism and model switching are constrained by the **OpenCode host** and provider configuration—document the pinned `@opencode-ai/plugin` peer and cite upstream plugin docs in release notes.
 
 ## Consequences
@@ -32,3 +32,13 @@ Accepted
 
 - **Local model effectiveness** depends on host GPU/drivers and OpenCode provider wiring—RTM cites **routing policy applied**, not subjective model quality.
 - **OpenCode plugin API** evolution may require semver bumps on `@opencode-ai/plugin`; keep lockfile pinned and document upgrades.
+
+## Program closure (Phase 15)
+
+Phase 15 is the **mandatory operator closeout** for orchestration—not OMO feature parity. It delivers:
+
+- **Operator-facing documentation:** model routing playbook, compatibility matrix (pinned `@opencode-ai/plugin` version **must** match [`packages/opencode-plugin/package.json`](../../packages/opencode-plugin/package.json)), and npm release runbook ([FR-6.3](../requirements/FR.md)).
+- **Bounded fan-out:** orchestration policy fields `defaultOlfactoryThreshold`, `defaultActionableLimit`, and `maxActionable` cap `stigmergy_actionable` output without claiming OpenCode token enforcement.
+- **Deterministic verification:** [`scripts/verify-opencode-operator-docs.sh`](../../scripts/verify-opencode-operator-docs.sh) in CI.
+
+**Explicit deferral:** A **named sub-agent roster** / Sisyphus-style hierarchy inside OpenCode remains **deferred-upstream** until the OpenCode host exposes stable multi-session APIs worth binding in an ADR—**no** `implemented` FR for in-tree simulation ([BACKLOG.md](../BACKLOG.md)).

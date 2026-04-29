@@ -208,9 +208,17 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 14 program exit:** orchestration MVP + publish-ready package ([FR-6.1](requirements/FR.md), [NFR-D1](requirements/NFR.md)).
 
-### Phase 15 — Deeper model routing (optional follow-on)
+### Phase 15 — Orchestration operator closeout (**mandatory**)
 
-**Program:** Benchmark playbook for **local** vs **cloud** models under real OpenCode providers; expand BACKLOG **OMO parity** rows as promoted FRs. **Exit:** chartered only when operators need measurable SLO evidence beyond policy defaults.
+**Program:** Close the gaps left after Phase 14: **operator documentation** (model routing playbook, OpenCode compatibility matrix with pinned `@opencode-ai/plugin`, npm release runbook), **deterministic doc verification** ([`scripts/verify-opencode-operator-docs.sh`](../../scripts/verify-opencode-operator-docs.sh)), **orchestration policy bounds** (`defaultOlfactoryThreshold`, `defaultActionableLimit`, `maxActionable` in [`packages/opencode-plugin/schema/orchestration.schema.json`](../../packages/opencode-plugin/schema/orchestration.schema.json)), and **BACKLOG disposition** for OMO parity rows (no `TBD`). **Not in scope:** OMO pixel parity, CI-automated `npm publish` (maintainer runbook only).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P15-a — Operator docs | [`guides/opencode-model-routing-playbook.md`](guides/opencode-model-routing-playbook.md), [`operations/opencode-compatibility.md`](operations/opencode-compatibility.md), [`operations/opencode-plugin-release.md`](operations/opencode-plugin-release.md) exist; linked from [README.md](../../README.md), [AGENTS.md](../../AGENTS.md), [CONTRIBUTING.md](../../CONTRIBUTING.md), [`packages/opencode-plugin/README.md`](../../packages/opencode-plugin/README.md). |
+| P15-b — Verification | [`scripts/verify-opencode-operator-docs.sh`](../../scripts/verify-opencode-operator-docs.sh) in `allium-specs` **governance**; compatibility doc mentions the same pinned `@opencode-ai/plugin` version as [`packages/opencode-plugin/package.json`](../../packages/opencode-plugin/package.json); [`tests/ci_contract.sh`](../../tests/ci_contract.sh) locks script + doc paths. |
+| P15-c — Policy bounds + traceability | Plugin applies policy defaults to `stigmergy_actionable` when args omitted; FR-6.3 / NFR-C3 notes + [RTM.md](traceability/RTM.md) cite tests + verify script; [BACKLOG.md](BACKLOG.md) OMO table uses **Disposition** column ([ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). |
+
+**Phase 15 program exit:** P15-a + P15-b + P15-c green in CI; [PRD.md](PRD.md) deferred-program paragraph lists Phase 15 complete ([NFR-D1](requirements/NFR.md)).
 
 ## Backlog hygiene
 
