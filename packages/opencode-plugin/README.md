@@ -15,6 +15,9 @@ OpenCode plugin that bridges the **cognitive layer** (OpenCode agents) to this r
 |----------|---------|
 | `SBP_URL` | Ledger base URL (default `http://127.0.0.1:3847`). Start SBP separately: `cd packages/sbp-server && npm start`. |
 | `STIGMERGY_DEFAULT_STANCE` | Default `stanceTarget` for event-sourced pheromones (default `feature_implementation`). |
+| `STIGMERGY_AUDIT_LOG_FILE` | Append-only **NDJSON** audit log (`{ ts, event, ... }`) for plugin bootstrap, OpenCode event hooks, and tool executions. Offline analysis only; not a substitute for SBP server logs (`SBP_LOG_FILE`). |
+| `STIGMERGY_AUDIT_LOG_STDERR` | Set to `1` to mirror each audit line to stderr (same pattern as `SBP_LOG_STDERR` on the ledger). |
+| `STIGMERGY_PLUGIN_AUDIT_LOG_FILE` | **Deprecated:** alias for `STIGMERGY_AUDIT_LOG_FILE` when the canonical variable is unset. |
 
 ## Tools
 
@@ -48,5 +51,15 @@ Ensure **`uv`** and repo **`packages/graph`** are usable from the OpenCode proce
 ```bash
 cd packages/opencode-plugin && npm ci && npm test
 ```
+
+## Metrics (audit log summary)
+
+With `STIGMERGY_AUDIT_LOG_FILE` set during sessions, summarize a captured file:
+
+```bash
+npm run metrics -- /path/to/audit.ndjson
+```
+
+Stdout is a single JSON object (event counts, tool/class breakdown, publish hook aggregates). This measures **plugin-emitted** audit lines only.
 
 CI runs the same via `allium-specs` **specs-and-packages** and [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh) in **governance**.

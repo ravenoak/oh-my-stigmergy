@@ -8,6 +8,7 @@
     ".": "./src/index.mjs"
   },
   "scripts": {
+    "metrics": "node bin/metrics.mjs",
     "test": "node --test --test-timeout=120000"
   },
   "dependencies": {

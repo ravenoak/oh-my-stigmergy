@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { once } from "node:events";
 import { createLedgerServer } from "../../sbp-server/server.mjs";
 import { StigmergyPlugin } from "../src/index.mjs";
@@ -46,34 +49,49 @@ test("StigmergyPlugin exposes six tools and logs init", async () => {
 });
 
 test("stigmergy_publish round-trip against real SBP", async () => {
+  const auditDir = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-audit-"));
+  const auditPath = path.join(auditDir, "audit.ndjson");
+  const prevAudit = process.env.STIGMERGY_AUDIT_LOG_FILE;
+  process.env.STIGMERGY_AUDIT_LOG_FILE = auditPath;
+
   const { server } = createLedgerServer();
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const addr = server.address();
   const port = typeof addr === "object" && addr ? addr.port : 0;
   const prev = process.env.SBP_URL;
   process.env.SBP_URL = `http://127.0.0.1:${port}`;
-  const hooks = await StigmergyPlugin({
-    directory: "/tmp",
-    worktree: "/tmp",
-    client: { app: { log: async () => {} } },
-    $: async () => ({}),
-  });
-  const id = "11111111-1111-4111-8111-111111111111";
-  const r = await hooks.tool.stigmergy_publish.execute(
-    {
-      id,
-      stanceTarget: "security_auditing",
-      baseIntensity: 1,
-      decayRate: 0.05,
-    },
-    toolCtx(),
-  );
-  assert.equal(r, "ok");
-  const list = await hooks.tool.stigmergy_pheromones.execute({}, toolCtx());
-  assert.match(list, new RegExp(id));
-  server.close();
-  await once(server, "close");
-  process.env.SBP_URL = prev;
+  try {
+    const hooks = await StigmergyPlugin({
+      directory: "/tmp",
+      worktree: "/tmp",
+      client: { app: { log: async () => {} } },
+      $: async () => ({}),
+    });
+    const id = "11111111-1111-4111-8111-111111111111";
+    const r = await hooks.tool.stigmergy_publish.execute(
+      {
+        id,
+        stanceTarget: "security_auditing",
+        baseIntensity: 1,
+        decayRate: 0.05,
+      },
+      toolCtx(),
+    );
+    assert.equal(r, "ok");
+    const list = await hooks.tool.stigmergy_pheromones.execute({}, toolCtx());
+    assert.match(list, new RegExp(id));
+
+    const auditText = fs.readFileSync(auditPath, "utf8");
+    assert.match(auditText, /"event":"plugin_initialized"/);
+    assert.match(auditText, /"event":"tool_execute"/);
+    assert.match(auditText, /"tool":"stigmergy_publish"/);
+  } finally {
+    server.close();
+    await once(server, "close");
+    process.env.SBP_URL = prev;
+    if (prevAudit === undefined) delete process.env.STIGMERGY_AUDIT_LOG_FILE;
+    else process.env.STIGMERGY_AUDIT_LOG_FILE = prevAudit;
+  }
 });
 
 test("stigmergy_claim returns conflict on double claim", async () => {

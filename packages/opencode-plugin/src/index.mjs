@@ -1,4 +1,5 @@
 import { createSbpClient } from "./sbpClient.mjs";
+import { appendAudit, auditLogEnabled } from "./auditLog.mjs";
 import { buildEventHandler } from "./events.mjs";
 import { buildTools } from "./tools.mjs";
 
@@ -30,6 +31,13 @@ export async function StigmergyPlugin(ctx) {
       /* ignore */
     }
   }
+
+  appendAudit({
+    event: "plugin_initialized",
+    baseUrl,
+    repoRoot,
+    auditEnabled: auditLogEnabled(),
+  });
 
   return { event, tool };
 }

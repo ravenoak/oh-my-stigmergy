@@ -1,4 +1,39 @@
 import { tool } from "@opencode-ai/plugin";
+import { appendAudit, classifyPluginToolReturn } from "./auditLog.mjs";
+
+/**
+ * @param {string} p
+ */
+function truncateRoot(p) {
+  const s = String(p || "");
+  return s.length <= 512 ? s : `${s.slice(0, 509)}...`;
+}
+
+/**
+ * @param {string} toolName
+ * @param {(ctx: any) => string} getRoot
+ * @param {(args: any, context: any) => Promise<string>} fn
+ */
+function withAudit(toolName, getRoot, fn) {
+  return async function execute(args, context) {
+    const t0 = Date.now();
+    const result = await fn(args, context);
+    const durationMs = Date.now() - t0;
+    const cls = classifyPluginToolReturn(String(result), toolName);
+    const ok =
+      cls === "ok" ||
+      (toolName === "stigmergy_pheromones" && !String(result).startsWith("sbp_error:"));
+    appendAudit({
+      event: "tool_execute",
+      tool: toolName,
+      ok,
+      class: cls,
+      durationMs,
+      repoRoot: truncateRoot(getRoot(context)),
+    });
+    return result;
+  };
+}
 
 /**
  * @param {{ sbp: ReturnType<import("./sbpClient.mjs").createSbpClient>; client: any; $: any; repoRoot: string }} opts
@@ -54,7 +89,7 @@ export function buildTools({ sbp, client, $, repoRoot }) {
         decayRate: z.number(),
         payloadJson: z.string().optional(),
       },
-      async execute(args, _context) {
+      execute: withAudit("stigmergy_publish", rootDir, async (args, _context) => {
         const parsed = publishSchema.safeParse(args);
         if (!parsed.success) {
           return `validation_error:${parsed.error.message}`;
@@ -83,13 +118,13 @@ export function buildTools({ sbp, client, $, repoRoot }) {
           await slog("warn", "stigmergy_publish_exception", { err: String(e?.message || e) });
           return `sbp_error:${String(e?.message || e)}`;
         }
-      },
+      }),
     }),
 
     stigmergy_pheromones: tool({
       description: "List current pheromones from SBP (GET /pheromones).",
       args: {},
-      async execute(_args, _context) {
+      execute: withAudit("stigmergy_pheromones", rootDir, async (_args, _context) => {
         try {
           const { ok, status, text } = await sbp.listPheromones();
           if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
@@ -97,13 +132,13 @@ export function buildTools({ sbp, client, $, repoRoot }) {
         } catch (e) {
           return `sbp_error:${String(e?.message || e)}`;
         }
-      },
+      }),
     }),
 
     stigmergy_claim: tool({
       description: "Claim a pheromone id (POST /pheromones/:id/claim).",
       args: { id: z.string().min(1) },
-      async execute(args, _context) {
+      execute: withAudit("stigmergy_claim", rootDir, async (args, _context) => {
         const parsed = idSchema.safeParse(args);
         if (!parsed.success) {
           return `validation_error:${parsed.error.message}`;
@@ -116,13 +151,13 @@ export function buildTools({ sbp, client, $, repoRoot }) {
         } catch (e) {
           return `sbp_error:${String(e?.message || e)}`;
         }
-      },
+      }),
     }),
 
     stigmergy_inflate: tool({
       description: "Inflate a pheromone (POST /pheromones/:id/inflate).",
       args: { id: z.string().min(1) },
-      async execute(args, _context) {
+      execute: withAudit("stigmergy_inflate", rootDir, async (args, _context) => {
         const parsed = idSchema.safeParse(args);
         if (!parsed.success) {
           return `validation_error:${parsed.error.message}`;
@@ -134,7 +169,7 @@ export function buildTools({ sbp, client, $, repoRoot }) {
         } catch (e) {
           return `sbp_error:${String(e?.message || e)}`;
         }
-      },
+      }),
     }),
 
     graph_load_node: tool({
@@ -145,7 +180,7 @@ export function buildTools({ sbp, client, $, repoRoot }) {
         depth: z.number().int().min(0).max(3).optional(),
         edge_kind: z.string().optional(),
       },
-      async execute(args, context) {
+      execute: withAudit("graph_load_node", rootDir, async (args, context) => {
         const parsed = loadNodeSchema.safeParse(args);
         if (!parsed.success) {
           return `validation_error:${parsed.error.message}`;
@@ -176,7 +211,7 @@ export function buildTools({ sbp, client, $, repoRoot }) {
         } catch (e) {
           return `graph_error:${String(e?.message || e)}`;
         }
-      },
+      }),
     }),
 
     graph_aspect: tool({
@@ -185,7 +220,7 @@ export function buildTools({ sbp, client, $, repoRoot }) {
       args: {
         kinds: z.string().optional(),
       },
-      async execute(args, context) {
+      execute: withAudit("graph_aspect", rootDir, async (args, context) => {
         const parsed = aspectSchema.safeParse(args);
         if (!parsed.success) {
           return `validation_error:${parsed.error.message}`;
@@ -206,7 +241,7 @@ export function buildTools({ sbp, client, $, repoRoot }) {
         } catch (e) {
           return `graph_error:${String(e?.message || e)}`;
         }
-      },
+      }),
     }),
   };
 }
