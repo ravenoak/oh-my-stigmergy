@@ -66,6 +66,21 @@
         "outcome": "success",
         "ci_job_timeout_profile": "github_actions_allium_specs_v1"
       }
+    },
+    {
+      "entity": "OpenCodePluginTool",
+      "fields": {
+        "name": "stigmergy_publish",
+        "kind": "stigmergy",
+        "transport": "http"
+      }
+    },
+    {
+      "entity": "OpenCodePluginEvent",
+      "fields": {
+        "kind": "session_idle",
+        "floor_band": "low"
+      }
     }
   ],
   "invariants": [
@@ -271,6 +286,59 @@
           "values": [
             "draft",
             "published"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OpenCodePluginToolsWellFormed",
+      "all": [
+        {
+          "op": "len_gt",
+          "entity": "OpenCodePluginTool",
+          "field": "name",
+          "bound": 0
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "OpenCodePluginTool",
+          "field": "kind",
+          "values": [
+            "stigmergy",
+            "graph"
+          ]
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "OpenCodePluginTool",
+          "field": "transport",
+          "values": [
+            "http",
+            "shell"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OpenCodePluginEventsWellFormed",
+      "all": [
+        {
+          "op": "enum_any_of",
+          "entity": "OpenCodePluginEvent",
+          "field": "kind",
+          "values": [
+            "session_idle",
+            "file_edited"
+          ]
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "OpenCodePluginEvent",
+          "field": "floor_band",
+          "values": [
+            "low",
+            "medium",
+            "high"
           ]
         }
       ]

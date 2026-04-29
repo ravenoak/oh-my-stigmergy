@@ -15,3 +15,4 @@ Decisions are numbered sequentially. Use [template.md](template.md) for new ADRs
 | [0009](0009-sbp-ledger-compaction-decay-gc.md) | SBP ledger compaction and decay GC | Accepted |
 | [0010](0010-stance-configuration-schema.md) | Agent stance configuration — normative schema | Accepted |
 | [0011](0011-sbp-sqlite-store.md) | SBP ledger — SQLite store (`better-sqlite3`) | Accepted |
+| [0012](0012-opencode-plugin-architecture.md) | OpenCode plugin — cognitive layer bridge to SBP and graph | Proposed |

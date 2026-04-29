@@ -29,6 +29,10 @@ Deterministic SMT checking with an **Allium model → SMT** compiler in [`packag
 | [`workflow_timeouts.smt2`](workflow_timeouts.smt2) | Golden compiler output. |
 | [`workflow_timeouts_bad.model.json`](workflow_timeouts_bad.model.json) | Contradictory `int_eq` + `int_gt` on the same field (**unsat**). |
 | [`workflow_timeouts_bad.smt2`](workflow_timeouts_bad.smt2) | Golden for `workflow_timeouts_bad.model.json`. |
+| [`opencode_plugin.model.json`](opencode_plugin.model.json) | Pure JSON witness for **FR-5.x** OpenCode plugin governance slices (`OpenCodePluginTool` / `OpenCodePluginEvent` with `Int` + enums); **sat**. |
+| [`opencode_plugin.smt2`](opencode_plugin.smt2) | Golden compiler output. |
+| [`opencode_plugin_bad.model.json`](opencode_plugin_bad.model.json) | Contradictory `int_gt` + `int_lt` on `intensity_floor` (**unsat**). |
+| [`opencode_plugin_bad.smt2`](opencode_plugin_bad.smt2) | Golden for `opencode_plugin_bad.model.json`. |
 
 `minimal.allium` / `minimal.smt2` remain a **hand-curated** pair for `scripts/verify-smt-golden.sh` only; `verify-crucible-compile.sh` skips `minimal.allium`.
 
