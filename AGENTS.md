@@ -1,6 +1,6 @@
 # Agent instructions
 
-**oh-my-stigmergy** is an intention-first, traceability-heavy workspace for agentic software development research and practice.
+**oh-my-stigmergy** is an intention-first, traceability-heavy workspace for agentic software development research and practice. It emphasizes **stigmergy** (specs, graph, SBP ledger, deterministic checks), not a replacement for OpenCode agent plugins such as [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent); see [README.md](README.md#positioning-stigmergy-and-the-opencode-ecosystem).
 
 ## Start here
 
