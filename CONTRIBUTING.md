@@ -6,6 +6,10 @@ This repository follows **GitHub Flow** with a **linear `main`**: work happens o
 
 **Canonical guide:** [docs/guides/github-flow.md](docs/guides/github-flow.md) — includes `git` / `gh` commands, branch protection expectations, and agent notes.
 
+## OpenCode plugin + SBP smoke (optional)
+
+Before opening a PR that touches [`packages/opencode-plugin`](packages/opencode-plugin), [`packages/sbp-server`](packages/sbp-server), or [`packages/graph`](packages/graph), run through [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md) locally so integration regressions surface outside CI when possible.
+
 ## Restore AI skills from lockfile
 
 After clone, reinstall JUXT Allium skills so `.agents/skills/` matches [skills-lock.json](skills-lock.json):

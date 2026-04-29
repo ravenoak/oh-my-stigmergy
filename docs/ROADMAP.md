@@ -174,6 +174,18 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 11 program exit (2026-04-29):** P11-a + P11-b complete; FR-5.x cite `npm test` + `verify-opencode-plugin-contract.sh` evidence ([NFR-D1](requirements/NFR.md)).
 
+### Phase 12 — OpenCode adoption readiness (**complete**)
+
+**Program:** make the OpenCode cognitive bridge **operator-complete** without collapsing the repo into “plugin-only”: one golden-path guide, linked from root docs, optional NDJSON observability interpretation (SBP + plugin metrics), LICENSE + publish policy ([ADR-0012](adr/0012-opencode-plugin-architecture.md)), and **FR-5.4** traceability for the documented path ([FR.md](requirements/FR.md), [RTM.md](traceability/RTM.md)).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P12-a — Golden path | [guides/opencode-stigmergy-golden-path.md](guides/opencode-stigmergy-golden-path.md) documents clone → `uv sync` → SBP → plugin env → minimal `graph.load_node` / HTTP checks; links from [README.md](../../README.md), [AGENTS.md](../../AGENTS.md), [CONTRIBUTING.md](../../CONTRIBUTING.md). |
+| P12-b — Policy + license | Root `LICENSE`; plugin `package.json` **license** field; ADR-0012 **publish gate** (remain `private: true` until explicit publish PR); npm scope `@oh-my-stigmergy` documented. |
+| P12-c — Traceability | FR-5.4 **`implemented`** with [`scripts/verify-opencode-golden-path.sh`](../../scripts/verify-opencode-golden-path.sh) in `allium-specs` **governance** + RTM row; [`tests/ci_contract.sh`](../../tests/ci_contract.sh) lists script + guide path. |
+
+**Phase 12 program exit:** golden-path guide + wiring + LICENSE + ADR gate + FR-5.4 + verification script green in CI ([NFR-D1](requirements/NFR.md)).
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.

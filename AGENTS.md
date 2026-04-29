@@ -4,6 +4,8 @@
 
 ## Start here
 
+For **OpenCode + SBP + graph** end-to-end setup (operators), follow [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md). It does not replace the broader programme in [docs/PRD.md](docs/PRD.md); it makes the cognitive bridge usable alongside the shared medium.
+
 | Resource | Purpose |
 |----------|---------|
 | [docs/CONSTITUTION.md](docs/CONSTITUTION.md) | Non-negotiable principles and non-goals |

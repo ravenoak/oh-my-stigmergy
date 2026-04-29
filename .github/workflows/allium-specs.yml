@@ -138,6 +138,9 @@ jobs:
       - name: OpenCode plugin manifest contract (FR-5.1 / Phase 11)
         run: bash scripts/verify-opencode-plugin-contract.sh
 
+      - name: OpenCode golden path doc (FR-5.4 / Phase 12)
+        run: bash scripts/verify-opencode-golden-path.sh
+
       - name: Requirement ID traceability
         run: bash scripts/verify-requirement-traceability.sh
 
