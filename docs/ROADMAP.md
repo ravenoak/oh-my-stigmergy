@@ -163,6 +163,17 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 10 program exit (2026-04-28):** `allium check spec/` clean; `verify-crucible-compile` + `verify-smt-golden` + `ci_contract` + `npm test` (SBP) green; RTM cites NFR-P2 and new behavioural + test artefacts.
 
+### Phase 11 — Cognitive layer integration (OpenCode plugin)
+
+**Program:** ship a **standalone** in-tree OpenCode plugin ([ADR-0012](adr/0012-opencode-plugin-architecture.md)) that bridges OpenCode sessions to the **coordination** and **epistemic** layers already in-repo (`packages/sbp-server`, `packages/graph`), without folding into [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent). **FR-5.1–FR-5.3** track packaging, custom tools + HTTP client, and event-driven pheromone emission.
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P11-a — Charter + scaffold | [ADR-0012](adr/0012-opencode-plugin-architecture.md) **Proposed**; [`packages/opencode-plugin`](../../packages/opencode-plugin/) `package.json` + lockfile + README scaffold; [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh) (manifest contract) in `allium-specs` **governance**; [`spec/governance.allium`](../../spec/governance.allium) `OpenCodePluginTool` / `OpenCodePluginEvent` slices; crucible goldens `opencode_plugin*`; [BACKLOG.md](BACKLOG.md) OpenCode row **closed**; FR-5.x + RTM at **`planned`**; [`tests/ci_contract.sh`](../../tests/ci_contract.sh) locks plugin paths + governance contract step (no plugin `npm test` in heavy job until P11-b). |
+| P11-b — Implementation + CI | ADR-0012 **Accepted**; plugin `src/**` + `npm test` in **specs-and-packages**; contract script extended (export smoke); FR-5.x → **`implemented`** with verification strings in [RTM.md](traceability/RTM.md); `verify-crucible-compile` + `verify-smt-golden` green. |
+
+**Phase 11 program exit:** P11-a and P11-b complete; no `implemented` claim for FR-5.x before P11-b evidence ([NFR-D1](requirements/NFR.md)).
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.

@@ -24,14 +24,19 @@ heavy_budget_script="scripts/verify-heavy-budget.sh"
 no_secrets_script="scripts/verify-no-secrets.sh"
 job_timeouts_script="scripts/verify-job-timeouts.sh"
 job_timeouts_json="devtools/ci-job-timeouts.json"
+opencode_plugin_contract_script="scripts/verify-opencode-plugin-contract.sh"
 
 for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
+  "$opencode_plugin_contract_script" \
+  "packages/opencode-plugin/package.json" "packages/opencode-plugin/package-lock.json" "packages/opencode-plugin/README.md" \
   "tests/fixtures/crucible/enums.allium" "tests/fixtures/crucible/enums.smt2" \
   "tests/fixtures/crucible/required_fields.model.json" "tests/fixtures/crucible/required_fields.smt2" \
   "tests/fixtures/crucible/invariants.allium" "tests/fixtures/crucible/invariants.overlay.json" "tests/fixtures/crucible/invariants.smt2" \
   "tests/fixtures/crucible/invariants_bad.model.json" "tests/fixtures/crucible/invariants_bad.smt2" \
   "tests/fixtures/crucible/workflow_timeouts.model.json" "tests/fixtures/crucible/workflow_timeouts.smt2" \
   "tests/fixtures/crucible/workflow_timeouts_bad.model.json" "tests/fixtures/crucible/workflow_timeouts_bad.smt2" \
+  "tests/fixtures/crucible/opencode_plugin.model.json" "tests/fixtures/crucible/opencode_plugin.smt2" \
+  "tests/fixtures/crucible/opencode_plugin_bad.model.json" "tests/fixtures/crucible/opencode_plugin_bad.smt2" \
   "packages/stance/schema/stance-config.schema.json" "packages/stance/src/stance/validate.py" "packages/stance/src/stance/registry.py" \
   "tests/fixtures/stance/good.json"; do
   test -f "$f" || {
@@ -70,6 +75,7 @@ bash -n "$smt_script"
 bash -n "$heavy_budget_script"
 bash -n "$no_secrets_script"
 bash -n "$job_timeouts_script"
+bash -n "$opencode_plugin_contract_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -148,6 +154,10 @@ echo "$governance_block" | grep -q 'verify-job-timeouts.sh' || {
 }
 echo "$governance_block" | grep -q 'verify-no-secrets.sh' || {
   echo "ci_contract: governance job must run scripts/verify-no-secrets.sh (NFR-S2)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-opencode-plugin-contract.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-opencode-plugin-contract.sh (FR-5.1 / Phase 11)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q "python-version: '3.13'" || {
@@ -297,7 +307,7 @@ echo "$heavy_block" | grep -q 'timeout-minutes: 2' || {
 
 gov_spec="spec/governance.allium"
 inv_overlay="tests/fixtures/crucible/invariants.overlay.json"
-for ent in RepositoryGovernance DistillationArtefact ShimAllowEntry WorkflowJob; do
+for ent in RepositoryGovernance DistillationArtefact ShimAllowEntry WorkflowJob OpenCodePluginTool OpenCodePluginEvent; do
   grep -q "entity ${ent}" "$gov_spec" || {
     echo "ci_contract: ${gov_spec} must declare entity ${ent} (Phase 8 governance slices)" >&2
     exit 1

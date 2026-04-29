@@ -135,6 +135,9 @@ jobs:
           GITHUB_BASE_REF: ${{ github.base_ref }}
         run: bash scripts/verify-no-secrets.sh
 
+      - name: OpenCode plugin manifest contract (FR-5.1 / Phase 11)
+        run: bash scripts/verify-opencode-plugin-contract.sh
+
       - name: Requirement ID traceability
         run: bash scripts/verify-requirement-traceability.sh
 

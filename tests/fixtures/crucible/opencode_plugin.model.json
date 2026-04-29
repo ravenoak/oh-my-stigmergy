@@ -1,0 +1,99 @@
+{
+  "version": 3,
+  "entities": [
+    {
+      "name": "OpenCodePluginEvent",
+      "kind": "internal",
+      "fields": [
+        {
+          "name": "kind",
+          "type_expr": "session_idle | file_edited",
+          "enum_values": ["session_idle", "file_edited"]
+        },
+        {
+          "name": "intensity_floor",
+          "type_expr": "Int"
+        }
+      ]
+    },
+    {
+      "name": "OpenCodePluginTool",
+      "kind": "internal",
+      "fields": [
+        {
+          "name": "name",
+          "type_expr": "String"
+        },
+        {
+          "name": "kind",
+          "type_expr": "stigmergy | graph",
+          "enum_values": ["stigmergy", "graph"]
+        },
+        {
+          "name": "transport",
+          "type_expr": "http | shell",
+          "enum_values": ["http", "shell"]
+        }
+      ]
+    }
+  ],
+  "defaults": [
+    {
+      "entity": "OpenCodePluginEvent",
+      "fields": {
+        "kind": "session_idle",
+        "intensity_floor": 1
+      }
+    },
+    {
+      "entity": "OpenCodePluginTool",
+      "fields": {
+        "name": "stigmergy_publish",
+        "kind": "stigmergy",
+        "transport": "http"
+      }
+    }
+  ],
+  "invariants": [
+    {
+      "name": "PluginEventIntensityBounded",
+      "all": [
+        {
+          "op": "int_gt",
+          "entity": "OpenCodePluginEvent",
+          "field": "intensity_floor",
+          "bound": 0
+        },
+        {
+          "op": "int_lt",
+          "entity": "OpenCodePluginEvent",
+          "field": "intensity_floor",
+          "bound": 100
+        }
+      ]
+    },
+    {
+      "name": "PluginToolsWellFormed",
+      "all": [
+        {
+          "op": "len_gt",
+          "entity": "OpenCodePluginTool",
+          "field": "name",
+          "bound": 0
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "OpenCodePluginTool",
+          "field": "kind",
+          "values": ["stigmergy", "graph"]
+        },
+        {
+          "op": "enum_any_of",
+          "entity": "OpenCodePluginTool",
+          "field": "transport",
+          "values": ["http", "shell"]
+        }
+      ]
+    }
+  ]
+}

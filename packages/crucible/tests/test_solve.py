@@ -129,6 +129,22 @@ class TestSolve(unittest.TestCase):
         res = run_z3(smt)
         self.assertEqual(res.status, "unsat")
 
+    def test_opencode_plugin_json_sat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "opencode_plugin.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, _labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "sat")
+
+    def test_opencode_plugin_bad_unsat(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        path = root / "tests" / "fixtures" / "crucible" / "opencode_plugin_bad.model.json"
+        model = json.loads(path.read_text(encoding="utf-8"))
+        smt, _labels = compile_named_model(model)
+        res = run_z3(smt)
+        self.assertEqual(res.status, "unsat")
+
     def test_collections_bad_unsat_core(self) -> None:
         root = Path(__file__).resolve().parents[3]
         path = root / "tests" / "fixtures" / "crucible" / "collections_bad.model.json"

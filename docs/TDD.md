@@ -37,7 +37,7 @@ flowchart TB
 
 | Layer | Component | Technology (essay / options) | Status |
 |-------|-----------|------------------------------|--------|
-| Cognitive | Stance-driven agents | OpenCode + plugins (e.g. [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)), Cursor, other editors and models | **Concrete** (external tooling assumed); **not** shipped as an OpenCode plugin from this repo |
+| Cognitive | Stance-driven agents | OpenCode + plugins (e.g. [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)), in-tree stigmergy bridge ([`packages/opencode-plugin`](../../packages/opencode-plugin/) — [ADR-0012](adr/0012-opencode-plugin-architecture.md), FR-5.x), Cursor, other editors and models | **Concrete** for OpenCode via in-tree plugin package (**maturity** per [ROADMAP.md](ROADMAP.md) Phase 11); other editors remain external |
 | Coordination | SBP server | Node (in-process), SSE ([`packages/sbp-server`](../packages/sbp-server)); optional JSONL ledger ([ADR-0008](adr/0008-sbp-persistence.md)); optional SQLite ([ADR-0011](adr/0011-sbp-sqlite-store.md)) | **Concrete** (reference slice; **Redis not pursued** — [BACKLOG.md](BACKLOG.md)) |
 | Epistemic | Graph engine / `load_node` | Python ([`packages/graph`](../packages/graph)); SQLite opt-in ([ADR-0007](adr/0007-graph-persistence.md)); Tree-sitter **Python + TypeScript/TSX** symbol / method / decorator cards when bindings are installed; shell line cards + `SOURCES` (no Tree-sitter for shell) | **Concrete (in-memory + SQLite)** — cards, `IMPORTS` / `SOURCES` / `CALLS`, CLI per [ADR-0002](adr/0002-relation-first-retrieval.md) |
 | Verification | Allium tools | Rust CLI / LSP ([allium-tools](https://github.com/juxt/allium-tools)) | **Concrete** — user supplies CLI |
