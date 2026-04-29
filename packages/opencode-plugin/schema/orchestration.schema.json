@@ -19,6 +19,24 @@
       "type": "array",
       "items": { "type": "string", "minLength": 1 },
       "description": "Stances where operators should prefer local/fast models when configuring providers."
+    },
+    "defaultOlfactoryThreshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Default minimum computed intensity for stigmergy_actionable when the tool omits olfactory_threshold."
+    },
+    "defaultActionableLimit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Default max rows returned when the tool omits limit."
+    },
+    "maxActionable": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Hard cap on actionable list size (bounds fan-out); applies after default/explicit limit."
     }
   },
   "required": ["defaultModel"]

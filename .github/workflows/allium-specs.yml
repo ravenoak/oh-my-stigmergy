@@ -144,6 +144,9 @@ jobs:
       - name: Stigmergic orchestration charter docs (FR-6.2 / Phase 13)
         run: bash scripts/verify-stigmergy-orchestration-doc.sh
 
+      - name: OpenCode operator docs (FR-6.3 / Phase 15)
+        run: bash scripts/verify-opencode-operator-docs.sh
+
       - name: Requirement ID traceability
         run: bash scripts/verify-requirement-traceability.sh
 

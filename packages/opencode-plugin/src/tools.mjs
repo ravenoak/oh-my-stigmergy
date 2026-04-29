@@ -1,6 +1,10 @@
 import { tool } from "@opencode-ai/plugin";
 import { appendAudit, classifyPluginToolReturn } from "./auditLog.mjs";
-import { filterActionablePheromones, resolveModelForStance } from "./orchestration.mjs";
+import {
+  filterActionablePheromones,
+  resolveActionableToolParams,
+  resolveModelForStance,
+} from "./orchestration.mjs";
 
 /**
  * @param {string} p
@@ -57,7 +61,7 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
   });
   const aspectSchema = z.object({ kinds: z.string().optional() });
   const actionableSchema = z.object({
-    olfactory_threshold: z.number().min(0).max(1),
+    olfactory_threshold: z.number().min(0).max(1).optional(),
     stance_target: z.string().optional(),
     limit: z.number().int().min(1).max(100).optional(),
   });
@@ -274,9 +278,9 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
 
     stigmergy_actionable: tool({
       description:
-        "List pheromones from SBP at or above an olfactory threshold (computed intensity). Optional stance_target filter; returns JSON array subset sorted by intensity.",
+        "List pheromones from SBP at or above an olfactory threshold (computed intensity). Omit olfactory_threshold/limit to use orchestration policy defaults (STIGMERGY_ORCHESTRATION_CONFIG: defaultOlfactoryThreshold, defaultActionableLimit, maxActionable). Optional stance_target filter; returns JSON array subset sorted by intensity.",
       args: {
-        olfactory_threshold: z.number().min(0).max(1),
+        olfactory_threshold: z.number().min(0).max(1).optional(),
         stance_target: z.string().optional(),
         limit: z.number().int().min(1).max(100).optional(),
       },
@@ -289,10 +293,13 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
         try {
           const { ok, status, text } = await sbp.listPheromones();
           if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
-          const lim = a.limit ?? 10;
+          const { olfactoryThreshold, limit: lim, stanceTarget } = resolveActionableToolParams(
+            orchestrationPolicy,
+            a,
+          );
           const json = filterActionablePheromones(text || "[]", {
-            olfactoryThreshold: a.olfactory_threshold,
-            stanceTarget: a.stance_target,
+            olfactoryThreshold,
+            stanceTarget,
             limit: lim,
           });
           return json;

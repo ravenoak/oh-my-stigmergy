@@ -2,7 +2,9 @@
 
 OpenCode plugin that bridges the **cognitive layer** (OpenCode agents) to this repo’s **coordination** and **epistemic** layers: [SBP](../../packages/sbp-server) over HTTP and [graph](../../packages/graph) CLIs via the OpenCode shell (`$`), with **stigmergic orchestration** helpers ([ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md)).
 
-**Requirements:** **FR-5.x**, **FR-6.x**, **NFR-C3** | **ADR:** [ADR-0012](../../docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md) | **Roadmap:** [Phase 13–14](../../docs/ROADMAP.md).
+**Requirements:** **FR-5.x**, **FR-6.x**, **NFR-C3** | **ADR:** [ADR-0012](../../docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md) | **Roadmap:** [Phase 13–15](../../docs/ROADMAP.md).
+
+**Operator docs:** [Model routing playbook](../../docs/guides/opencode-model-routing-playbook.md) · [Compatibility matrix](../../docs/operations/opencode-compatibility.md) · [npm release runbook](../../docs/operations/opencode-plugin-release.md)
 
 ## Scope boundaries
 
@@ -15,7 +17,7 @@ OpenCode plugin that bridges the **cognitive layer** (OpenCode agents) to this r
 |----------|---------|
 | `SBP_URL` | Ledger base URL (default `http://127.0.0.1:3847`). Start SBP separately: `cd packages/sbp-server && npm start`. |
 | `STIGMERGY_DEFAULT_STANCE` | Default `stanceTarget` for event-sourced pheromones (default `feature_implementation`). |
-| `STIGMERGY_ORCHESTRATION_CONFIG` | Optional path to JSON matching [`schema/orchestration.schema.json`](schema/orchestration.schema.json) (`defaultModel`, `stanceModels`, `localPreferredStances`). Defaults ship in [`src/orchestration.mjs`](src/orchestration.mjs) **as examples only**—set real OpenCode provider/model ids for your environment. |
+| `STIGMERGY_ORCHESTRATION_CONFIG` | Optional path to JSON matching [`schema/orchestration.schema.json`](schema/orchestration.schema.json): `defaultModel`, `stanceModels`, `localPreferredStances`, optional **`defaultOlfactoryThreshold`**, **`defaultActionableLimit`**, **`maxActionable`** (bounded fan-out). Defaults ship in [`src/orchestration.mjs`](src/orchestration.mjs) **as examples only**—set real OpenCode provider/model ids for your environment. |
 | `STIGMERGY_AUDIT_LOG_FILE` | Append-only **NDJSON** audit log (`{ ts, event, ... }`) for plugin bootstrap, OpenCode event hooks, and tool executions. Offline analysis only; not a substitute for SBP server logs (`SBP_LOG_FILE`). |
 | `STIGMERGY_AUDIT_LOG_STDERR` | Set to `1` to mirror each audit line to stderr (same pattern as `SBP_LOG_STDERR` on the ledger). |
 | `STIGMERGY_PLUGIN_AUDIT_LOG_FILE` | **Deprecated:** alias for `STIGMERGY_AUDIT_LOG_FILE` when the canonical variable is unset. |
@@ -28,7 +30,7 @@ OpenCode plugin that bridges the **cognitive layer** (OpenCode agents) to this r
 | `stigmergy_pheromones` | `GET /pheromones` (raw JSON text). |
 | `stigmergy_claim` | `POST /pheromones/:id/claim` (returns `claimed_conflict:409` on duplicate). |
 | `stigmergy_inflate` | `POST /pheromones/:id/inflate`. |
-| `stigmergy_actionable` | Fetch `GET /pheromones`, return JSON subset with `intensity >= olfactory_threshold`, optional `stance_target` filter, sorted by intensity (args: `olfactory_threshold`, optional `stance_target`, optional `limit`). |
+| `stigmergy_actionable` | Fetch `GET /pheromones`, return JSON subset with `intensity >= olfactory_threshold`, optional `stance_target` filter, sorted by intensity. Args optional: omit `olfactory_threshold` / `limit` to use policy defaults (`defaultOlfactoryThreshold`, `defaultActionableLimit`, capped by `maxActionable`). |
 | `stigmergy_resolve_model` | Resolve OpenCode model id for a `stance_target` using orchestration policy; returns `model:…` and `local_preferred:true|false`. |
 | `graph_load_node` | `uv run python -m graph.load_node <repo> <node_id>` with optional `--depth` / `--edge-kind`. |
 | `graph_aspect` | `uv run python -m graph.aspect <repo>` with optional `--kind`. |

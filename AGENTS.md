@@ -4,7 +4,7 @@
 
 ## Start here
 
-For **OpenCode + SBP + graph** end-to-end setup (operators), follow [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md). It does not replace the broader programme in [docs/PRD.md](docs/PRD.md); it makes the cognitive bridge usable alongside the shared medium.
+For **OpenCode + SBP + graph** end-to-end setup (operators), follow [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md). **Model routing and compatibility:** [docs/guides/opencode-model-routing-playbook.md](docs/guides/opencode-model-routing-playbook.md), [docs/operations/opencode-compatibility.md](docs/operations/opencode-compatibility.md), [docs/operations/opencode-plugin-release.md](docs/operations/opencode-plugin-release.md). It does not replace the broader programme in [docs/PRD.md](docs/PRD.md); it makes the cognitive bridge usable alongside the shared medium.
 
 | Resource | Purpose |
 |----------|---------|
