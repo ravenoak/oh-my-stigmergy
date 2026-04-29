@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -30,6 +30,6 @@ Alternatives considered:
 
 ## Verification
 
-- `bash scripts/verify-opencode-plugin-contract.sh` on every `allium-specs` governance job.
-- `cd packages/opencode-plugin && npm ci && npm test` in the heavy job after implementation.
-- Crucible goldens `tests/fixtures/crucible/opencode_plugin*.model.json` exercise governance-aligned model slices.
+- `bash scripts/verify-opencode-plugin-contract.sh` on every `allium-specs` governance job (manifest + `src/**` + `StigmergyPlugin` export smoke).
+- `cd packages/opencode-plugin && npm ci && npm test` in `allium-specs` **specs-and-packages** (`plugin.test.mjs`, `events.test.mjs`, `tools-schema.test.mjs`).
+- Crucible goldens `tests/fixtures/crucible/opencode_plugin*.model.json` exercise governance-aligned model slices (`verify-crucible-compile.sh`, `verify-smt-golden.sh`).

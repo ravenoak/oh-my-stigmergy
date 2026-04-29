@@ -232,6 +232,10 @@ echo "$heavy_block" | grep -q 'packages/sbp-server' || {
   echo "ci_contract: specs-and-packages must run SBP tests under packages/sbp-server" >&2
   exit 1
 }
+echo "$heavy_block" | grep -q 'cd packages/opencode-plugin' || {
+  echo "ci_contract: specs-and-packages must run OpenCode plugin tests (cd packages/opencode-plugin)" >&2
+  exit 1
+}
 echo "$heavy_block" | grep -q 'compaction.test.mjs' || {
   echo "ci_contract: SBP npm test must cover compaction (compaction.test.mjs)" >&2
   exit 1

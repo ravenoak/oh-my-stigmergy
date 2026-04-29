@@ -4,5 +4,13 @@
   "private": true,
   "type": "module",
   "description": "OpenCode cognitive bridge to SBP + graph (FR-5.x); see README and ADR-0012.",
-  "scripts": {}
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "test": "node --test --test-timeout=120000"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.14.29"
+  }
 }
