@@ -17,12 +17,15 @@ done
 
 for f in \
   packages/opencode-plugin/src/index.mjs \
+  packages/opencode-plugin/src/auditLog.mjs \
   packages/opencode-plugin/src/sbpClient.mjs \
   packages/opencode-plugin/src/tools.mjs \
   packages/opencode-plugin/src/events.mjs \
+  packages/opencode-plugin/bin/metrics.mjs \
   packages/opencode-plugin/test/plugin.test.mjs \
   packages/opencode-plugin/test/events.test.mjs \
-  packages/opencode-plugin/test/tools-schema.test.mjs; do
+  packages/opencode-plugin/test/tools-schema.test.mjs \
+  packages/opencode-plugin/test/metrics.test.mjs; do
   test -f "$f" || {
     echo "verify-opencode-plugin-contract: missing $f" >&2
     exit 1
@@ -52,6 +55,10 @@ if exports.get(".") != "./src/index.mjs":
     raise SystemExit(1)
 if "test" not in (pkg.get("scripts") or {}):
     print("verify-opencode-plugin-contract: package.json must define scripts.test", file=sys.stderr)
+    raise SystemExit(1)
+scripts = pkg.get("scripts") or {}
+if scripts.get("metrics") != "node bin/metrics.mjs":
+    print("verify-opencode-plugin-contract: package.json scripts.metrics must be node bin/metrics.mjs", file=sys.stderr)
     raise SystemExit(1)
 print("verify-opencode-plugin-contract: ok (manifest)")
 PY

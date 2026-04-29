@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { buildEventHandler } from "../src/events.mjs";
 
 test("session.idle publishes pheromone with envelope", async () => {
@@ -44,23 +47,37 @@ test("file.edited includes path when present", async () => {
 });
 
 test("session.idle fail-soft when publish throws", async () => {
+  const auditDir = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-events-audit-"));
+  const auditPath = path.join(auditDir, "audit.ndjson");
+  const prevAudit = process.env.STIGMERGY_AUDIT_LOG_FILE;
+  process.env.STIGMERGY_AUDIT_LOG_FILE = auditPath;
+
   const sbp = {
     async publish() {
       throw new Error("network down");
     },
   };
   const logs = [];
-  const h = buildEventHandler({
-    sbp,
-    client: {
-      app: {
-        log: async ({ body }) => {
-          logs.push(body);
+  try {
+    const h = buildEventHandler({
+      sbp,
+      client: {
+        app: {
+          log: async ({ body }) => {
+            logs.push(body);
+          },
         },
       },
-    },
-    defaultStance: "feature_implementation",
-  });
-  await h({ event: { type: "session.idle" } });
-  assert.ok(logs.some((b) => b.level === "warn" && String(b.message).includes("sbp_publish_error")));
+      defaultStance: "feature_implementation",
+    });
+    await h({ event: { type: "session.idle" } });
+    assert.ok(logs.some((b) => b.level === "warn" && String(b.message).includes("sbp_publish_error")));
+
+    const auditText = fs.readFileSync(auditPath, "utf8");
+    assert.match(auditText, /"event":"plugin_event_received"/);
+    assert.match(auditText, /"event":"sbp_publish_error"/);
+  } finally {
+    if (prevAudit === undefined) delete process.env.STIGMERGY_AUDIT_LOG_FILE;
+    else process.env.STIGMERGY_AUDIT_LOG_FILE = prevAudit;
+  }
 });

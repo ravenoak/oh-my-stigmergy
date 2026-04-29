@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { appendAudit } from "./auditLog.mjs";
 
 /**
  * @param {object} ev
@@ -34,14 +35,36 @@ export function buildEventHandler({ sbp, client, defaultStance }) {
   }
 
   async function publishFailSoft(body, reason) {
+    appendAudit({
+      event: "sbp_publish_attempt",
+      reason,
+      id: body.id,
+    });
     try {
       const { ok, status, text } = await sbp.publish(body);
       if (!ok) {
+        appendAudit({
+          event: "sbp_publish_failed",
+          reason,
+          id: body.id,
+          status,
+        });
         await log("warn", `sbp_publish_failed:${reason}`, { status, text: text?.slice(0, 500) });
       } else {
+        appendAudit({
+          event: "sbp_publish_ok",
+          reason,
+          id: body.id,
+        });
         await log("info", `sbp_publish_ok:${reason}`, { id: body.id });
       }
     } catch (e) {
+      appendAudit({
+        event: "sbp_publish_error",
+        reason,
+        id: body.id,
+        err: String(e?.message || e),
+      });
       await log("warn", `sbp_publish_error:${reason}`, { err: String(e?.message || e) });
     }
   }
@@ -53,6 +76,18 @@ export function buildEventHandler({ sbp, client, defaultStance }) {
   return async function event(input) {
     const ev = input?.event;
     const type = ev && typeof ev.type === "string" ? ev.type : "";
+
+    const publishReason =
+      type === "session.idle"
+        ? "session_idle"
+        : type === "file.edited"
+          ? "file_edited"
+          : "unknown";
+    appendAudit({
+      event: "plugin_event_received",
+      openCodeEventType: type || "(missing)",
+      publishReason,
+    });
 
     if (type === "session.idle") {
       await publishFailSoft(

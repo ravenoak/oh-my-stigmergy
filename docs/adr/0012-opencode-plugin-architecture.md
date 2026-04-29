@@ -30,6 +30,7 @@ Alternatives considered:
 
 ## Verification
 
-- `bash scripts/verify-opencode-plugin-contract.sh` on every `allium-specs` governance job (manifest + `src/**` + `StigmergyPlugin` export smoke).
-- `cd packages/opencode-plugin && npm ci && npm test` in `allium-specs` **specs-and-packages** (`plugin.test.mjs`, `events.test.mjs`, `tools-schema.test.mjs`).
+- `bash scripts/verify-opencode-plugin-contract.sh` on every `allium-specs` governance job (manifest + `src/**` + `bin/metrics.mjs` + `StigmergyPlugin` export smoke).
+- `cd packages/opencode-plugin && npm ci && npm test` in `allium-specs` **specs-and-packages** (`plugin.test.mjs`, `events.test.mjs`, `tools-schema.test.mjs`, `metrics.test.mjs`).
+- **Operational signal:** optional append-only NDJSON audit log via `STIGMERGY_AUDIT_LOG_FILE` (`src/auditLog.mjs`); offline summary via `npm run metrics -- <file>` — same honesty boundary as SBP: host `client.app.log` remains best-effort; audit file is explicit and machine-summarizable.
 - Crucible goldens `tests/fixtures/crucible/opencode_plugin*.model.json` exercise governance-aligned model slices (`verify-crucible-compile.sh`, `verify-smt-golden.sh`).

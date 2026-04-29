@@ -29,6 +29,9 @@ opencode_plugin_contract_script="scripts/verify-opencode-plugin-contract.sh"
 for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "$opencode_plugin_contract_script" \
   "packages/opencode-plugin/package.json" "packages/opencode-plugin/package-lock.json" "packages/opencode-plugin/README.md" \
+  "packages/opencode-plugin/src/auditLog.mjs" \
+  "packages/opencode-plugin/bin/metrics.mjs" \
+  "packages/opencode-plugin/test/metrics.test.mjs" \
   "tests/fixtures/crucible/enums.allium" "tests/fixtures/crucible/enums.smt2" \
   "tests/fixtures/crucible/required_fields.model.json" "tests/fixtures/crucible/required_fields.smt2" \
   "tests/fixtures/crucible/invariants.allium" "tests/fixtures/crucible/invariants.overlay.json" "tests/fixtures/crucible/invariants.smt2" \
