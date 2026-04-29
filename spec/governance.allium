@@ -69,6 +69,7 @@ entity ShimAllowEntry {
 entity WorkflowJob {
     id: filter | governance | specs_and_packages | check
     outcome: pending | success | failure | skipped
+    ci_job_timeout_profile: String
 }
 
 ------------------------------------------------------------
@@ -118,7 +119,8 @@ default ShimAllowEntry seed_shim_allow_entry = {
 
 default WorkflowJob seed_workflow_job = {
     id: governance,
-    outcome: success
+    outcome: success,
+    ci_job_timeout_profile: "github_actions_allium_specs_v1"
 }
 
 ------------------------------------------------------------
@@ -178,4 +180,9 @@ invariant WorkflowJobsWellFormed {
     for w in WorkflowJobs:
         (w.id = filter or w.id = governance or w.id = specs_and_packages or w.id = check)
             and (w.outcome = pending or w.outcome = success or w.outcome = failure or w.outcome = skipped)
+}
+
+invariant WorkflowJobsHaveCiTimeoutProfile {
+    for w in WorkflowJobs:
+        length(w.ci_job_timeout_profile) > 0
 }

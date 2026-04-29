@@ -14,6 +14,7 @@
 | ID | Requirement | Phase | Maturity | Verification |
 |----|-------------|-------|----------|--------------|
 | NFR-P1 | Heavy-job graph ingestion on GitHub-hosted runners stays within the wall-clock budget recorded for relation-first retrieval (ADR-0002). | P2 | implemented | [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt); **`timeout-minutes`** on the graph unittest step in [`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml); deterministic gate [`scripts/verify-heavy-budget.sh`](../../scripts/verify-heavy-budget.sh) in `allium-specs` **`governance`** job |
+| NFR-P2 | Every job in the `allium-specs` workflow declares a **job-level** wall-clock bound so hung regressions cannot burn the default six-hour Actions budget. | P2 | implemented | [`devtools/ci-job-timeouts.json`](../../devtools/ci-job-timeouts.json) (single source of truth); job-level **`timeout-minutes`** on `filter`, `governance`, `specs-and-packages`, and `check` in [`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml); deterministic gate [`scripts/verify-job-timeouts.sh`](../../scripts/verify-job-timeouts.sh) in `allium-specs` **`governance`** job (after merge-gate wiring contract) |
 
 ## Observability
 

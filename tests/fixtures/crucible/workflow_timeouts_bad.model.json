@@ -1,0 +1,34 @@
+{
+  "version": 3,
+  "entities": [
+    {
+      "name": "JobTimeout",
+      "kind": "internal",
+      "fields": [
+        {
+          "name": "wall_seconds",
+          "type_expr": "Int"
+        }
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "name": "Contradiction",
+      "all": [
+        {
+          "op": "int_eq",
+          "entity": "JobTimeout",
+          "field": "wall_seconds",
+          "value": 0
+        },
+        {
+          "op": "int_gt",
+          "entity": "JobTimeout",
+          "field": "wall_seconds",
+          "bound": 0
+        }
+      ]
+    }
+  ]
+}

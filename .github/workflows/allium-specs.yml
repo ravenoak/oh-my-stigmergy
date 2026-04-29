@@ -22,6 +22,7 @@ concurrency:
 jobs:
   filter:
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     outputs:
       relevant: ${{ steps.out.outputs.relevant }}
     steps:
@@ -105,6 +106,7 @@ jobs:
 
   governance:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -117,6 +119,12 @@ jobs:
 
       - name: CI contract (merge gate wiring)
         run: bash tests/ci_contract.sh
+
+      - name: Actions SHA pinning (workflows)
+        run: bash scripts/verify-actions-pinned.sh
+
+      - name: CI job wall-clock bounds (NFR-P2)
+        run: bash scripts/verify-job-timeouts.sh
 
       - name: CI heavy-job budget (NFR-P1)
         run: bash scripts/verify-heavy-budget.sh
@@ -168,6 +176,7 @@ jobs:
     needs: filter
     if: needs.filter.outputs.relevant == 'true'
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -242,7 +251,7 @@ jobs:
       - name: Stance package unit tests (FR-1.4)
         run: uv run python -m unittest discover -s packages/stance/tests -p 'test_*.py' -v
 
-      - name: SBP server tests (FR-3.x; compaction.test.mjs decay-gc.test.mjs sqlite-store.test.mjs healthz.test.mjs multi-writer.test.mjs stance-registry.test.mjs)
+      - name: SBP server tests (FR-3.x; stream.test.mjs rotation.test.mjs compaction.test.mjs decay-gc.test.mjs sqlite-store.test.mjs healthz.test.mjs multi-writer.test.mjs stance-registry.test.mjs)
         run: cd packages/sbp-server && npm ci && npm test
 
       - name: Install Z3 (golden SMT)
@@ -261,6 +270,7 @@ jobs:
     if: always()
     needs: [filter, governance, specs-and-packages]
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Aggregate merge gate
         env:

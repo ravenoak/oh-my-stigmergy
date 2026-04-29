@@ -1,0 +1,9 @@
+{
+  "workflow": ".github/workflows/allium-specs.yml",
+  "jobs": {
+    "filter": 5,
+    "governance": 10,
+    "specs-and-packages": 30,
+    "check": 5
+  }
+}
