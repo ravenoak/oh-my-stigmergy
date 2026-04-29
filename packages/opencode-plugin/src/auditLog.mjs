@@ -48,6 +48,7 @@ export function appendAudit(obj) {
 export function classifyPluginToolReturn(s, toolName) {
   const str = String(s ?? "");
   if (str.startsWith("validation_error:")) return "validation_error";
+  if (str.startsWith("actionable_parse:")) return "other";
   if (str.startsWith("payloadJson_invalid:")) return "payload_json_invalid";
   if (str.startsWith("sbp_error:")) return "sbp_error";
   if (str.startsWith("graph_error:")) return "graph_error";

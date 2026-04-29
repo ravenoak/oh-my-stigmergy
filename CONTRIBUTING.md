@@ -6,9 +6,11 @@ This repository follows **GitHub Flow** with a **linear `main`**: work happens o
 
 **Canonical guide:** [docs/guides/github-flow.md](docs/guides/github-flow.md) — includes `git` / `gh` commands, branch protection expectations, and agent notes.
 
-## OpenCode plugin + SBP smoke (optional)
+## OpenCode plugin + SBP smoke
 
-Before opening a PR that touches [`packages/opencode-plugin`](packages/opencode-plugin), [`packages/sbp-server`](packages/sbp-server), or [`packages/graph`](packages/graph), run through [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md) locally so integration regressions surface outside CI when possible.
+Before opening a PR that touches [`packages/opencode-plugin`](packages/opencode-plugin), [`packages/sbp-server`](packages/sbp-server), or [`packages/graph`](packages/graph), run [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md) locally. Orchestration policy and migration from OMO: [ADR-0013](docs/adr/0013-stigmergic-opencode-orchestration.md), [docs/guides/migration-from-oh-my-openagent.md](docs/guides/migration-from-oh-my-openagent.md).
+
+Bootstrap script (repo root): `bash scripts/bootstrap-opencode-stigmergy-stack.sh` (optional `--print-opencode-snippet`).
 
 ## Restore AI skills from lockfile
 

@@ -165,7 +165,7 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 ### Phase 11 — Cognitive layer integration (OpenCode plugin) (**complete**)
 
-**Program:** ship a **standalone** in-tree OpenCode plugin ([ADR-0012](adr/0012-opencode-plugin-architecture.md)) that bridges OpenCode sessions to the **coordination** and **epistemic** layers already in-repo (`packages/sbp-server`, `packages/graph`), without folding into [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent). **FR-5.1–FR-5.3** track packaging, custom tools + HTTP client, and event-driven pheromone emission.
+**Program:** ship a **standalone** in-tree OpenCode plugin ([ADR-0012](adr/0012-opencode-plugin-architecture.md)) that bridges OpenCode sessions to the **coordination** and **epistemic** layers already in-repo (`packages/sbp-server`, `packages/graph`). **FR-5.1–FR-5.3** track packaging, custom tools + HTTP client, and event-driven pheromone emission. **Charter (Phase 13+):** [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md) makes this plugin the **recommended** OpenCode path—not a dependency on [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent).
 
 | Milestone | Exit criteria |
 |-----------|----------------|
@@ -181,10 +181,36 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 | Milestone | Exit criteria |
 |-----------|----------------|
 | P12-a — Golden path | [guides/opencode-stigmergy-golden-path.md](guides/opencode-stigmergy-golden-path.md) documents clone → `uv sync` → SBP → plugin env → minimal `graph.load_node` / HTTP checks; links from [README.md](../../README.md), [AGENTS.md](../../AGENTS.md), [CONTRIBUTING.md](../../CONTRIBUTING.md). |
-| P12-b — Policy + license | Root `LICENSE`; plugin `package.json` **license** field; ADR-0012 **publish gate** (remain `private: true` until explicit publish PR); npm scope `@oh-my-stigmergy` documented. |
+| P12-b — Policy + license | Root `LICENSE`; plugin `package.json` **license** field; **`npm pack`** publish readiness per ADR-0012 (superseded by Phase 14 **`private: false`**); npm scope `@oh-my-stigmergy` documented. |
 | P12-c — Traceability | FR-5.4 **`implemented`** with [`scripts/verify-opencode-golden-path.sh`](../../scripts/verify-opencode-golden-path.sh) in `allium-specs` **governance** + RTM row; [`tests/ci_contract.sh`](../../tests/ci_contract.sh) lists script + guide path. |
 
 **Phase 12 program exit:** golden-path guide + wiring + LICENSE + ADR gate + FR-5.4 + verification script green in CI ([NFR-D1](requirements/NFR.md)).
+
+### Phase 13 — Stigmergic orchestration charter (**complete**)
+
+**Program:** Accept [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md); amend [ADR-0012](adr/0012-opencode-plugin-architecture.md) + [ADR-0003](adr/0003-stigmergy-vs-orchestrator.md); document **oh-my-openagent** as **not** the recommended operator path; publish migration guide.
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P13-a — ADRs + docs | ADR-0013 **Accepted**; README / PRD / TDD / CONSTITUTION / AGENTS / CONTRIBUTING / `docs/README.md` aligned; [guides/migration-from-oh-my-openagent.md](guides/migration-from-oh-my-openagent.md) exists. |
+| P13-b — Verification | [`scripts/verify-stigmergy-orchestration-doc.sh`](../../scripts/verify-stigmergy-orchestration-doc.sh) in `allium-specs` **governance**; [`scripts/bootstrap-opencode-stigmergy-stack.sh`](../../scripts/bootstrap-opencode-stigmergy-stack.sh) + `ci_contract` lock. |
+
+**Phase 13 program exit:** ADR-0013 + migration + bootstrap + doc verification green ([FR-6.2](requirements/FR.md)).
+
+### Phase 14 — Orchestration MVP + npm publish (**complete**)
+
+**Program:** Implement ledger-first orchestration tools (`stigmergy_actionable`, `stigmergy_resolve_model`), JSON schema policy, tests; **`private: false`** + **`npm pack`** in [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P14-a — Plugin | [`packages/opencode-plugin/schema/orchestration.schema.json`](../../packages/opencode-plugin/schema/orchestration.schema.json); [`packages/opencode-plugin/src/orchestration.mjs`](../../packages/opencode-plugin/src/orchestration.mjs); tools wired; [`packages/opencode-plugin/test/orchestration.test.mjs`](../../packages/opencode-plugin/test/orchestration.test.mjs). |
+| P14-b — Traceability | FR-6.1 / FR-6.2 / NFR-C3 **`implemented`** in [FR.md](requirements/FR.md), [NFR.md](requirements/NFR.md), [RTM.md](traceability/RTM.md); [PRD.md](PRD.md) deferred paragraph updated. |
+
+**Phase 14 program exit:** orchestration MVP + publish-ready package ([FR-6.1](requirements/FR.md), [NFR-D1](requirements/NFR.md)).
+
+### Phase 15 — Deeper model routing (optional follow-on)
+
+**Program:** Benchmark playbook for **local** vs **cloud** models under real OpenCode providers; expand BACKLOG **OMO parity** rows as promoted FRs. **Exit:** chartered only when operators need measurable SLO evidence beyond policy defaults.
 
 ## Backlog hygiene
 

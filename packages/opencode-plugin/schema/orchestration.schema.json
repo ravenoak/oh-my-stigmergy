@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oh-my-stigmergy.dev/schema/orchestration.schema.json",
+  "title": "StigmergyOrchestrationPolicy",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "defaultModel": {
+      "type": "string",
+      "minLength": 1,
+      "description": "OpenCode provider/model id when stance has no override (see upstream docs)."
+    },
+    "stanceModels": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1 },
+      "description": "Map stanceTarget → model id."
+    },
+    "localPreferredStances": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Stances where operators should prefer local/fast models when configuring providers."
+    }
+  },
+  "required": ["defaultModel"]
+}

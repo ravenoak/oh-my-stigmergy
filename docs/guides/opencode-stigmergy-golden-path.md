@@ -95,6 +95,8 @@ Once the plugin loads (`StigmergyPlugin` — see [ADR-0012](../adr/0012-opencode
 
 Return strings starting with `sbp_error:` or `graph_error:` mean the bridge ran but the dependency failed (SBP down, `uv` missing, wrong repo root); they are **not** OpenCode crashes.
 
+- **Orchestration (FR-6.x):** use **`stigmergy_actionable`** with `olfactory_threshold` (0–1) to list high-intensity pheromones from the ledger; use **`stigmergy_resolve_model`** with a `stance_target` to read the configured OpenCode model id (override policy via `STIGMERGY_ORCHESTRATION_CONFIG`). See [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md). Moving from oh-my-openagent: [migration-from-oh-my-openagent.md](migration-from-oh-my-openagent.md).
+
 ## 6) Observability (cross-read logs)
 
 | Surface | Env | Summarize |
@@ -116,3 +118,5 @@ These logs are **orthogonal**: SBP records server-side HTTP events; the plugin r
 - [packages/sbp-server/README.md](../../packages/sbp-server/README.md)
 - [docs/operations/sbp-slo.md](../operations/sbp-slo.md)
 - [ADR-0012](../adr/0012-opencode-plugin-architecture.md)
+- [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md)
+- [migration-from-oh-my-openagent.md](migration-from-oh-my-openagent.md)

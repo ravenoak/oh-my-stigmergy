@@ -28,6 +28,17 @@ Execution order follows [ROADMAP.md](ROADMAP.md). Reference slices for FR-2.x / 
 | FR-4.1 — org-wide PATH / OPA parity | — | **Not pursued** | Would invent org-wide enforcement semantics and drift from [ADR-0004](adr/0004-verification-stack-layering.md) / fork-friendly model; use maintainer shim + [`verify-shim-policy-diff.sh`](../scripts/verify-shim-policy-diff.sh) instead ([ADR-0006](adr/0006-p4-crucible-execution.md)). |
 | OpenCode / IDE bridge — MCP or plugin that publishes SBP pheromones and pulls graph/`load_node` context into agent sessions | P3+ | [ADR-0012](adr/0012-opencode-plugin-architecture.md); FR-5.1–FR-5.3 | **Closed (promoted to Phase 11):** in-tree [`packages/opencode-plugin`](../../packages/opencode-plugin/) + HTTP SBP + graph CLI per ADR-0012; BACKLOG row superseded by [ROADMAP.md](ROADMAP.md) Phase 11. **Not pursued here:** separate MCP server (future ADR if needed). |
 
+## oh-my-openagent (OMO) feature parity (explicit gaps)
+
+Not shipped in Phase 14; promote rows individually with FR IDs + verification.
+
+| Item | Phase | Target FR | Next unblocker |
+|------|-------|-----------|----------------|
+| Sisyphus-style named sub-agent roster inside OpenCode | P3+ | TBD | Requires OpenCode multi-session API guarantees + ADR; not a mega-prompt in-tree ([ADR-0003](adr/0003-stigmergy-vs-orchestrator.md)). |
+| `ultrawork` / branded one-shot multi-agent flows | — | — | Product UX outside stigmergy medium; **won’t fix** unless chartered separately. |
+| Curated MCP bundle parity (Exa, Context7, etc.) | P3+ | TBD | Optional MCP ADR; separate from [`packages/opencode-plugin`](../../packages/opencode-plugin). |
+| Claude Code compatibility shim layer | — | — | Upstream OMO scope; **not pursued** in-repo ([ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). |
+
 ## Ad hoc ideas
 
 Add new rows below with the same columns when brainstorming; **do not** implement from this section without promotion.

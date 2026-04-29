@@ -2,6 +2,7 @@ import { createSbpClient } from "./sbpClient.mjs";
 import { appendAudit, auditLogEnabled } from "./auditLog.mjs";
 import { buildEventHandler } from "./events.mjs";
 import { buildTools } from "./tools.mjs";
+import { loadOrchestrationPolicy } from "./orchestration.mjs";
 
 const DEFAULT_SBP = "http://127.0.0.1:3847";
 
@@ -14,8 +15,9 @@ export async function StigmergyPlugin(ctx) {
   const defaultStance = (process.env.STIGMERGY_DEFAULT_STANCE || "feature_implementation").trim();
 
   const sbp = createSbpClient({ baseUrl });
+  const orchestrationPolicy = loadOrchestrationPolicy();
   const event = buildEventHandler({ sbp, client, defaultStance });
-  const tool = buildTools({ sbp, client, $, repoRoot });
+  const tool = buildTools({ sbp, client, $, repoRoot, orchestrationPolicy });
 
   if (client?.app?.log) {
     try {

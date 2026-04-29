@@ -1,5 +1,6 @@
 import { tool } from "@opencode-ai/plugin";
 import { appendAudit, classifyPluginToolReturn } from "./auditLog.mjs";
+import { filterActionablePheromones, resolveModelForStance } from "./orchestration.mjs";
 
 /**
  * @param {string} p
@@ -36,9 +37,9 @@ function withAudit(toolName, getRoot, fn) {
 }
 
 /**
- * @param {{ sbp: ReturnType<import("./sbpClient.mjs").createSbpClient>; client: any; $: any; repoRoot: string }} opts
+ * @param {{ sbp: ReturnType<import("./sbpClient.mjs").createSbpClient>; client: any; $: any; repoRoot: string; orchestrationPolicy: object }} opts
  */
-export function buildTools({ sbp, client, $, repoRoot }) {
+export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
   const z = tool.schema;
 
   const publishSchema = z.object({
@@ -55,6 +56,14 @@ export function buildTools({ sbp, client, $, repoRoot }) {
     edge_kind: z.string().optional(),
   });
   const aspectSchema = z.object({ kinds: z.string().optional() });
+  const actionableSchema = z.object({
+    olfactory_threshold: z.number().min(0).max(1),
+    stance_target: z.string().optional(),
+    limit: z.number().int().min(1).max(100).optional(),
+  });
+  const resolveModelSchema = z.object({
+    stance_target: z.string().min(1),
+  });
 
   async function slog(level, message, extra = {}) {
     try {
@@ -240,6 +249,57 @@ export function buildTools({ sbp, client, $, repoRoot }) {
           return typeof out.text === "function" ? await out.text() : String(out);
         } catch (e) {
           return `graph_error:${String(e?.message || e)}`;
+        }
+      }),
+    }),
+
+    stigmergy_resolve_model: tool({
+      description:
+        "Resolve OpenCode model id for a stanceTarget using stigmergy orchestration policy (STIGMERGY_ORCHESTRATION_CONFIG or built-in defaults). Returns one line: model:<id> or local_preferred:true|false.",
+      args: {
+        stance_target: z.string().min(1),
+      },
+      execute: withAudit("stigmergy_resolve_model", rootDir, async (args, _context) => {
+        const parsed = resolveModelSchema.safeParse(args);
+        if (!parsed.success) {
+          return `validation_error:${parsed.error.message}`;
+        }
+        const stance = parsed.data.stance_target.trim();
+        const model = resolveModelForStance(stance, orchestrationPolicy);
+        const local =
+          orchestrationPolicy.localPreferredStances?.includes(stance) === true ? "true" : "false";
+        return `model:${model}\nlocal_preferred:${local}`;
+      }),
+    }),
+
+    stigmergy_actionable: tool({
+      description:
+        "List pheromones from SBP at or above an olfactory threshold (computed intensity). Optional stance_target filter; returns JSON array subset sorted by intensity.",
+      args: {
+        olfactory_threshold: z.number().min(0).max(1),
+        stance_target: z.string().optional(),
+        limit: z.number().int().min(1).max(100).optional(),
+      },
+      execute: withAudit("stigmergy_actionable", rootDir, async (args, _context) => {
+        const parsed = actionableSchema.safeParse(args);
+        if (!parsed.success) {
+          return `validation_error:${parsed.error.message}`;
+        }
+        const a = parsed.data;
+        try {
+          const { ok, status, text } = await sbp.listPheromones();
+          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          const lim = a.limit ?? 10;
+          const json = filterActionablePheromones(text || "[]", {
+            olfactoryThreshold: a.olfactory_threshold,
+            stanceTarget: a.stance_target,
+            limit: lim,
+          });
+          return json;
+        } catch (e) {
+          const msg = String(e?.message || e);
+          if (msg.startsWith("actionable_parse:")) return msg;
+          return `sbp_error:${msg}`;
         }
       }),
     }),

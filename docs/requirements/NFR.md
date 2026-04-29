@@ -29,6 +29,7 @@
 |----|-------------|-------|----------|--------------|
 | NFR-C1 | Prefer stigmergy and specs over unbounded orchestrator prompts; document token-expensive workflows. | P1 | implemented | [docs/guides/agent-session-budgets.md](../guides/agent-session-budgets.md); [CONTRIBUTING.md](../../CONTRIBUTING.md) |
 | NFR-C2 | Long Allium tend/weed sessions may use a fresh chat tab to limit context exhaustion (Cursor). | P1 | implemented | CONTRIBUTING |
+| NFR-C3 | OpenCode **stance→model** routing shall be **declarative** (JSON policy + schema) with documented defaults; **local-preferred** stances are listed for operator ergonomics, not a guarantee of host GPU behaviour. | P3 | implemented | [`packages/opencode-plugin/schema/orchestration.schema.json`](../../packages/opencode-plugin/schema/orchestration.schema.json), [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md) | **Deterministic today:** [`packages/opencode-plugin/test/orchestration.test.mjs`](../../packages/opencode-plugin/test/orchestration.test.mjs) (`resolveModelForStance`, `validateOrchestrationPolicy`); [`packages/opencode-plugin/README.md`](../../packages/opencode-plugin/README.md) documents `STIGMERGY_ORCHESTRATION_CONFIG`. |
 
 ## Security
 

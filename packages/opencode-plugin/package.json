@@ -1,7 +1,7 @@
 {
   "name": "@oh-my-stigmergy/opencode-plugin",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "description": "OpenCode cognitive bridge to SBP + graph (FR-5.x); see README and ADR-0012.",
   "license": "MIT",
