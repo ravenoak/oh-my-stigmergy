@@ -1,6 +1,6 @@
 # Documentation map
 
-This folder is the canonical **governance and specification surface** for oh-my-stigmergy. The long-form essay [`oh-my-stigmergy_inspiration.md`](../oh-my-stigmergy_inspiration.md) remains background reading; normative intent lives here and in [`spec/`](../spec/).
+This folder is the canonical **governance and specification surface** for oh-my-stigmergy. The long-form essay [`oh-my-stigmergy_inspiration.md`](../oh-my-stigmergy_inspiration.md) remains background reading; normative intent lives here and in [`spec/`](../spec/). **Product positioning** (stigmergy vs OpenCode plugin harnesses such as [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)): see the root [`README.md`](../README.md#positioning-stigmergy-and-the-opencode-ecosystem).
 
 | Document | Audience | Update when |
 |----------|----------|-------------|

@@ -19,6 +19,7 @@ A decentralized, verification-aware software development environment where multi
 - Maintaining Allium specs under `spec/` with CLI validation.
 - Documentation and traceability (PRD, TDD, FR/NFR, RTM, ADRs).
 - Skills and IDE rules that route agents to specs without duplicating large prompts.
+- **Stigmergic coordination as a first-class story** — reference code and docs for indirect coordination via specs, graph artefacts, and SBP ([`packages/sbp-server`](../../packages/sbp-server)), positioned as a **complementary** emphasis to hierarchical OpenCode plugin harnesses such as [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) (see [README.md](../../README.md#positioning-stigmergy-and-the-opencode-ecosystem)).
 
 ### Three architectural pillars (reference)
 

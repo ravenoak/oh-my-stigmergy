@@ -33,9 +33,11 @@ flowchart TB
 
 ### Layer notes
 
+**Orchestrator vs medium:** Hierarchical agent harnesses (for example OpenCode with the [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) plugin) optimize **who delegates to whom**. This repository implements the **shared medium** row below (graph + ledger + specs + verification), not another in-tree Sisyphus-style orchestrator.
+
 | Layer | Component | Technology (essay / options) | Status |
 |-------|-----------|------------------------------|--------|
-| Cognitive | Stance-driven agents | OpenCode, editors, vendor models | **Concrete** (tooling assumed) |
+| Cognitive | Stance-driven agents | OpenCode + plugins (e.g. [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)), Cursor, other editors and models | **Concrete** (external tooling assumed); **not** shipped as an OpenCode plugin from this repo |
 | Coordination | SBP server | Node (in-process), SSE ([`packages/sbp-server`](../packages/sbp-server)); optional JSONL ledger ([ADR-0008](adr/0008-sbp-persistence.md)); optional SQLite ([ADR-0011](adr/0011-sbp-sqlite-store.md)) | **Concrete** (reference slice; **Redis not pursued** — [BACKLOG.md](BACKLOG.md)) |
 | Epistemic | Graph engine / `load_node` | Python ([`packages/graph`](../packages/graph)); SQLite opt-in ([ADR-0007](adr/0007-graph-persistence.md)); Tree-sitter **Python + TypeScript/TSX** symbol / method / decorator cards when bindings are installed; shell line cards + `SOURCES` (no Tree-sitter for shell) | **Concrete (in-memory + SQLite)** — cards, `IMPORTS` / `SOURCES` / `CALLS`, CLI per [ADR-0002](adr/0002-relation-first-retrieval.md) |
 | Verification | Allium tools | Rust CLI / LSP ([allium-tools](https://github.com/juxt/allium-tools)) | **Concrete** — user supplies CLI |
