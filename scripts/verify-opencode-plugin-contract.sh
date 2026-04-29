@@ -56,6 +56,11 @@ if "test" not in (pkg.get("scripts") or {}):
 print("verify-opencode-plugin-contract: ok (manifest)")
 PY
 
+# Export smoke imports @opencode-ai/plugin (and transitive deps); install first so
+# governance (no separate npm step) matches local `bash scripts/verify-…`.
+echo "verify-opencode-plugin-contract: npm ci (plugin deps for export smoke)"
+( cd packages/opencode-plugin && npm ci --no-fund --no-audit )
+
 node --input-type=module -e "
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
