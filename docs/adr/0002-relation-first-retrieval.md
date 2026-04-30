@@ -21,6 +21,14 @@ Cosine-similarity retrieval can return lookalike code that is topologically irre
 - `load_node` supports **depth-bounded** BFS over `IMPORTS` / `SOURCES` / **`CALLS`** edges with deterministic ordering (see [`packages/graph/src/graph/load_node.py`](../../packages/graph/src/graph/load_node.py)).
 - If a vendor or internal tool replaces this approach, update this ADR rather than pretending the essay’s names are binding.
 
+### Promotion criteria for graph expansion
+
+The following are **out of scope** for the current reference graph until explicitly promoted. Each requires an **ADR amendment** (this ADR or a successor), **RTM** updates for any affected **FR-2.x** rows, and **[NFR-P1](../requirements/NFR.md)** review: adjust [`devtools/ci-heavy-budget-seconds.txt`](../../devtools/ci-heavy-budget-seconds.txt) and the **`Graph package unit tests (FR-2.x)`** **`timeout-minutes`** in [`.github/workflows/allium-specs.yml`](../../.github/workflows/allium-specs.yml) with [`scripts/verify-heavy-budget.sh`](../../scripts/verify-heavy-budget.sh) green.
+
+- A new **Tree-sitter** grammar or **first-class language** in the default ingestion pipeline (beyond the languages already listed in this ADR).
+- **NetworkX** (or a replacement **graph engine**) as the default reference implementation in [`packages/graph`](../../packages/graph).
+- **Type-level** dependency edges, **global name resolution**, or other retrieval deeper than the **CALLS** / **IMPORTS** / symbol slices described here.
+
 ## Verification
 
 - [`packages/graph/tests`](../../packages/graph/tests) unittest discovery in `allium-specs` covers byte cards, IMPORTS aspect edges, and `load_node` slice aggregation.

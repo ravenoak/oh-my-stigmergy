@@ -8,6 +8,8 @@ Accepted
 
 The reference [`packages/sbp-server`](../../packages/sbp-server) keeps pheromones and claims in memory. Agents coordinating across process restarts need a **durable** ledger without introducing external databases in the default developer path.
 
+**Non-normative background:** The inspiration essay ([`oh-my-stigmergy_inspiration.md`](../../oh-my-stigmergy_inspiration.md)) may name **Redis** for a coordination datastore. **That is not binding for this repository.** Normative durable paths are JSONL (this ADR) and SQLite ([ADR-0011](0011-sbp-sqlite-store.md)). See also [`docs/inspiration-errata.md`](../inspiration-errata.md). **No network Redis and no in-process Redis-protocol store** is used for the reference SBP implementation; [ADR-0011](0011-sbp-sqlite-store.md) decision 1b records the permanent stance.
+
 ## Decision
 
 - **Durability format:** append-only **JSONL** (one JSON object per line) on a configurable file path, using Node `fs.appendFileSync` for each mutation.

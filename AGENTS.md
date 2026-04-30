@@ -4,7 +4,7 @@
 
 ## Start here
 
-For **OpenCode + SBP + graph** end-to-end setup (operators), follow [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md). **Model routing and compatibility:** [docs/guides/opencode-model-routing-playbook.md](docs/guides/opencode-model-routing-playbook.md), [docs/operations/opencode-compatibility.md](docs/operations/opencode-compatibility.md), [docs/operations/opencode-plugin-release.md](docs/operations/opencode-plugin-release.md). It does not replace the broader programme in [docs/PRD.md](docs/PRD.md); it makes the cognitive bridge usable alongside the shared medium.
+For **OpenCode + SBP + graph** end-to-end setup (operators), follow [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md). **Positioning and boundaries** (multi-agent, verification scope, SBP storage): [docs/guides/project-positioning-and-boundaries.md](docs/guides/project-positioning-and-boundaries.md). **Stigmergic SDLC workflow patterns:** [docs/guides/stigmergic-sdlc-workflows.md](docs/guides/stigmergic-sdlc-workflows.md). **Model routing and compatibility:** [docs/guides/opencode-model-routing-playbook.md](docs/guides/opencode-model-routing-playbook.md), [docs/operations/opencode-compatibility.md](docs/operations/opencode-compatibility.md), [docs/operations/opencode-plugin-release.md](docs/operations/opencode-plugin-release.md). It does not replace the broader programme in [docs/PRD.md](docs/PRD.md); it makes the cognitive bridge usable alongside the shared medium.
 
 | Resource | Purpose |
 |----------|---------|
@@ -15,6 +15,8 @@ For **OpenCode + SBP + graph** end-to-end setup (operators), follow [docs/guides
 | [`.cursor/skills/git-workflow/SKILL.md`](.cursor/skills/git-workflow/SKILL.md) | **Git (Cursor):** finish work with commits on a feature branch; PR + green CI + squash merge; delete merged branches; `git fetch --prune` |
 | [spec/project.allium](spec/project.allium) | Seed Allium config — extend with domain behaviour |
 | [docs/adr/0004-verification-stack-layering.md](docs/adr/0004-verification-stack-layering.md) | What deterministic tooling actually means **today** |
+| [docs/guides/project-positioning-and-boundaries.md](docs/guides/project-positioning-and-boundaries.md) | Multi-agent, verification, decentralization, reference scale (FR-6.4) |
+| [docs/guides/stigmergic-sdlc-workflows.md](docs/guides/stigmergic-sdlc-workflows.md) | Pheromone, spec, and release SDLC patterns (FR-6.4) |
 
 ## Allium
 

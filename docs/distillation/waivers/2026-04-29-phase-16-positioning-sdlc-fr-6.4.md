@@ -1,0 +1,4 @@
+# Phase 16 — Positioning + SDLC workflows + inspiration errata (FR-6.4)
+
+- **Reason:** This change set adds [`scripts/verify-project-positioning-doc.sh`](../../../scripts/verify-project-positioning-doc.sh), [`scripts/verify-stigmergic-sdlc-workflows-doc.sh`](../../../scripts/verify-stigmergic-sdlc-workflows-doc.sh), extends [`tests/ci_contract.sh`](../../../tests/ci_contract.sh), and wires [`.github/workflows/allium-specs.yml`](../../../.github/workflows/allium-specs.yml) for FR-6.4 / Phase 16. Behavioural intent for governance remains in [`spec/governance.allium`](../../../spec/governance.allium) (existing slices); **positioning**, **SDLC workflow patterns**, and **essay errata** are **operator-facing procedure and honesty**—not new Allium entities. No reverse-distillation slice required beyond this waiver per FR-1.2.
+- **Follow-up:** If FR-6.4 gains slices that exist only in prose, extend `spec/governance.allium` in the same change set with FR anchor updates.
