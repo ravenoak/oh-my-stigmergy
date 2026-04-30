@@ -31,6 +31,7 @@ bootstrap_stack_script="scripts/bootstrap-opencode-stigmergy-stack.sh"
 opencode_operator_docs_script="scripts/verify-opencode-operator-docs.sh"
 project_positioning_doc_script="scripts/verify-project-positioning-doc.sh"
 sdlc_workflows_doc_script="scripts/verify-stigmergic-sdlc-workflows-doc.sh"
+opencode_stigmergy_troubleshooting_doc_script="scripts/verify-opencode-stigmergy-troubleshooting-doc.sh"
 
 for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "LICENSE" \
@@ -40,6 +41,7 @@ for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check
   "docs/guides/stigmergic-sdlc-workflows.md" \
   "docs/inspiration-errata.md" \
   "docs/operations/opencode-compatibility.md" \
+  "docs/operations/opencode-stigmergy-troubleshooting.md" \
   "docs/operations/opencode-plugin-release.md" \
   "docs/guides/migration-from-oh-my-openagent.md" \
   "docs/adr/0013-stigmergic-opencode-orchestration.md" \
@@ -49,6 +51,7 @@ for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check
   "$opencode_operator_docs_script" \
   "$project_positioning_doc_script" \
   "$sdlc_workflows_doc_script" \
+  "$opencode_stigmergy_troubleshooting_doc_script" \
   "$opencode_plugin_contract_script" \
   "packages/opencode-plugin/schema/orchestration.schema.json" \
   "packages/opencode-plugin/src/orchestration.mjs" \
@@ -210,6 +213,10 @@ echo "$governance_block" | grep -q 'verify-project-positioning-doc.sh' || {
 }
 echo "$governance_block" | grep -q 'verify-stigmergic-sdlc-workflows-doc.sh' || {
   echo "ci_contract: governance job must run scripts/verify-stigmergic-sdlc-workflows-doc.sh (FR-6.4 / Phase 16)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-opencode-stigmergy-troubleshooting-doc.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-opencode-stigmergy-troubleshooting-doc.sh (FR-6.5 / Phase 17)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q "python-version: '3.13'" || {

@@ -1,0 +1,3 @@
+# Phase 17 — Operator troubleshooting (FR-6.5)
+
+- **Reason:** This change set adds [`scripts/verify-opencode-stigmergy-troubleshooting-doc.sh`](../../../scripts/verify-opencode-stigmergy-troubleshooting-doc.sh), extends [`scripts/verify-opencode-golden-path.sh`](../../../scripts/verify-opencode-golden-path.sh), [`tests/ci_contract.sh`](../../../tests/ci_contract.sh), and [`.github/workflows/allium-specs.yml`](../../../.github/workflows/allium-specs.yml) for FR-6.5 / Phase 17. Behavioural intent remains in [`spec/governance.allium`](../../../spec/governance.allium); **troubleshooting** text is **operator procedure**, not new Allium entities — no reverse-distillation slice beyond this waiver per FR-1.2.

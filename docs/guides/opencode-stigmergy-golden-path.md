@@ -2,6 +2,10 @@
 
 This guide is the **single end-to-end path** from a fresh clone to a working **OpenCode plugin → SBP → graph** loop. It complements (does not replace) the shared-medium pillars in [PRD.md](../PRD.md): intent (Allium), graph ([`packages/graph`](../../packages/graph)), SBP ([`packages/sbp-server`](../../packages/sbp-server)), crucible ([`packages/crucible`](../../packages/crucible)). For **normative boundaries** (multi-agent meaning, verification scope) see [project-positioning-and-boundaries.md](project-positioning-and-boundaries.md). For **SDLC patterns** (pheromone trails, spec gates, release discipline) see [stigmergic-sdlc-workflows.md](stigmergic-sdlc-workflows.md).
 
+## When something fails
+
+See **[opencode-stigmergy-troubleshooting.md](../operations/opencode-stigmergy-troubleshooting.md)** for **SBP** connectivity, **`sbp_error:`** / **`graph_error:`** return prefixes, **`uv` / Python 3.13**, and **`STIGMERGY_ORCHESTRATION_CONFIG`** / JSON schema issues.
+
 ## Prerequisites
 
 - **This repository** cloned locally (`OH_MY` below is the repo root).
