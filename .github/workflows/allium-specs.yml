@@ -153,6 +153,9 @@ jobs:
       - name: Stigmergic SDLC workflows doc (FR-6.4 / Phase 16)
         run: bash scripts/verify-stigmergic-sdlc-workflows-doc.sh
 
+      - name: OpenCode + stigmergy troubleshooting doc (FR-6.5 / Phase 17)
+        run: bash scripts/verify-opencode-stigmergy-troubleshooting-doc.sh
+
       - name: Requirement ID traceability
         run: bash scripts/verify-requirement-traceability.sh
 

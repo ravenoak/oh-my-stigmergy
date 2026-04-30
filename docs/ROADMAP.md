@@ -234,6 +234,19 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 16 program exit:** `allium check spec/` clean; new verify scripts + `ci_contract` green; FR-6.4 **`implemented`** ([NFR-D1](requirements/NFR.md)).
 
+### Phase 17 — Operator troubleshooting and usability closure
+
+**Program:** **Operator troubleshooting** for the OpenCode + SBP + graph stack: CI-verified operations doc, golden-path linkage, and **FR-6.5** traceability. **Not in scope:** NetworkX, new Tree-sitter grammars, Redis, Sisyphus-style in-tree rosters, ContextCov, org-wide OPA (see [BACKLOG.md](BACKLOG.md), [ADR-0002](adr/0002-relation-first-retrieval.md), [ADR-0004](adr/0004-verification-stack-layering.md), [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P17-a — Doc + verify | [`operations/opencode-stigmergy-troubleshooting.md`](operations/opencode-stigmergy-troubleshooting.md); [`scripts/verify-opencode-stigmergy-troubleshooting-doc.sh`](../../scripts/verify-opencode-stigmergy-troubleshooting-doc.sh); [`tests/ci_contract.sh`](../../tests/ci_contract.sh) |
+| P17-b — Discovery links | Golden path links troubleshooting; [README.md](../../README.md), [AGENTS.md](../../AGENTS.md), [CONTRIBUTING.md](../../CONTRIBUTING.md), [`docs/README.md`](README.md) |
+| P17-c — Traceability | FR-6.5; [RTM.md](traceability/RTM.md); [PRD.md](PRD.md); [TDD.md](TDD.md); distillation waiver if needed |
+| P17-d — CI | `allium-specs` **governance** runs troubleshooting verify |
+
+**Phase 17 program exit:** [`scripts/verify-opencode-stigmergy-troubleshooting-doc.sh`](../../scripts/verify-opencode-stigmergy-troubleshooting-doc.sh) + extended [`scripts/verify-opencode-golden-path.sh`](../../scripts/verify-opencode-golden-path.sh) green; FR-6.5 **`implemented`** ([NFR-D1](requirements/NFR.md)).
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.

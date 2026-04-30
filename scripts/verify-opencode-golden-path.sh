@@ -42,5 +42,9 @@ grep -qF "SBP_LOG_FILE" "$guide" || {
   echo "verify-opencode-golden-path: guide must mention SBP_LOG_FILE" >&2
   exit 1
 }
+grep -qF "opencode-stigmergy-troubleshooting.md" "$guide" || {
+  echo "verify-opencode-golden-path: guide must link to opencode-stigmergy-troubleshooting.md (FR-6.5)" >&2
+  exit 1
+}
 
 echo "verify-opencode-golden-path: ok"
