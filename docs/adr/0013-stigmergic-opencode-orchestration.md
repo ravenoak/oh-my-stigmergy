@@ -42,3 +42,11 @@ Phase 15 is the **mandatory operator closeout** for orchestration—not OMO feat
 - **Deterministic verification:** [`scripts/verify-opencode-operator-docs.sh`](../../scripts/verify-opencode-operator-docs.sh) in CI.
 
 **Explicit deferral:** A **named sub-agent roster** / Sisyphus-style hierarchy inside OpenCode remains **deferred-upstream** until the OpenCode host exposes stable multi-session APIs worth binding in an ADR—**no** `implemented` FR for in-tree simulation ([BACKLOG.md](../BACKLOG.md)).
+
+### Upstream re-evaluation triggers (Sisyphus-style roster)
+
+Revisit whether to open a **successor ADR** and optional new **FR** for **named sub-agent rosters** or **stable multi-session** OpenCode integration when **any** of the following holds. **Maintainers decide** when to act; there is **no** `implemented` maturity without code paths and [RTM.md](../traceability/RTM.md) verification ([NFR-D1](../requirements/NFR.md)).
+
+1. **`@opencode-ai/plugin` semver:** The **major** or **minor** version of the peer dependency in [`packages/opencode-plugin/package.json`](../../packages/opencode-plugin/package.json) changes—operator docs and compatibility already require a coordinated update ([FR-6.3](../requirements/FR.md), [`scripts/verify-opencode-operator-docs.sh`](../../scripts/verify-opencode-operator-docs.sh)).
+2. **Upstream capabilities:** OpenCode or `@opencode-ai/plugin` **release notes** document **stable** APIs for **multi-session**, **parallel agent**, or **named session** workflows suitable for binding from this plugin (beyond switching models in one session).
+3. **Promotion from BACKLOG:** The [BACKLOG.md](../BACKLOG.md) **Sisyphus-style named sub-agent roster** row is **reactivated** for execution with a problem statement, target FR/NFR IDs, and verification plan per the promotion gate.

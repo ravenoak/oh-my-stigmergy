@@ -208,7 +208,7 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 14 program exit:** orchestration MVP + publish-ready package ([FR-6.1](requirements/FR.md), [NFR-D1](requirements/NFR.md)).
 
-### Phase 15 — Orchestration operator closeout (**mandatory**)
+### Phase 15 — Orchestration operator closeout (**complete**)
 
 **Program:** Close the gaps left after Phase 14: **operator documentation** (model routing playbook, OpenCode compatibility matrix with pinned `@opencode-ai/plugin`, npm release runbook), **deterministic doc verification** ([`scripts/verify-opencode-operator-docs.sh`](../../scripts/verify-opencode-operator-docs.sh)), **orchestration policy bounds** (`defaultOlfactoryThreshold`, `defaultActionableLimit`, `maxActionable` in [`packages/opencode-plugin/schema/orchestration.schema.json`](../../packages/opencode-plugin/schema/orchestration.schema.json)), and **BACKLOG disposition** for OMO parity rows (no `TBD`). **Not in scope:** OMO pixel parity, CI-automated `npm publish` (maintainer runbook only).
 
@@ -218,7 +218,21 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 | P15-b — Verification | [`scripts/verify-opencode-operator-docs.sh`](../../scripts/verify-opencode-operator-docs.sh) in `allium-specs` **governance**; compatibility doc mentions the same pinned `@opencode-ai/plugin` version as [`packages/opencode-plugin/package.json`](../../packages/opencode-plugin/package.json); [`tests/ci_contract.sh`](../../tests/ci_contract.sh) locks script + doc paths. |
 | P15-c — Policy bounds + traceability | Plugin applies policy defaults to `stigmergy_actionable` when args omitted; FR-6.3 / NFR-C3 notes + [RTM.md](traceability/RTM.md) cite tests + verify script; [BACKLOG.md](BACKLOG.md) OMO table uses **Disposition** column ([ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). |
 
-**Phase 15 program exit:** P15-a + P15-b + P15-c green in CI; [PRD.md](PRD.md) deferred-program paragraph lists Phase 15 complete ([NFR-D1](requirements/NFR.md)).
+**Phase 15 program exit (2026-04-29):** P15-a + P15-b + P15-c green in CI; [PRD.md](PRD.md) deferred-program paragraph lists Phase 15 complete ([NFR-D1](requirements/NFR.md)).
+
+### Phase 16 — Positioning, boundaries, and SDLC operator closure
+
+**Program:** Close documentation gaps from governance review: **permanent no-Redis posture** for SBP ([ADR-0011](adr/0011-sbp-sqlite-store.md), [ADR-0008](adr/0008-sbp-persistence.md)); **operator positioning guide** + **stigmergic SDLC workflows guide** with deterministic verification; **ADR-0002** graph promotion criteria; **ADR-0013** upstream re-evaluation triggers; **inspiration errata**; **FR-6.4** + RTM; governance CI.
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P16-a — Positioning + errata | [`guides/project-positioning-and-boundaries.md`](guides/project-positioning-and-boundaries.md); [`scripts/verify-project-positioning-doc.sh`](../../scripts/verify-project-positioning-doc.sh); [`inspiration-errata.md`](inspiration-errata.md); [`docs/README.md`](README.md) link |
+| P16-b — SDLC workflows | [`guides/stigmergic-sdlc-workflows.md`](guides/stigmergic-sdlc-workflows.md); [`scripts/verify-stigmergic-sdlc-workflows-doc.sh`](../../scripts/verify-stigmergic-sdlc-workflows-doc.sh); links from golden path, [AGENTS.md](../../AGENTS.md), [README.md](../../README.md) |
+| P16-c — No-Redis | [ADR-0011](adr/0011-sbp-sqlite-store.md) + [ADR-0008](adr/0008-sbp-persistence.md) amended; [BACKLOG.md](BACKLOG.md) Redis row closed |
+| P16-d — ADR triggers | [ADR-0002](adr/0002-relation-first-retrieval.md) promotion criteria; [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md) upstream re-evaluation |
+| P16-e — Traceability + CI | FR-6.4; [RTM.md](traceability/RTM.md); [PRD.md](PRD.md); [TDD.md](TDD.md); distillation waiver if needed; `allium-specs` governance + [`tests/ci_contract.sh`](../../tests/ci_contract.sh) |
+
+**Phase 16 program exit:** `allium check spec/` clean; new verify scripts + `ci_contract` green; FR-6.4 **`implemented`** ([NFR-D1](requirements/NFR.md)).
 
 ## Backlog hygiene
 

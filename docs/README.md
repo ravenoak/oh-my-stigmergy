@@ -1,6 +1,6 @@
 # Documentation map
 
-This folder is the canonical **governance and specification surface** for oh-my-stigmergy. The long-form essay [`oh-my-stigmergy_inspiration.md`](../oh-my-stigmergy_inspiration.md) remains background reading; **where it conflicts with [FR.md](requirements/FR.md), [RTM.md](traceability/RTM.md), or [ROADMAP.md](ROADMAP.md), those documents win.** Normative intent lives here and in [`spec/`](../spec/). **OpenCode:** stigmergic orchestration is documented under [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md); see root [`README.md`](../README.md).
+This folder is the canonical **governance and specification surface** for oh-my-stigmergy. The long-form essay [`oh-my-stigmergy_inspiration.md`](../oh-my-stigmergy_inspiration.md) remains background reading; **where it conflicts with [FR.md](requirements/FR.md), [RTM.md](traceability/RTM.md), or [ROADMAP.md](ROADMAP.md), those documents win.** **Errata** for the essay (e.g. coordination storage vs ADR-0011): [inspiration-errata.md](inspiration-errata.md). Normative intent lives here and in [`spec/`](../spec/). **OpenCode:** stigmergic orchestration is documented under [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md); see root [`README.md`](../README.md).
 
 | Document | Audience | Update when |
 |----------|----------|-------------|
@@ -14,6 +14,9 @@ This folder is the canonical **governance and specification surface** for oh-my-
 | [GLOSSARY.md](GLOSSARY.md) | Onboarding | New domain terms |
 | [BACKLOG.md](BACKLOG.md) | Planning | Ideas are parked or promoted |
 | [ROADMAP.md](ROADMAP.md) | Maintainers / architects | Full implementation program vs [oh-my-stigmergy_inspiration.md](../oh-my-stigmergy_inspiration.md); phase exit criteria |
+| [inspiration-errata.md](inspiration-errata.md) | Everyone | Essay vs normative repo (e.g. Redis; ADR-0008 / ADR-0011) |
+| [guides/project-positioning-and-boundaries.md](guides/project-positioning-and-boundaries.md) | Operators and agents | Multi-agent, verification, decentralization, scale (FR-6.4 / [Phase 16](ROADMAP.md)) |
+| [guides/stigmergic-sdlc-workflows.md](guides/stigmergic-sdlc-workflows.md) | Operators and agents | Pheromone, spec, and release SDLC patterns (FR-6.4) |
 | [operations/github-branch-protection.md](operations/github-branch-protection.md) | Maintainers | CI must be required on `main` |
 | [`packages/graph`](../packages/graph), [`packages/sbp-server`](../packages/sbp-server) | Implementers | Relation-first graph (FR-2.x) and SBP reference server (FR-3.x) |
 | [guides/agent-session-budgets.md](guides/agent-session-budgets.md) | Agents and humans | NFR-C1 session discipline |

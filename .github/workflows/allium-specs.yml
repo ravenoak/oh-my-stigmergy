@@ -147,6 +147,12 @@ jobs:
       - name: OpenCode operator docs (FR-6.3 / Phase 15)
         run: bash scripts/verify-opencode-operator-docs.sh
 
+      - name: Project positioning doc (FR-6.4 / Phase 16)
+        run: bash scripts/verify-project-positioning-doc.sh
+
+      - name: Stigmergic SDLC workflows doc (FR-6.4 / Phase 16)
+        run: bash scripts/verify-stigmergic-sdlc-workflows-doc.sh
+
       - name: Requirement ID traceability
         run: bash scripts/verify-requirement-traceability.sh
 

@@ -1,6 +1,6 @@
 # OpenCode + stigmergy golden path (operator)
 
-This guide is the **single end-to-end path** from a fresh clone to a working **OpenCode plugin → SBP → graph** loop. It complements (does not replace) the shared-medium pillars in [PRD.md](../PRD.md): intent (Allium), graph ([`packages/graph`](../../packages/graph)), SBP ([`packages/sbp-server`](../../packages/sbp-server)), crucible ([`packages/crucible`](../../packages/crucible)).
+This guide is the **single end-to-end path** from a fresh clone to a working **OpenCode plugin → SBP → graph** loop. It complements (does not replace) the shared-medium pillars in [PRD.md](../PRD.md): intent (Allium), graph ([`packages/graph`](../../packages/graph)), SBP ([`packages/sbp-server`](../../packages/sbp-server)), crucible ([`packages/crucible`](../../packages/crucible)). For **normative boundaries** (multi-agent meaning, verification scope) see [project-positioning-and-boundaries.md](project-positioning-and-boundaries.md). For **SDLC patterns** (pheromone trails, spec gates, release discipline) see [stigmergic-sdlc-workflows.md](stigmergic-sdlc-workflows.md).
 
 ## Prerequisites
 

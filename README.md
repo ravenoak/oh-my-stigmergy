@@ -16,6 +16,8 @@ The inspiration essay’s TDD places the **cognitive layer** on the **OpenCode f
 - **[AGENTS.md](AGENTS.md)** — Entry point for coding agents  
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — Skills restore, Allium CLI, CI, doc rules, [GitHub Flow](docs/guides/github-flow.md)  
 - **[docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md)** — Clone → SBP → OpenCode plugin → graph  
+- **[docs/guides/project-positioning-and-boundaries.md](docs/guides/project-positioning-and-boundaries.md)** — Multi-agent, verification scope, no-Redis reference path ([FR-6.4](docs/requirements/FR.md), Phase 16)  
+- **[docs/guides/stigmergic-sdlc-workflows.md](docs/guides/stigmergic-sdlc-workflows.md)** — Pheromone, spec, and release workflow patterns ([FR-6.4](docs/requirements/FR.md))  
 - **[docs/guides/opencode-model-routing-playbook.md](docs/guides/opencode-model-routing-playbook.md)** — Stance→model policy, actionable caps ([FR-6.3](docs/requirements/FR.md))  
 - **[docs/operations/opencode-compatibility.md](docs/operations/opencode-compatibility.md)** — Pinned `@opencode-ai/plugin`, events, limits ([Phase 15](docs/ROADMAP.md))  
 - **[docs/operations/opencode-plugin-release.md](docs/operations/opencode-plugin-release.md)** — npm publish runbook  
