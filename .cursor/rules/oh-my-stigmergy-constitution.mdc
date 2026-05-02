@@ -13,4 +13,4 @@ Read the full text in [docs/CONSTITUTION.md](docs/CONSTITUTION.md). In every ses
 - **Deterministic spec checks today:** `allium check` and `allium analyse` via [allium-tools](https://github.com/juxt/allium-tools) where installed.
 - **Non-goals:** this project orientation is not optimized for snap operational decisions; escalate humans when urgency dominates analysis.
 
-For dialectical / systems-analysis discipline when the user asks for validation, follow [`stigmergy-validation`](../skills/stigmergy-validation/SKILL.md).
+For dialectical / systems-analysis discipline when the user asks for validation, follow [`integrated-reasoning`](../skills/integrated-reasoning/SKILL.md) (alias: [`stigmergy-validation`](../skills/stigmergy-validation/SKILL.md)).
