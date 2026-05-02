@@ -1,0 +1,16 @@
+---
+description: When to apply integrated-reasoning skill; empirical anchoring including web search for external facts
+alwaysApply: true
+---
+
+# Integrated reasoning — application and evidence
+
+When the user’s task involves **design critique**, **stress-testing conclusions**, **assumptions and framings**, **dialectical / tetralemma / Socratic / systems** analysis, **cross-examination**, **deep or critical reasoning**, **validation or complexity mapping** (not urgent ops), **falsifiability**, or **second-order effects**, **read and follow** [.cursor/skills/integrated-reasoning/SKILL.md](../skills/integrated-reasoning/SKILL.md) **before** producing the substantive answer.
+
+Do **not** substitute a shallow checklist for that skill when the user clearly wants that mode of thought.
+
+**Urgency:** If immediate action dominates, prioritize concise operational steps; do not bury them under extended analysis.
+
+**Evidence:** For facts that are **not** in the open workspace—current events, product/API behavior, versions, releases, advisories, breaking changes, “latest …”—use **web search** and, when useful, **fetch official URLs**; do not rely on memory alone for falsifiable or version-specific claims. **Cite sources** when the answer depends on them.
+
+The backward-compatible alias [`stigmergy-validation`](../skills/stigmergy-validation/SKILL.md) points at the same workflow.
