@@ -247,6 +247,16 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 17 program exit:** [`scripts/verify-opencode-stigmergy-troubleshooting-doc.sh`](../../scripts/verify-opencode-stigmergy-troubleshooting-doc.sh) + extended [`scripts/verify-opencode-golden-path.sh`](../../scripts/verify-opencode-golden-path.sh) green; FR-6.5 **`implemented`** ([NFR-D1](requirements/NFR.md)).
 
+### Phase 18 — OpenCode bridge operational hardening (planned)
+
+**Program:** Operator evaluation follow-through: keep **[golden path](guides/opencode-stigmergy-golden-path.md)** and **[troubleshooting](operations/opencode-stigmergy-troubleshooting.md)** graph/SBP instructions aligned; document **port collision** behaviour (`EADDRINUSE`, alternate **`PORT`** + **`SBP_URL`**); clarify **`STIGMERGY_AUDIT_LOG_FILE`** expectations across OpenCode modes (**`debug startup`** vs interactive / **`opencode run`**). Continue **`@opencode-ai/plugin`** pin discipline vs OpenCode CLI ([operations/opencode-compatibility.md](operations/opencode-compatibility.md)). **Not in scope:** Sisyphus-style rosters ([BACKLOG.md](BACKLOG.md) **deferred-upstream**).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P18-a — Docs parity | Golden path §1 graph checks match troubleshooting “reproduce without OpenCode” commands; both cite consistent **`graph.load_node`** repo/node-id pairing |
+| P18-b — Observability clarity | Troubleshooting documents audit NDJSON env propagation and session-type caveats (empirical; promote to FR/RTM only if a verified host gap exists) |
+| P18-c — Compatibility hygiene | Dependency bump policy unchanged: **`packages/opencode-plugin/package.json`** + [operations/opencode-compatibility.md](operations/opencode-compatibility.md) in one change set |
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.
