@@ -2,14 +2,83 @@
 
 OpenCode plugin that bridges the **cognitive layer** (OpenCode agents) to this repo’s **coordination** and **epistemic** layers: [SBP](../../packages/sbp-server) over HTTP and [graph](../../packages/graph) CLIs via the OpenCode shell (`$`), with **stigmergic orchestration** helpers ([ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md)).
 
-**Requirements:** **FR-5.x**, **FR-6.x**, **NFR-C3** | **ADR:** [ADR-0012](../../docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md) | **Roadmap:** [Phase 13–15](../../docs/ROADMAP.md).
+**Requirements:** **FR-5.x**, **FR-6.x**, **NFR-C3** | **ADR:** [ADR-0012](../../docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md) | **Roadmap:** [Phase 13+](../../docs/ROADMAP.md).
 
-**Operator docs:** [Model routing playbook](../../docs/guides/opencode-model-routing-playbook.md) · [Compatibility matrix](../../docs/operations/opencode-compatibility.md) · [npm release runbook](../../docs/operations/opencode-plugin-release.md)
+## Who should read this
 
-## Scope boundaries
+| Audience | Start here | Why |
+|----------|--------------|-----|
+| **Humans** (operators, maintainers) | This README + [golden path](../../docs/guides/opencode-stigmergy-golden-path.md) | End-to-end clone → SBP → OpenCode → graph; then come back for configuration details. |
+| **Coding agents** (Cursor, OpenCode, others) | This README + [AGENTS.md](../../AGENTS.md) | Same facts as humans: capabilities, limits, env vars, tools—plus repo-wide rules (RTM, no invented enforcement). |
 
-- **In scope:** SBP HTTP tools, graph shell tools, event hooks, **ledger-first orchestration** (`stigmergy_actionable`, `stigmergy_resolve_model`), declarative stance→model policy ([`schema/orchestration.schema.json`](schema/orchestration.schema.json)).
-- **Out of scope:** Vendoring [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent); automatic `permission.asked` / `tool.execute.before` blocking without a successor to [ADR-0005](../../docs/adr/0005-conflict-resolution-governance.md); Z3/crucible tools inside the session (crucible remains CI per [ADR-0006](../../docs/adr/0006-p4-crucible-execution.md)).
+**Operator docs (maintainers):** [Model routing playbook](../../docs/guides/opencode-model-routing-playbook.md) · [Compatibility matrix](../../docs/operations/opencode-compatibility.md) · [npm release runbook](../../docs/operations/opencode-plugin-release.md)
+
+**When something breaks:** [OpenCode + stigmergy troubleshooting](../../docs/operations/opencode-stigmergy-troubleshooting.md) (SBP down, `sbp_error` / `graph_error`, `uv`, orchestration JSON).
+
+## Capabilities
+
+The plugin exposes **deterministic HTTP tools** to the SBP ledger and **shell-backed graph tools** that run this repo’s Python `graph` package. It also wires **OpenCode event hooks** for lightweight pheromone trails.
+
+- **Ledger (SBP):** publish, list, claim, inflate pheromones; fetch **actionable** items with intensity and stance filters per orchestration policy.
+- **Orchestration:** `stigmergy_resolve_model` applies stance→model policy from optional JSON ([`schema/orchestration.schema.json`](schema/orchestration.schema.json)); defaults in [`src/orchestration.mjs`](src/orchestration.mjs) are examples—set real provider/model ids for your environment.
+- **Graph:** load nodes and aspects via `uv run python -m graph…` from the working directory you run OpenCode against (typically the repo root).
+- **Events:** `session.idle` and `file.edited` publish low-signal pheromones (fail-soft).
+- **Audit:** optional NDJSON audit log for bootstrap, hooks, and tool calls (`STIGMERGY_AUDIT_LOG_FILE`); offline analysis; not a substitute for SBP server logs.
+
+## Limitations
+
+These boundaries avoid confusion with other harnesses and with CI-only verification.
+
+- **No vendoring of [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent):** this stack is stigmergy-first (SBP + graph + orchestration), not the OMO hierarchy.
+- **No automatic governance blocking** on `permission.asked` / `tool.execute.before` without a successor to [ADR-0005](../../docs/adr/0005-conflict-resolution-governance.md).
+- **No Z3 or crucible inside the agent session:** crucible remains a **CI** concern per [ADR-0006](../../docs/adr/0006-p4-crucible-execution.md). Do not tell users the plugin “runs” solvers at chat time.
+- **Graph tools require `uv` and repo layout:** `graph_*` spawn subprocesses; if `uv` or `packages/graph` are wrong from the process cwd, you get `graph_error:…` (see troubleshooting).
+- **SBP must be running** for ledger tools; wrong URL or down server yields `sbp_error:…`. Tools return structured errors instead of throwing into the host.
+- **Policy defaults are not universal truth:** orchestration JSON and env defaults must match **your** OpenCode provider’s model ids and your stance taxonomy.
+
+For **repository-wide** verification claims (Allium, RTM, what is actually enforced), follow [docs/traceability/RTM.md](../../docs/traceability/RTM.md) and [ADR-0004](../../docs/adr/0004-verification-stack-layering.md).
+
+## Prerequisites
+
+- **Node.js** and **npm** (OpenCode and this plugin are npm packages).
+- **`uv`** and a synced Python env for this repo’s **`packages/graph`** (see [CONTRIBUTING.md](../../CONTRIBUTING.md) `uv sync …`).
+- **SBP** available at `SBP_URL` (default `http://127.0.0.1:3847`) when using ledger tools—start it separately from [`packages/sbp-server`](../../packages/sbp-server).
+
+## Install
+
+Per [OpenCode plugins](https://opencode.ai/docs/plugins/), register this package in your OpenCode config (commonly `opencode.json`).
+
+### From npm
+
+When published to npm as **`@oh-my-stigmergy/opencode-plugin`** (`private: false` in this monorepo), add the package to the `plugins` (or `plugin`—follow your OpenCode version’s schema) array:
+
+```json
+{
+  "plugins": ["@oh-my-stigmergy/opencode-plugin"]
+}
+```
+
+Maintainers: publish per [npm release runbook](../../docs/operations/opencode-plugin-release.md).
+
+### From a git checkout (local path)
+
+If you are developing or consuming from the monorepo clone, point OpenCode at **`packages/opencode-plugin`** (relative to repo root), per OpenCode’s docs for local plugins. Example pattern:
+
+```json
+{
+  "plugins": ["./packages/opencode-plugin"]
+}
+```
+
+Adjust the path so it resolves from **where OpenCode loads config** (often the repo root).
+
+### After install
+
+1. Start SBP if you need ledger tools: `cd packages/sbp-server && npm start` (or your deployment).
+2. Ensure OpenCode’s **current working directory** is the repo root so `graph_load_node` / `graph_aspect` can run `uv run python -m graph…` successfully.
+3. Set env vars (below) or rely on defaults for local dev.
+
+**Full operator walkthrough:** [docs/guides/opencode-stigmergy-golden-path.md](../../docs/guides/opencode-stigmergy-golden-path.md).
 
 ## Configuration
 
@@ -42,22 +111,21 @@ Invalid arguments return `validation_error:…`. SBP / network failures return `
 - `session.idle` — publishes a low-intensity pheromone (fail-soft).
 - `file.edited` — publishes a pheromone with `path` when the event carries one.
 
-## Install
+## How to use (typical flows)
 
-Per [OpenCode plugins](https://opencode.ai/docs/plugins/):
+**Operators**
 
-1. **npm:** add `"@oh-my-stigmergy/opencode-plugin"` to the `plugin` array in `opencode.json` (package is **`private: false`** in this monorepo—publish to npm per maintainer release, or use **local path** below).
-2. From a **git checkout** of oh-my-stigmergy: point OpenCode at `packages/opencode-plugin` (same repo root where `uv run python -m graph…` resolves).
+1. Follow the [golden path](../../docs/guides/opencode-stigmergy-golden-path.md) once per machine/workspace.
+2. Set `STIGMERGY_ORCHESTRATION_CONFIG` if you use non-default stance→model routing ([playbook](../../docs/guides/opencode-model-routing-playbook.md)).
+3. Use ledger tools to observe or advance coordination; use graph tools to inspect traceability graph data for the repo path you pass.
 
-Ensure **`uv`** and repo **`packages/graph`** are usable from the OpenCode process cwd (`graph_*` tools).
+**Coding agents**
 
-## Develop
+1. Read this README and [AGENTS.md](../../AGENTS.md). Do not claim Z3, OPA, or Allium→SMT **enforcement** unless [RTM](../../docs/traceability/RTM.md) says `implemented`.
+2. Prefer **`stigmergy_actionable`** / **`stigmergy_resolve_model`** when choosing what to work on and which model id fits the stance.
+3. On **`sbp_error`** / **`graph_error`**, check [troubleshooting](../../docs/operations/opencode-stigmergy-troubleshooting.md) (SBP up, `SBP_URL`, `uv`, cwd).
 
-```bash
-cd packages/opencode-plugin && npm ci && npm test
-```
-
-## Metrics (audit log summary)
+**Session analytics**
 
 With `STIGMERGY_AUDIT_LOG_FILE` set during sessions, summarize a captured file:
 
@@ -67,4 +135,10 @@ npm run metrics -- /path/to/audit.ndjson
 
 Stdout is a single JSON object (event counts, tool/class breakdown, publish hook aggregates). This measures **plugin-emitted** audit lines only.
 
-CI runs the same via `allium-specs` **specs-and-packages** and [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh) in **governance**.
+## Develop
+
+```bash
+cd packages/opencode-plugin && npm ci && npm test
+```
+
+CI runs contract checks via `allium-specs` **specs-and-packages** and [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh) in **governance**.

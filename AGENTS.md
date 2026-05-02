@@ -6,6 +6,14 @@
 
 For **OpenCode + SBP + graph** end-to-end setup (operators), follow [docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md). **Troubleshooting** (SBP down, bridge errors, `uv`, orchestration JSON): [docs/operations/opencode-stigmergy-troubleshooting.md](docs/operations/opencode-stigmergy-troubleshooting.md). **Positioning and boundaries** (multi-agent, verification scope, SBP storage): [docs/guides/project-positioning-and-boundaries.md](docs/guides/project-positioning-and-boundaries.md). **Stigmergic SDLC workflow patterns:** [docs/guides/stigmergic-sdlc-workflows.md](docs/guides/stigmergic-sdlc-workflows.md). **Model routing and compatibility:** [docs/guides/opencode-model-routing-playbook.md](docs/guides/opencode-model-routing-playbook.md), [docs/operations/opencode-compatibility.md](docs/operations/opencode-compatibility.md), [docs/operations/opencode-plugin-release.md](docs/operations/opencode-plugin-release.md). It does not replace the broader programme in [docs/PRD.md](docs/PRD.md); it makes the cognitive bridge usable alongside the shared medium.
 
+### OpenCode plugin (`@oh-my-stigmergy/opencode-plugin`)
+
+Canonical reference for **what the plugin can and cannot do**, **install** (npm vs local path), **configuration**, **tools**, and **usage patterns**: [packages/opencode-plugin/README.md](packages/opencode-plugin/README.md). Read it before claiming ledger/graph/orchestration behaviour in user-facing answers.
+
+- **Capabilities:** SBP HTTP tools, graph CLIs via `uv`, orchestration helpers (`stigmergy_actionable`, `stigmergy_resolve_model`), event hooks, optional audit log—see README tables.
+- **Limitations:** no OMO vendoring, no in-session Z3/crucible, no automatic permission blocking without ADR-0005 successor; `sbp_error` / `graph_error` when SBP or `uv`/cwd is wrong—see README and [docs/operations/opencode-stigmergy-troubleshooting.md](docs/operations/opencode-stigmergy-troubleshooting.md).
+- **Do not invent enforcement:** Z3, OPA shell interception, Allium→SMT—same rule as below and [docs/traceability/RTM.md](docs/traceability/RTM.md).
+
 | Resource | Purpose |
 |----------|---------|
 | [docs/CONSTITUTION.md](docs/CONSTITUTION.md) | Non-negotiable principles and non-goals |
