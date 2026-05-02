@@ -15,6 +15,7 @@ The inspiration essay’s TDD places the **cognitive layer** on the **OpenCode f
 - **[Documentation index](docs/README.md)** — Constitution, PRD, TDD, FR/NFR, RTM, ADRs  
 - **[AGENTS.md](AGENTS.md)** — Entry point for coding agents  
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — Skills restore, Allium CLI, CI, doc rules, [GitHub Flow](docs/guides/github-flow.md)  
+- **[packages/opencode-plugin/README.md](packages/opencode-plugin/README.md)** — Plugin capabilities, limitations, install, configuration, tools, usage (humans and agents)  
 - **[docs/guides/opencode-stigmergy-golden-path.md](docs/guides/opencode-stigmergy-golden-path.md)** — Clone → SBP → OpenCode plugin → graph  
 - **[docs/operations/opencode-stigmergy-troubleshooting.md](docs/operations/opencode-stigmergy-troubleshooting.md)** — SBP, `sbp_error`/`graph_error`, `uv`, orchestration policy ([FR-6.5](docs/requirements/FR.md), Phase 17)  
 - **[docs/guides/project-positioning-and-boundaries.md](docs/guides/project-positioning-and-boundaries.md)** — Multi-agent, verification scope, no-Redis reference path ([FR-6.4](docs/requirements/FR.md), Phase 16)  
