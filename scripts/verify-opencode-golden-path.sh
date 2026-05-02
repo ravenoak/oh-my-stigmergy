@@ -46,5 +46,9 @@ grep -qF "opencode-stigmergy-troubleshooting.md" "$guide" || {
   echo "verify-opencode-golden-path: guide must link to opencode-stigmergy-troubleshooting.md (FR-6.5)" >&2
   exit 1
 }
+grep -qF "0014-sbp-project-supervision.md" "$guide" || {
+  echo "verify-opencode-golden-path: guide must link ADR-0014 (FR-5.5)" >&2
+  exit 1
+}
 
 echo "verify-opencode-golden-path: ok"

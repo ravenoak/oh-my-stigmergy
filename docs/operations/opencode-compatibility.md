@@ -10,11 +10,12 @@ This document is the **operator-facing compatibility matrix** for [`@oh-my-stigm
 
 **Upgrade policy:** bump the dependency in `package.json` and this table in the **same** change set; run `cd packages/opencode-plugin && npm ci && npm test`; read [OpenCode plugins](https://opencode.ai/docs/plugins/) for host changes.
 
-## First-party package
+## First-party packages
 
 | Package | Source | Notes |
-|---------|--------|------|
+|---------|--------|-------|
 | `@oh-my-stigmergy/opencode-plugin` | This monorepo `packages/opencode-plugin` | `private: false`; see [opencode-plugin-release.md](opencode-plugin-release.md). |
+| `@oh-my-stigmergy/sbp-server` | This monorepo `packages/sbp-server` | Spawned or attached when **`SBP_URL`** is unset ([ADR-0014](../adr/0014-sbp-project-supervision.md)). |
 
 ## Event surface (implemented)
 
@@ -35,3 +36,4 @@ New event types require a host that emits them; track API changes in OpenCode re
 
 - [ADR-0012](../adr/0012-opencode-plugin-architecture.md) — bridge architecture.
 - [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md) — orchestration charter and OMO positioning.
+- [ADR-0014](../adr/0014-sbp-project-supervision.md) — project-local SBP supervision (`SBP_URL` unset vs explicit attach).

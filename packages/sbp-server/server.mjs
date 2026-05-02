@@ -679,12 +679,35 @@ export function createLedgerServer(options = {}) {
   return { server, ledger: store.ledger, claims: store.claims, store };
 }
 
+/**
+ * @param {string} targetPath
+ * @param {object} payload
+ */
+function writeRuntimeFileAtomic(targetPath, payload) {
+  const dir = path.dirname(path.resolve(targetPath));
+  fs.mkdirSync(dir, { recursive: true });
+  const tmp = `${path.resolve(targetPath)}.${process.pid}.${Date.now()}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(payload), "utf8");
+  fs.renameSync(tmp, path.resolve(targetPath));
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const jsonlPath = (process.env.SBP_LEDGER_JSONL || "").trim();
-  const sqlitePath = (process.env.SBP_LEDGER_SQLITE || "").trim();
+  const supervised = (process.env.SBP_SUPERVISED || "").trim() === "1";
+  const worktree = (process.env.STIGMERGY_WORKTREE || "").trim();
+  let jsonlPath = (process.env.SBP_LEDGER_JSONL || "").trim();
+  let sqlitePath = (process.env.SBP_LEDGER_SQLITE || "").trim();
   if (jsonlPath && sqlitePath) {
     console.error("sbp: set only one of SBP_LEDGER_JSONL or SBP_LEDGER_SQLITE");
     process.exit(1);
+  }
+  if (supervised && !sqlitePath && !jsonlPath) {
+    if (!worktree) {
+      console.error("sbp: SBP_SUPERVISED=1 requires STIGMERGY_WORKTREE or explicit SBP_LEDGER_SQLITE / SBP_LEDGER_JSONL");
+      process.exit(1);
+    }
+    const stDir = path.join(path.resolve(worktree), ".stigmergy");
+    fs.mkdirSync(stDir, { recursive: true });
+    sqlitePath = path.join(stDir, "ledger.db");
   }
   /** @type {MemoryLedgerStore} */
   let store;
@@ -723,11 +746,33 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     stanceTargets = loadStanceRegistry(reg);
   }
   const { server } = createLedgerServer({ store, stanceTargets, storeLabel });
-  const port = Number(process.env.PORT || 3847);
-  server.listen(port, () => {
+  const portEnv = process.env.PORT;
+  const port = portEnv === undefined || portEnv === "" ? 3847 : Number(portEnv);
+  if (!Number.isInteger(port) || port < 0 || port > 65535) {
+    console.error("sbp: invalid PORT");
+    process.exit(1);
+  }
+  const runtimeFile = (process.env.SBP_RUNTIME_FILE || "").trim();
+  const host = "127.0.0.1";
+  server.listen(port, host, () => {
+    const addr = server.address();
+    const actualPort = addr && typeof addr === "object" ? addr.port : port;
     const extra =
       storeLabel === "jsonl" ? ` jsonl=${jsonlPath}` : storeLabel === "sqlite" ? ` sqlite=${sqlitePath}` : "";
-    console.error(`sbp listening ${port}${extra}`);
+    console.error(`sbp listening ${actualPort}${extra}`);
+    if (runtimeFile) {
+      try {
+        writeRuntimeFileAtomic(runtimeFile, {
+          url: `http://127.0.0.1:${actualPort}`,
+          port: actualPort,
+          pid: process.pid,
+          startedAt: new Date().toISOString(),
+        });
+      } catch (e) {
+        console.error("sbp: failed to write SBP_RUNTIME_FILE", e);
+        process.exit(1);
+      }
+    }
   });
   const shutdownGc = () => decayGc.stop();
   process.once("SIGINT", shutdownGc);

@@ -45,4 +45,4 @@ Add new rows below with the same columns when brainstorming; **do not** implemen
 
 | Item | Phase | Dependency | Next unblocker |
 |------|-------|------------|----------------|
-| Plugin audit NDJSON visibility across OpenCode entrypoints (`debug startup` vs TUI / `opencode run`) | P3+ | [ROADMAP.md](ROADMAP.md) Phase 18 | If reproduction shows a host-side gap, mint verification + optional FR; otherwise remain documentation-only ([ADR-0012](adr/0012-opencode-plugin-architecture.md)). |
+| Plugin audit NDJSON visibility across OpenCode entrypoints (`debug startup` vs TUI / `opencode run`) | P3+ | [ROADMAP.md](ROADMAP.md) Phase 18 (closed) | Documentation + troubleshooting coverage; if reproduction shows a host-side gap, mint verification + optional FR ([ADR-0012](adr/0012-opencode-plugin-architecture.md)). |

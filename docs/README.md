@@ -22,7 +22,7 @@ This folder is the canonical **governance and specification surface** for oh-my-
 | [guides/agent-session-budgets.md](guides/agent-session-budgets.md) | Agents and humans | NFR-C1 session discipline |
 | [guides/github-flow.md](guides/github-flow.md) | Contributors and agents | Feature branches, atomic commits, PR-only merges, `gh` |
 | [guides/distillation-playbook.md](guides/distillation-playbook.md) | Architects and agents | FR-1.2 distil workflow |
-| [guides/opencode-stigmergy-golden-path.md](guides/opencode-stigmergy-golden-path.md) | Operators and contributors | FR-5.4 clone → SBP → OpenCode plugin → graph verification ([Phase 12](ROADMAP.md)) |
+| [guides/opencode-stigmergy-golden-path.md](guides/opencode-stigmergy-golden-path.md) | Operators and contributors | FR-5.4 / FR-5.5 clone → OpenCode plugin (+ project-local SBP when **`SBP_URL` unset**) → graph verification ([ADR-0014](adr/0014-sbp-project-supervision.md), [Phase 12](ROADMAP.md), [Phase 18](ROADMAP.md)) |
 | [guides/migration-from-oh-my-openagent.md](guides/migration-from-oh-my-openagent.md) | Operators leaving OMO | FR-6.x / [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md) |
 | [guides/opencode-model-routing-playbook.md](guides/opencode-model-routing-playbook.md) | Operators | FR-6.3 stance→model policy and actionable caps ([Phase 15](ROADMAP.md)) |
 | [operations/opencode-compatibility.md](operations/opencode-compatibility.md) | Operators / upgrades | Pinned `@opencode-ai/plugin`; must match `package.json` ([FR-6.3](requirements/FR.md)) |
