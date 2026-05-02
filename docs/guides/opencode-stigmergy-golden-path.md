@@ -23,10 +23,16 @@ cd "$OH_MY"
 uv sync -U --all-extras --all-groups -p "$(which python3.13)"
 ```
 
-Verify graph CLI from root:
+Verify graph CLI from `$OH_MY` (matches how **`graph_load_node`** uses the monorepo root as `repo`):
 
 ```bash
-uv run python -m graph.load_node "$OH_MY/tests/fixtures/graph-corpus" "tests/fixtures/graph-corpus/sample.py#1"
+uv run python -m graph.load_node "$OH_MY" "tests/fixtures/graph-corpus/sample.py#1"
+```
+
+Equivalent check using the tiny fixture tree itself as the repo root:
+
+```bash
+uv run python -m graph.load_node "$OH_MY/tests/fixtures/graph-corpus" "sample.py#1"
 ```
 
 You should see byte-card output for line 1 of `sample.py`. If this fails, fix `uv` / Python / path before involving OpenCode.
