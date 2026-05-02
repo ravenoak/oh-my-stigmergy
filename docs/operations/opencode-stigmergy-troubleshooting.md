@@ -12,6 +12,7 @@ Use this when the [golden path](../guides/opencode-stigmergy-golden-path.md) loo
   ```
 
 - If the process is not listening: start from `packages/sbp-server` per the golden path; see [sbp-operator-runbook.md](sbp-operator-runbook.md) and load/decay expectations in [sbp-slo.md](sbp-slo.md).
+- **Port already in use (`EADDRINUSE` on 3847):** another SBP (or other process) is bound to that port. Either stop the other listener (e.g. `lsof -nP -iTCP:3847 -sTCP:LISTEN`) or start SBP on a different port and set **`SBP_URL`** to match (e.g. `PORT=3848` and `export SBP_URL=http://127.0.0.1:3848`). The plugin does not auto-negotiate ports.
 - **`SBP_LOG_FILE`** — enable NDJSON server logs when diagnosing publish/stream behaviour ([golden path](../guides/opencode-stigmergy-golden-path.md) §6).
 
 ## Plugin bridge errors (sbp_error and graph_error)
@@ -27,11 +28,24 @@ Cross-read [golden path §5](../guides/opencode-stigmergy-golden-path.md) (“Ve
 
 - Run [`scripts/bootstrap-opencode-stigmergy-stack.sh`](../../scripts/bootstrap-opencode-stigmergy-stack.sh) from the repo root to install **graph** and **Node** package deps (`uv sync`, `npm ci` in `packages/sbp-server` and `packages/opencode-plugin`).
 - **Python 3.13** is the documented interpreter for graph CLIs ([CONTRIBUTING.md](../../CONTRIBUTING.md)). If `uv run python -m graph.load_node` fails, verify `python3.13` and re-run `uv sync`.
-- From repo root, reproduce without OpenCode:
+- From repo root, reproduce without OpenCode (same `repo` + node id shape as **`graph_load_node`** when the worktree is the monorepo):
 
   ```bash
-  uv run python -m graph.load_node "$PWD/tests/fixtures/graph-corpus" "tests/fixtures/graph-corpus/sample.py#1"
+  uv run python -m graph.load_node "$PWD" "tests/fixtures/graph-corpus/sample.py#1"
   ```
+
+  Equivalent, using the tiny fixture tree as the repo root:
+
+  ```bash
+  uv run python -m graph.load_node "$PWD/tests/fixtures/graph-corpus" "sample.py#1"
+  ```
+
+  Mixing **`tests/fixtures/graph-corpus`** as `repo` with a **`tests/fixtures/...` node id** fails lookup (“missing node”) because paths must be consistent with the chosen repo root.
+
+### Plugin audit log (`STIGMERGY_AUDIT_LOG_FILE`)
+
+- If **`STIGMERGY_AUDIT_LOG_FILE`** is set but **no file appears**, confirm the variable is in the **environment of the OpenCode host process** (global shell profile, launchd, IDE terminal, or wrapper script)—not only in a subshell used for one-off commands.
+- **`opencode debug startup`** may not exercise the same code paths as an interactive session; if audit lines never appear, validate with a normal **`opencode run`** / TUI session while **`STIGMERGY_AUDIT_LOG_STDERR=1`** for immediate feedback, then use **`npm run metrics`** in [`packages/opencode-plugin`](../../packages/opencode-plugin/) on the captured NDJSON ([golden path](../guides/opencode-stigmergy-golden-path.md) §6).
 
 ## STIGMERGY_ORCHESTRATION_CONFIG and orchestration policy
 
