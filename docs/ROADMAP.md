@@ -279,15 +279,22 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 | P20-a — Protocol + ADR | [ADR-0015](adr/0015-empirical-evaluation-study-claims.md) **Accepted**; [`docs/research/opencode-effectiveness-study-protocol.md`](research/opencode-effectiveness-study-protocol.md) lists objectives, conditions, metric tables **M1–M4**, task bank, analysis/ethics sections; [`scripts/verify-opencode-evaluation-protocol.sh`](../../scripts/verify-opencode-evaluation-protocol.sh) in **`allium-specs` governance**. |
 | P20-b — Helpers + traceability | [`devtools/evaluation/README.md`](../../devtools/evaluation/README.md) + [`devtools/evaluation/summarize-audit.mjs`](../../devtools/evaluation/summarize-audit.mjs); **FR-7.2** + [RTM.md](traceability/RTM.md); [docs/guides/stigmergy-evaluation-discipline.md](guides/stigmergy-evaluation-discipline.md) links canonical protocol; [`spec/governance.allium`](../spec/governance.allium) comment cites Phase 20 paths. |
 
-**Phase 20 program exit:** FR-7.2 **`implemented`**; protocol + verify + evaluation helpers green in CI ([NFR-D1](requirements/NFR.md)); pilot execution remains **optional** under `docs/research/results/`.
+**Phase 20 program exit:** FR-7.2 **`implemented`**; protocol + verify + evaluation helpers green in CI ([NFR-D1](requirements/NFR.md)).
 
-### Phase 20 follow-on — Protocol ≥ 1.1 and Condition B2 (**planned**)
+### Phase 20 follow-on — Protocol 1.1.0 and Condition B2 (**complete**)
 
-**Charter (pick-up trigger):** Human feasibility pilot under protocol **1.0.x** suggests **orchestration A/B** beyond baseline Conditions A/B; operators want **Condition B2** registered and traceable.
+**Exit (met):** Study protocol **[1.1.0](research/opencode-effectiveness-study-protocol.md)** with experimental conditions **A**, **B1** (treatment, defaults-only orchestration), **B2** (treatment + explicit orchestration policy file); orchestration example [`docs/research/fixtures/orchestration.policy.example.json`](../../docs/research/fixtures/orchestration.policy.example.json); structural checks extended in [`scripts/verify-opencode-evaluation-protocol.sh`](../../scripts/verify-opencode-evaluation-protocol.sh); traceability and [ADR-0015](adr/0015-empirical-evaluation-study-claims.md) updated. Empirical execution remains **human-run** per ADR-0015.
 
-**Scope:** Version bump protocol to **≥ 1.1**; extend [`docs/research/opencode-effectiveness-study-protocol.md`](research/opencode-effectiveness-study-protocol.md) with **Condition B2** definition and task-condition mapping; adjust [`scripts/verify-opencode-evaluation-protocol.sh`](../../scripts/verify-opencode-evaluation-protocol.sh) **only** if new required sections are added; keep empirical execution **human-run** per [ADR-0015](adr/0015-empirical-evaluation-study-claims.md). Not started until a dedicated PR opens this row.
+### Human feasibility pilot (execution + reporting)
 
-**Alternative product track:** Instead of this charter, promote **one** [BACKLOG.md](BACKLOG.md) epic through the promotion gate (problem, phase, FR/NFR, RTM, ADR if fork). Example deferrals that remain **explicitly unpicked:** graph deeper grammars until [ADR-0002](adr/0002-relation-first-retrieval.md) revision; essay-scale ContextCov per backlog + [ADR-0004](adr/0004-verification-stack-layering.md).
+**Purpose:** Close the loop between **specification** and **operator evidence** without merge-gating outcomes.
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| **Pilot status** | [`docs/research/FEASIBILITY_PILOT_STATUS.md`](research/FEASIBILITY_PILOT_STATUS.md) tracks `NotStarted` / `InProgress` / `Complete` / `Declined` with dated notes. |
+| **Pilot complete** | At least one dated summary under [`docs/research/results/`](research/results/) per [pilot-runbook.md](research/pilot-runbook.md), **or** **Declined** with one falsifiable reason in `FEASIBILITY_PILOT_STATUS.md`. |
+
+**Product track (unchanged):** To ship more first-party code next, promote **one** [BACKLOG.md](BACKLOG.md) epic through the promotion gate. Example deferrals: graph deeper grammars until [ADR-0002](adr/0002-relation-first-retrieval.md) revision; essay-scale ContextCov per backlog + [ADR-0004](adr/0004-verification-stack-layering.md).
 
 ## Backlog hygiene
 

@@ -1,13 +1,14 @@
 # OpenCode effectiveness study protocol (oh-my-stigmergy)
 
-**Protocol version:** 1.0.1  
+**Protocol version:** 1.1.0  
 **Normative ADR:** [ADR-0015](../adr/0015-empirical-evaluation-study-claims.md) (claims boundary; aligns with [ADR-0004](../adr/0004-verification-stack-layering.md))
 
 This document is the **canonical** task, metric, and conditions definition for controlled evaluations of **OpenCode** with [`@oh-my-stigmergy/opencode-plugin`](../../packages/opencode-plugin/README.md) and [`@oh-my-stigmergy/sbp-server`](../../packages/sbp-server/README.md) on **real code** (external OSS repositories at pinned commits). [docs/guides/stigmergy-evaluation-discipline.md](../guides/stigmergy-evaluation-discipline.md) explains why **CI** does not substitute for this protocol.
 
 ## Objectives
 
-- Measure whether the **default stigmergy stack** (plugin + project-local SBP supervision when `SBP_URL` is unset, per [ADR-0014](../adr/0014-sbp-project-supervision.md)) improves **pre-registered primary metrics** versus a **control** condition, for **fixed** task instructions and **versioned** success rubrics.
+- Measure whether the **default stigmergy stack** under **Condition B1** (plugin + project-local SBP supervision when `SBP_URL` is unset, per [ADR-0014](../adr/0014-sbp-project-supervision.md), with **defaults-only** orchestration) improves **pre-registered primary metrics** versus **Condition A** (control), for **fixed** task instructions and **versioned** success rubrics.
+- Where registered, measure whether an **explicit orchestration policy file** (**Condition B2**) changes outcomes versus **B1** on the same task bank.
 - Preserve **falsifiability**: negative or null results are valid and should be reported.
 
 ## Experimental conditions
@@ -15,11 +16,14 @@ This document is the **canonical** task, metric, and conditions definition for c
 | ID | Name | Configuration |
 |----|------|-----------------|
 | **A** | **Control** | OpenCode on the **task worktree** with **no** `@oh-my-stigmergy/opencode-plugin` in the OpenCode config (or plugin **disabled** per host docs). **No** project-local supervision: set `STIGMERGY_SUPERVISE=0` or start SBP **manually** if the task requires a ledger; control whether SBP is used at all **per task rubric** (document in task bank). |
-| **B** | **Treatment** | `@oh-my-stigmergy/opencode-plugin` listed per [golden path](../guides/opencode-stigmergy-golden-path.md); **`SBP_URL` unset** so supervision applies; **`STIGMERGY_AUDIT_LOG_FILE`** set to a writable NDJSON path for the run. |
+| **B1** | **Treatment — defaults-only orchestration** | `@oh-my-stigmergy/opencode-plugin` listed per [golden path](../guides/opencode-stigmergy-golden-path.md); **`SBP_URL` unset** so supervision applies; **`STIGMERGY_AUDIT_LOG_FILE`** set to a writable NDJSON path; **`STIGMERGY_ORCHESTRATION_CONFIG` unset** (plugin uses built-in defaults from [`packages/opencode-plugin/src/orchestration.mjs`](../../packages/opencode-plugin/src/orchestration.mjs)). |
+| **B2** | **Treatment — explicit orchestration policy** | Same as **B1**, plus **`STIGMERGY_ORCHESTRATION_CONFIG`** set to an absolute or workspace-relative path of a JSON file that validates against [`packages/opencode-plugin/schema/orchestration.schema.json`](../../packages/opencode-plugin/schema/orchestration.schema.json). Log the resolved path in run notes; use real provider/model ids for your OpenCode host (see [fixtures/orchestration.policy.example.json](fixtures/orchestration.policy.example.json) **only** as a structural template — replace placeholders before production runs). |
 
-**Design stance:** **Crossover within-subject** when feasible: same participant completes **one task from difficulty class D** under A and **another task from class D** under B (order **counterbalanced** across participants). **Washout:** document whether same calendar day is allowed; minimum washout **≥ 24 h** recommended when switching plugin stacks on the same machine.
+**Design stance — primary stack comparison:** **Crossover within-subject** when feasible: same participant completes **one task from difficulty class D** under **A** and **another task from class D** under **B1** (order **counterbalanced** across participants). **Primary inference** for “does the default stack help?” uses **A vs B1** unless a study **pre-registers** a different contrast.
 
-**Phase 20 scope:** Condition **B2** (orchestration policy file present vs defaults-only) is **out of scope** until a **protocol version ≥ 1.1** registers it after a pilot suggests signal.
+**Design stance — orchestration increment:** To test explicit policy vs defaults, compare **B1 vs B2** on matched tasks (same participant optional). Prefer **≥ 24 h washout** between B1 and B2 on the same machine if orchestration env vars are reused; document same-day runs as a limitation.
+
+**Protocol lineage:** Studies executed under **protocol 1.0.x** (single treatment row **B**) remain valid archive; **1.1.0** replaces **B** with **B1**/**B2** for new runs. When citing historic results, map legacy **B** → **B1** unless the original run used an orchestration file (then map to **B2**).
 
 ## Metric definitions
 
@@ -37,7 +41,7 @@ This document is the **canonical** task, metric, and conditions definition for c
 | **M3** | **Misconfiguration events** | Count of audit lines with `event` in `{ supervision_resolve_failed, supervision_spawn_timeout, supervision_outer_timeout }` **plus** explicit `sbp_error:` outcomes on supervised attach attempts recorded in [`STIGMERGY_AUDIT_LOG_FILE`](../../packages/opencode-plugin/README.md). Optional: add HTTP failures from `SBP_LOG_FILE` when SBP is enabled (same run window). | count per task |
 | **M4** | **Coordination redundancy proxy** | **(a)** Count of `tool_execute` audit rows with `tool=stigmergy_publish`. **(b)** When **SBP persistence** is enabled for the task, count duplicate **`POST /pheromones`** successes with the same logical **pheromone id** from ledger replay or logs (preferred when available). Report **(a)** always; **(b)** when ledger artifact exists. | count per task |
 
-Primary inference uses **M1** and **M2**; **M3**/**M4** explain mechanisms and admit falsification (e.g. ledger ignored).
+Primary inference for the **stack** uses **M1** and **M2** under **A vs B1**; **B1 vs B2** comparisons address **orchestration policy** only when **pre-registered**. **M3**/**M4** explain mechanisms and admit falsification (e.g. ledger ignored).
 
 ### Reporting rules
 
@@ -63,6 +67,14 @@ Tasks use **real** OSS codebases at **pinned SHAs** (fork mirrors allowed). Upda
 - Store raw artefacts per run: redacted **audit NDJSON**, optional **SBP log**, **participant notes**, **wall-clock timestamps** for M1 boundaries.
 - Summarize audit logs with [`devtools/evaluation/summarize-audit.mjs`](../../devtools/evaluation/summarize-audit.mjs) (deterministic).
 - Publish dated summaries under [`results/`](results/) (see [`README.md`](README.md)); cite **protocol version** and **task bank SHA column**.
+
+### Pre-registered hypotheses (falsifiable; not merge-gated)
+
+| ID | Hypothesis | Falsification pattern |
+|----|------------|------------------------|
+| **H_stack** | The default stigmergy stack (**B1**) improves **M1**/**M2** vs **A** for the fixed task bank. | Null or negative effect on **M1** median / **M2** proportion at registered **N**. |
+| **H_orch** | An explicit orchestration policy (**B2**) improves **M1**/**M2** vs **B1** for the same tasks. | Null or negative effect when **B1↔B2** is run per design stance. |
+| **H_mech** | Failures are dominated by misconfiguration or coordination noise. | High **M3** or **M4** with low **M2** (document per-run). |
 
 ## Data retention and ethics
 

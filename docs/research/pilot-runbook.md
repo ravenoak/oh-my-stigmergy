@@ -1,21 +1,27 @@
-# Feasibility pilot runbook (Conditions A and B)
+# Feasibility pilot runbook (Conditions A, B1, B2)
 
-Use with [opencode-effectiveness-study-protocol.md](opencode-effectiveness-study-protocol.md) **protocol version 1.0.1**. This file is operator guidance; it does not change merge-gated claims ([ADR-0015](../adr/0015-empirical-evaluation-study-claims.md)).
+Use with [opencode-effectiveness-study-protocol.md](opencode-effectiveness-study-protocol.md) **protocol version 1.1.0**. This file is operator guidance; it does not change merge-gated claims ([ADR-0015](../adr/0015-empirical-evaluation-study-claims.md)).
+
+Record pilot lifecycle in **[FEASIBILITY_PILOT_STATUS.md](FEASIBILITY_PILOT_STATUS.md)** (`NotStarted` → `InProgress` → `Complete` or `Declined`).
 
 ## Preconditions
 
 - OpenCode host + `@oh-my-stigmergy/opencode-plugin` installed per [guides/opencode-stigmergy-golden-path.md](../guides/opencode-stigmergy-golden-path.md). Keep `@opencode-ai/plugin` aligned with [opencode-compatibility.md](../operations/opencode-compatibility.md) when upgrading (`packages/opencode-plugin/package.json`).
 - **Audit log** enabled (`STIGMERGY_AUDIT_LOG_FILE` set); NDJSON path recorded per session.
+- **B2 only:** `STIGMERGY_ORCHESTRATION_CONFIG` points to a JSON file that matches [`packages/opencode-plugin/schema/orchestration.schema.json`](../../packages/opencode-plugin/schema/orchestration.schema.json); copy [fixtures/orchestration.policy.example.json](fixtures/orchestration.policy.example.json) and **replace** placeholder provider/model strings with ids valid for your OpenCode host.
 - Git, Node.js (versions per upstream repos), and network access for clones/installs.
 
-## Condition A vs B
+## Sessions (minimum feasibility)
 
-Execute two **sessions** (same participant optional for feasibility; note in run log):
+**Primary stack comparison (A vs B1):** run **two** sessions — one under **A**, one under **B1** (order counterbalanced if two participants or repeat visits).
 
-| Session | Condition | Orchestration |
-|---------|-----------|----------------|
-| **A** | Baseline | Per operator default (document exact plugin/OpenCode versions). |
-| **B** | Treatment | Document any distinct routing/orchestration settings required by the protocol table (same plugin major as compatibility doc unless study intentionally varies). |
+| Session | Condition | Configuration summary |
+|---------|-----------|-------------------------|
+| **A** | Control | No plugin / disabled per protocol table; no unsupervised-default supervision unless rubric says otherwise. |
+| **B1** | Treatment, defaults-only orchestration | Plugin + `SBP_URL` unset + audit log + **`STIGMERGY_ORCHESTRATION_CONFIG` unset**. |
+| **B2** | Treatment, explicit policy | Same as B1 + **`STIGMERGY_ORCHESTRATION_CONFIG`** set to your validated policy file path. |
+
+**Orchestration contrast (B1 vs B2):** optional third/fourth sessions on the **same** task class; prefer **≥ 24 h washout** when switching only the orchestration file on one machine.
 
 Record **wall-clock timestamps** for:
 
@@ -41,5 +47,5 @@ Expected CSV row is captured in [results/2026-04-29-lab-pipeline-smoke.md](resul
 
 ## After the pilot
 
-- Store raw NDJSON and notes outside the repo or in agreed restricted storage; optional dated summary under [results/](results/).
-- If orchestration A/B should continue, follow roadmap **Phase 20 follow-on** (protocol ≥ 1.1, Condition B2) before changing CI verify scripts.
+- Store raw NDJSON and notes outside the repo or in agreed restricted storage; add a dated summary under [results/](results/) when publishing findings.
+- Update [FEASIBILITY_PILOT_STATUS.md](FEASIBILITY_PILOT_STATUS.md) to **Complete** with a link to that summary, or **Declined** with one stated reason.

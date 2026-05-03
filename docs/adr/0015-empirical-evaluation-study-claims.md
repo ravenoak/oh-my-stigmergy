@@ -23,7 +23,7 @@ Accepted
 ## Consequences
 
 - **FR-7.2** RTM row cites the protocol path and verify script; not a guarantee of study success.
-- Optional **Condition B2** (orchestration policy A/B) remains a **successor** protocol revision, not required for Phase 20 exit.
+- **Condition B2** (explicit orchestration policy vs **B1** defaults-only) is **in-protocol** from study protocol **1.1.0** onward; empirical claims about orchestration still require **registered** runs and must not be inferred from CI.
 
 ## References
 

@@ -47,4 +47,22 @@ grep -qF "**Protocol version:**" "$protocol" || {
   exit 1
 }
 
+# Protocol 1.1+: treatment split and example orchestration fixture (structural).
+grep -qE '\*\*Protocol version:\*\* 1\.1\.' "$protocol" || {
+  echo "verify-opencode-evaluation-protocol: must declare protocol version 1.1.x" >&2
+  exit 1
+}
+grep -qF "| **B1** |" "$protocol" || {
+  echo "verify-opencode-evaluation-protocol: must define experimental condition B1" >&2
+  exit 1
+}
+grep -qF "| **B2** |" "$protocol" || {
+  echo "verify-opencode-evaluation-protocol: must define experimental condition B2" >&2
+  exit 1
+}
+grep -qF "fixtures/orchestration.policy.example.json" "$protocol" || {
+  echo "verify-opencode-evaluation-protocol: must reference orchestration example fixture" >&2
+  exit 1
+}
+
 echo "verify-opencode-evaluation-protocol: ok"
