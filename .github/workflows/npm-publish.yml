@@ -73,6 +73,11 @@ jobs:
       - name: Use npm CLI with trusted publishing support
         run: npm install -g npm@^11.5.1
 
+      # Tests import ../../sbp-server/server.mjs (native better-sqlite3); plugin package-lock alone does not install sbp-server workspace deps.
+      - name: Install @oh-my-stigmergy/sbp-server (monorepo path for plugin tests)
+        working-directory: packages/sbp-server
+        run: npm ci --no-fund --no-audit
+
       - name: Test @oh-my-stigmergy/opencode-plugin
         working-directory: packages/opencode-plugin
         run: |
