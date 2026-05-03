@@ -1,0 +1,10 @@
+{
+  "defaultModel": "example-provider/placeholder-model-not-for-production",
+  "stanceModels": {
+    "default": "example-provider/placeholder-model-not-for-production"
+  },
+  "localPreferredStances": ["default"],
+  "defaultOlfactoryThreshold": 0.1,
+  "defaultActionableLimit": 20,
+  "maxActionable": 50
+}

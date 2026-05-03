@@ -2,7 +2,9 @@
 
 This guide ties **[CONSTITUTION.md](../CONSTITUTION.md)** empirical discipline to **what we can measure** when judging whether this repository’s **stigmergic** patterns help agents coordinate without inventing enforcement claims. It complements [ADR-0014](../adr/0014-sbp-project-supervision.md) (solo supervision), [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md) (orchestration helpers), and [ADR-0004](../adr/0004-verification-stack-layering.md) (what deterministic tooling actually proves).
 
-**Canonical study design** (tasks, metrics **M1–M4**, conditions A/B, reporting): **[OpenCode effectiveness study protocol](../research/opencode-effectiveness-study-protocol.md)** (**FR-7.2**, [ADR-0015](../adr/0015-empirical-evaluation-study-claims.md)). This guide states principles; the protocol is the **binding** operational specification for controlled runs on real code.
+**Canonical study design** (tasks, metrics **M1–M4**, conditions **A / B1 / B2**, reporting): **[OpenCode effectiveness study protocol](../research/opencode-effectiveness-study-protocol.md)** (**FR-7.2**, [ADR-0015](../adr/0015-empirical-evaluation-study-claims.md)). This guide states principles; the protocol is the **binding** operational specification for controlled runs on real code.
+
+**Primary inference** for “does the default stigmergy stack help?” uses **A vs B1** unless a study **pre-registers** a different contrast. **B1 vs B2** addresses **orchestration policy** (explicit `STIGMERGY_ORCHESTRATION_CONFIG` file vs defaults-only) when that comparison is pre-registered—not a substitute for the stack-vs-control question.
 
 ## What this repository can prove with CI
 

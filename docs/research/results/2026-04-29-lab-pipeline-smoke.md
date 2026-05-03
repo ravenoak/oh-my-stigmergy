@@ -1,7 +1,7 @@
 # Lab pipeline smoke — audit summarizer (fixture)
 
 **Date:** 2026-04-29  
-**Protocol:** [opencode-effectiveness-study-protocol.md](../opencode-effectiveness-study-protocol.md) **version 1.0.1**
+**Protocol:** [opencode-effectiveness-study-protocol.md](../opencode-effectiveness-study-protocol.md) **version 1.1.0** (fixture smoke only; protocol evolved since original lab note).
 
 This artifact exercises **`devtools/evaluation/summarize-audit.mjs`** on checked-in NDJSON only. It does **not** report human effectiveness, OpenCode sessions, or Conditions A/B outcomes ([ADR-0015](../../adr/0015-empirical-evaluation-study-claims.md)).
 
