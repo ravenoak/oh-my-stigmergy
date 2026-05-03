@@ -270,6 +270,17 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 19 program exit (2026-05-03):** P19-a + P19-b closed; registry semver on `main`; FR-7.1 + evaluation verify script green ([NFR-D1](requirements/NFR.md)).
 
+### Phase 20 — Operational effectiveness evaluation (**complete**)
+
+**Program:** Ship a **versioned** OpenCode effectiveness **study protocol** (tasks, metrics, conditions A/B, reporting rules), **ADR-0015** claims boundary, **structural** CI verification, and **deterministic** [`devtools/evaluation/`](../../devtools/evaluation/) helpers for audit NDJSON summarization. **Not in scope:** merge-gating statistical outcomes; essay-scale ContextCov; org-wide OPA ([BACKLOG.md](BACKLOG.md), [ADR-0004](adr/0004-verification-stack-layering.md)).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P20-a — Protocol + ADR | [ADR-0015](adr/0015-empirical-evaluation-study-claims.md) **Accepted**; [`docs/research/opencode-effectiveness-study-protocol.md`](research/opencode-effectiveness-study-protocol.md) lists objectives, conditions, metric tables **M1–M4**, task bank, analysis/ethics sections; [`scripts/verify-opencode-evaluation-protocol.sh`](../../scripts/verify-opencode-evaluation-protocol.sh) in **`allium-specs` governance**. |
+| P20-b — Helpers + traceability | [`devtools/evaluation/README.md`](../../devtools/evaluation/README.md) + [`devtools/evaluation/summarize-audit.mjs`](../../devtools/evaluation/summarize-audit.mjs); **FR-7.2** + [RTM.md](traceability/RTM.md); [docs/guides/stigmergy-evaluation-discipline.md](guides/stigmergy-evaluation-discipline.md) links canonical protocol; [`spec/governance.allium`](../spec/governance.allium) comment cites Phase 20 paths. |
+
+**Phase 20 program exit:** FR-7.2 **`implemented`**; protocol + verify + evaluation helpers green in CI ([NFR-D1](requirements/NFR.md)); pilot execution remains **optional** under `docs/research/results/`.
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.

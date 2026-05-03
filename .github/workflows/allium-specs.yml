@@ -53,7 +53,7 @@ jobs:
           fi
           is_heavy() {
             case "$1" in
-              spec/*|packages/*|scripts/*|tests/*|devtools/*|docs/requirements/*|docs/traceability/*|docs/adr/*|docs/operations/*|docs/guides/*|docs/CONSTITUTION.md|docs/PRD.md|.github/workflows/*|.python-version)
+              spec/*|packages/*|scripts/*|tests/*|devtools/*|              docs/requirements/*|docs/traceability/*|docs/adr/*|docs/operations/*|docs/guides/*|docs/research/*|docs/CONSTITUTION.md|docs/PRD.md|.github/workflows/*|.python-version)
                 return 0
                 ;;
               *)
@@ -65,7 +65,7 @@ jobs:
             case "$1" in
               docs/*)
                 case "$1" in
-                  docs/requirements/*|docs/traceability/*|docs/adr/*|docs/operations/*|docs/guides/*|docs/CONSTITUTION.md|docs/PRD.md)
+                  docs/requirements/*|docs/traceability/*|docs/adr/*|docs/operations/*|docs/guides/*|docs/research/*|docs/CONSTITUTION.md|docs/PRD.md)
                     return 1
                     ;;
                   *)
@@ -149,6 +149,9 @@ jobs:
 
       - name: Stigmergy evaluation discipline guide (FR-7.1 / Phase 19)
         run: bash scripts/verify-stigmergy-evaluation-discipline-doc.sh
+
+      - name: OpenCode effectiveness study protocol (FR-7.2 / Phase 20)
+        run: bash scripts/verify-opencode-evaluation-protocol.sh
 
       - name: Stigmergic orchestration charter docs (FR-6.2 / Phase 13)
         run: bash scripts/verify-stigmergy-orchestration-doc.sh
