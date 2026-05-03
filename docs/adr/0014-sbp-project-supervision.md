@@ -21,7 +21,10 @@ Operators running OpenCode with [`@oh-my-stigmergy/opencode-plugin`](../../packa
 4. **Spawn executable:** **`node`** on `PATH`, overridable by **`STIGMERGY_NODE`**. The host may be Bun; the **child must be Node** because **`better-sqlite3`** is a Node native addon.
 5. **Concurrency:** an exclusive **`$worktree/.stigmergy/spawn.lock`** (atomic **`wx`**) prevents duplicate spawns; waiters poll **`runtime.json`** + health after losing the lock race.
 6. **Lifecycle:** the plugin **does not** terminate SBP on OpenCode exit (ledger survives IDE restarts). Operators may **`npm run stop`** in **`@oh-my-stigmergy/sbp-server`** or send **SIGTERM** to **`pid`** from **`runtime.json`**.
-7. **Packaging:** **`@oh-my-stigmergy/sbp-server`** is **`private: false`**, versioned, and listed as a **dependency** of **`@oh-my-stigmergy/opencode-plugin`** so **`npm install`** resolves **`server.mjs`** without a monorepo path.
+7. **Packaging (two modes):**
+   - **In-repo / CI / clone-based dev:** [`packages/opencode-plugin/package.json`](../../packages/opencode-plugin/package.json) may use a sibling dependency **`"file:../sbp-server"`** so `npm ci` in the monorepo resolves **`@oh-my-stigmergy/sbp-server`** and tests + [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh) stay hermetic. This is the **default committed manifest** until a registry train runs.
+   - **npm publish (for consumers who install only from the registry):** the **published** plugin tarball **must** depend on **`@oh-my-stigmergy/sbp-server`** at a **registry** semver (publish **`@oh-my-stigmergy/sbp-server` first**, then swap the plugin dependency and lockfile, then run [`scripts/verify-opencode-plugin-publishable.sh`](../../scripts/verify-opencode-plugin-publishable.sh) before `npm publish`). See [opencode-plugin-release.md](../operations/opencode-plugin-release.md).
+   - **`@oh-my-stigmergy/sbp-server`** remains **`private: false`** and versioned for both modes.
 
 ## Non-goals
 
@@ -40,3 +43,4 @@ Operators running OpenCode with [`@oh-my-stigmergy/opencode-plugin`](../../packa
 - `cd packages/opencode-plugin && npm test` (including supervision unit tests).
 - `bash scripts/verify-opencode-plugin-contract.sh`, `bash scripts/verify-stigmergy-sbp-supervision-doc.sh`.
 - `bash scripts/verify-requirement-traceability.sh` after RTM/FR updates.
+- **Release-only:** `bash scripts/verify-opencode-plugin-publishable.sh` after replacing **`file:`** with registry semver (see [opencode-plugin-release.md](../operations/opencode-plugin-release.md)).
