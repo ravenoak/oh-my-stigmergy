@@ -34,6 +34,8 @@ After saving, run **[Actions](https://github.com/ravenoak/oh-my-stigmergy/action
 - **`source .env`** (or `set -a && source .env && set +a`) before running those scripts so **`NPM_TOKEN`** is in the environment.
 - **`EOTP` / “requires a one-time password”:** Use **`./scripts/publish-sbp-server-npm.sh --otp=123456`** or an npm **granular automation** token per [npm token docs](https://docs.npmjs.com/about-access-tokens).
 
+**`npm error 404` / `Scope not found` on first publish:** The scope **`@oh-my-stigmergy`** must exist as an [npm organization](https://docs.npmjs.com/creating-an-organization) (or your user must be granted **publish** on that scope). Create the org at [npmjs.com](https://www.npmjs.com/signup), invite owners, then retry **`bash scripts/publish-sbp-server-npm.sh`**. CI on PRs that pin the plugin to the registry will stay red until **`@oh-my-stigmergy/sbp-server`** exists on npm.
+
 **Scoped sibling:** the plugin depends on **`@oh-my-stigmergy/sbp-server`** at a **registry** semver on `main` ([ADR-0014](../adr/0014-sbp-project-supervision.md)). **`npm publish`** for consumers requires that **`@oh-my-stigmergy/sbp-server@<version>` exists on npm before** the plugin lockfile can resolve in CI—follow **[Scoped packages on npm](#scoped-packages-on-npm-sbp-server--plugin)** below.
 
 ## Preconditions
