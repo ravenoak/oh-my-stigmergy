@@ -104,6 +104,8 @@ export async function resolveSbpBaseUrl(opts) {
     }
   }
 
+  fs.mkdirSync(stDir, { recursive: true });
+
   const outerDeadline = Date.now() + 45000;
   while (Date.now() < outerDeadline) {
     try {
@@ -128,7 +130,6 @@ export async function resolveSbpBaseUrl(opts) {
     }
 
     try {
-      fs.mkdirSync(stDir, { recursive: true });
       let pkgDir;
       try {
         const pkgJsonPath = require.resolve("@oh-my-stigmergy/sbp-server/package.json");
