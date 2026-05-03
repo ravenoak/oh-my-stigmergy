@@ -58,6 +58,9 @@ for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check
   "$opencode_stigmergy_troubleshooting_doc_script" \
   "$opencode_stigmergy_sbp_supervision_doc_script" \
   "$opencode_plugin_publishable_script" \
+  "scripts/publish-sbp-server-npm.sh" \
+  "scripts/publish-opencode-plugin-npm.sh" \
+  ".env.example" \
   "docs/guides/stigmergy-evaluation-discipline.md" \
   "$stigmergy_evaluation_discipline_doc_script" \
   "$opencode_plugin_contract_script" \
@@ -121,6 +124,8 @@ bash -n "$bootstrap_stack_script"
 bash -n "$opencode_operator_docs_script"
 bash -n "$opencode_stigmergy_sbp_supervision_doc_script"
 bash -n "$opencode_plugin_publishable_script"
+bash -n "scripts/publish-sbp-server-npm.sh"
+bash -n "scripts/publish-opencode-plugin-npm.sh"
 bash -n "$stigmergy_evaluation_discipline_doc_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
@@ -204,6 +209,10 @@ echo "$governance_block" | grep -q 'verify-no-secrets.sh' || {
 }
 echo "$governance_block" | grep -q 'verify-opencode-plugin-contract.sh' || {
   echo "ci_contract: governance job must run scripts/verify-opencode-plugin-contract.sh (FR-5.1 / Phase 11)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-opencode-plugin-publishable.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-opencode-plugin-publishable.sh (P19-a)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q 'verify-opencode-golden-path.sh' || {

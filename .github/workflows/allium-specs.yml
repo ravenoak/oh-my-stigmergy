@@ -138,6 +138,9 @@ jobs:
       - name: OpenCode plugin manifest contract (FR-5.1 / Phase 11)
         run: bash scripts/verify-opencode-plugin-contract.sh
 
+      - name: OpenCode plugin publishable (no file/link/workspace deps) (P19-a)
+        run: bash scripts/verify-opencode-plugin-publishable.sh
+
       - name: OpenCode golden path doc (FR-5.4 / Phase 12)
         run: bash scripts/verify-opencode-golden-path.sh
 

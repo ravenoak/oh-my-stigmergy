@@ -1,3 +1,12 @@
+# Local secrets (npm publish, never commit)
+.env
+.env.local
+.env.*.local
+
+# npm pack smoke tarballs (do not commit)
+**/oh-my-stigmergy-sbp-server-*.tgz
+**/oh-my-stigmergy-opencode-plugin-*.tgz
+
 __pycache__/
 *.py[cod]
 *$py.class
