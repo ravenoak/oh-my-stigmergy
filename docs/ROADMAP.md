@@ -281,6 +281,14 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 20 program exit:** FR-7.2 **`implemented`**; protocol + verify + evaluation helpers green in CI ([NFR-D1](requirements/NFR.md)); pilot execution remains **optional** under `docs/research/results/`.
 
+### Phase 20 follow-on — Protocol ≥ 1.1 and Condition B2 (**planned**)
+
+**Charter (pick-up trigger):** Human feasibility pilot under protocol **1.0.x** suggests **orchestration A/B** beyond baseline Conditions A/B; operators want **Condition B2** registered and traceable.
+
+**Scope:** Version bump protocol to **≥ 1.1**; extend [`docs/research/opencode-effectiveness-study-protocol.md`](research/opencode-effectiveness-study-protocol.md) with **Condition B2** definition and task-condition mapping; adjust [`scripts/verify-opencode-evaluation-protocol.sh`](../../scripts/verify-opencode-evaluation-protocol.sh) **only** if new required sections are added; keep empirical execution **human-run** per [ADR-0015](adr/0015-empirical-evaluation-study-claims.md). Not started until a dedicated PR opens this row.
+
+**Alternative product track:** Instead of this charter, promote **one** [BACKLOG.md](BACKLOG.md) epic through the promotion gate (problem, phase, FR/NFR, RTM, ADR if fork). Example deferrals that remain **explicitly unpicked:** graph deeper grammars until [ADR-0002](adr/0002-relation-first-retrieval.md) revision; essay-scale ContextCov per backlog + [ADR-0004](adr/0004-verification-stack-layering.md).
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.

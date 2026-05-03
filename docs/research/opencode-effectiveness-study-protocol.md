@@ -1,6 +1,6 @@
 # OpenCode effectiveness study protocol (oh-my-stigmergy)
 
-**Protocol version:** 1.0.0  
+**Protocol version:** 1.0.1  
 **Normative ADR:** [ADR-0015](../adr/0015-empirical-evaluation-study-claims.md) (claims boundary; aligns with [ADR-0004](../adr/0004-verification-stack-layering.md))
 
 This document is the **canonical** task, metric, and conditions definition for controlled evaluations of **OpenCode** with [`@oh-my-stigmergy/opencode-plugin`](../../packages/opencode-plugin/README.md) and [`@oh-my-stigmergy/sbp-server`](../../packages/sbp-server/README.md) on **real code** (external OSS repositories at pinned commits). [docs/guides/stigmergy-evaluation-discipline.md](../guides/stigmergy-evaluation-discipline.md) explains why **CI** does not substitute for this protocol.
@@ -46,13 +46,13 @@ Primary inference uses **M1** and **M2**; **M3**/**M4** explain mechanisms and a
 
 ## Task bank
 
-Tasks must use **real** OSS codebases at **pinned SHAs** (fork mirrors allowed). Replace placeholders before pilot execution.
+Tasks use **real** OSS codebases at **pinned SHAs** (fork mirrors allowed). Update SHAs when upstream moves only if you **re-validate** rubrics and bump protocol patch version.
 
-| Task id | Repository URL | SHA | Difficulty class | Rubric id | Notes |
-|---------|------------------|-----|------------------|-----------|-------|
-| **smoke-oms** | `https://github.com/ravenoak/oh-my-stigmergy` | *(pinned tag/commit)* | smoke | R-smoke | **Excluded from primary inference** — harness validation only |
-| **ext-001** | *(TBD)* | *(TBD)* | easy | R-ext-easy | External OSS; failing test or small fix |
-| **ext-002** | *(TBD)* | *(TBD)* | medium | R-ext-med | Feature slice behind flag or comparable |
+| Task id | Repository URL | SHA (full) | Difficulty class | Rubric id | Notes |
+|---------|------------------|------------|------------------|-----------|-------|
+| **smoke-oms** | `https://github.com/ravenoak/oh-my-stigmergy` | `f4d5016f163c1eeb201b3fc65a3488e4b2f524d0` | smoke | R-smoke | **Excluded from primary inference** — in-repo harness; pin advances with `main` doc updates |
+| **ext-001** | `https://github.com/sindresorhus/is-plain-obj` | `97f38e8836f86a642cce98fc6ab3058bc36df181` | easy | R-ext-easy | Small ESM package; typical task: clone, install, run tests (see rubric) |
+| **ext-002** | `https://github.com/chalk/chalk` | `aa06bb5ac3f14df9fda8cfb54274dfc165ddfdef` | medium | R-ext-med | Larger surface; typical task: install, test, then small doc/code edit per rubric |
 
 **Inclusion criteria:** public licence compatible with study use; build/test instructions reproducible; task completes within **session budget** ([agent-session-budgets](../guides/agent-session-budgets.md)).
 
@@ -70,14 +70,45 @@ Tasks must use **real** OSS codebases at **pinned SHAs** (fork mirrors allowed).
 - **Consent:** if participants are external humans, obtain consent consistent with your jurisdiction and institution; this repo does not supply IRB approval.
 - **PII:** do not commit secrets or personal identifiers into `docs/research/results/`.
 
-## Appendix: Rubric skeleton
+## Appendix: Rubrics (versioned with protocol)
 
-Rubrics **R-smoke**, **R-ext-easy**, **R-ext-med** must be expanded with **checklist bullets** and **disqualifiers** before first pilot; bump protocol minor version when rubrics change materially.
+**Disqualifiers (all tasks):** Wrong repository or SHA; secrets committed; rubric items skipped without documenting protocol deviation.
 
-**Example bullets (illustrative only):**
+### R-smoke (smoke-oms)
 
-- **R-smoke:** `npm test` or repo-equivalent passes in `packages/opencode-plugin`; workspace matches pinned SHA.
-- **R-ext-easy:** Specified tests green; change confined to named paths.
+**Goal:** Confirm local clone matches pinned SHA and plugin package tests pass.
+
+**Pass / M2 = 1 when all hold:**
+
+- Git checkout at task bank SHA (or descendant tag containing that commit documented in run notes).
+- `cd packages/opencode-plugin && npm ci && npm test` exits **0**.
+
+**M1 start:** timestamp when participant begins first shell command for the task; **M1 end:** successful exit of `npm test`.
+
+### R-ext-easy (ext-001)
+
+**Goal:** Measure baseline tool friction on a minimal external repo.
+
+**Pass / M2 = 1 when all hold:**
+
+- Clean clone at pinned SHA `97f38e8836f86a642cce98fc6ab3058bc36df181`.
+- Run `npm install` then `npm test` per repository layout (root `package.json`); both exit **0**.
+- No source changes required for pass (familiarization / environment smoke).
+
+**M1:** Start at clone complete; end at first full `npm test` success.
+
+### R-ext-med (ext-002)
+
+**Goal:** Small real edit with tests still green.
+
+**Pass / M2 = 1 when all hold:**
+
+- Clean clone at pinned SHA `aa06bb5ac3f14df9fda8cfb54274dfc165ddfdef`.
+- `npm install` and `npm test` exit **0** before edit.
+- Exactly **one** intentional change: chalk uses root `readme.md` — insert as **first line** the HTML comment `<!-- study-marker -->` (valid in GitHub-flavored Markdown). If upstream layout forbids it, document an equivalent single-line non-functional prefix in run notes and treat as protocol deviation.
+- `npm test` exits **0** after the edit.
+
+**M1:** Start at clone complete; end when post-edit `npm test` succeeds.
 
 ---
 

@@ -1,0 +1,3 @@
+{"event":"tool_execute","tool":"stigmergy_publish","ts":"2026-04-29T12:00:00.000Z"}
+{"event":"tool_execute","tool":"read_file","ts":"2026-04-29T12:00:01.000Z"}
+{"event":"supervision_resolve_failed","ts":"2026-04-29T12:00:02.000Z"}
