@@ -14,6 +14,18 @@ Before opening a PR that touches [`packages/opencode-plugin`](packages/opencode-
 
 Bootstrap script (repo root): `bash scripts/bootstrap-opencode-stigmergy-stack.sh` (optional `--print-opencode-snippet`).
 
+### Co-developing `sbp-server` + `opencode-plugin` in one clone
+
+On `main`, [`packages/opencode-plugin/package.json`](packages/opencode-plugin/package.json) depends on **`@oh-my-stigmergy/sbp-server`** from the **npm registry** (Phase **P19-a**). To exercise **local** changes to both packages without publishing:
+
+1. In [`packages/sbp-server`](packages/sbp-server): `npm link` (creates a global link).
+2. In [`packages/opencode-plugin`](packages/opencode-plugin): `npm link @oh-my-stigmergy/sbp-server` so `node_modules` resolves to your working tree.
+3. Run tests as usual; **`npm unlink`** when done.
+
+Do **not** commit `file:` dependencies on `main`; CI enforces this via [`scripts/verify-opencode-plugin-publishable.sh`](scripts/verify-opencode-plugin-publishable.sh).
+
+**Registry train:** Any PR that bumps the plugin to a new **`@oh-my-stigmergy/sbp-server`** semver requires that version to **already exist on npm** before CI’s `npm ci` in [`packages/opencode-plugin`](packages/opencode-plugin) can succeed—publish the server package first ([docs/operations/opencode-plugin-release.md](docs/operations/opencode-plugin-release.md)).
+
 ## Restore AI skills from lockfile
 
 After clone, reinstall JUXT Allium skills so `.agents/skills/` matches [skills-lock.json](skills-lock.json):
