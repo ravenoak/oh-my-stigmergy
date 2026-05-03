@@ -2,6 +2,8 @@
 
 This guide ties **[CONSTITUTION.md](../CONSTITUTION.md)** empirical discipline to **what we can measure** when judging whether this repository’s **stigmergic** patterns help agents coordinate without inventing enforcement claims. It complements [ADR-0014](../adr/0014-sbp-project-supervision.md) (solo supervision), [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md) (orchestration helpers), and [ADR-0004](../adr/0004-verification-stack-layering.md) (what deterministic tooling actually proves).
 
+**Canonical study design** (tasks, metrics **M1–M4**, conditions A/B, reporting): **[OpenCode effectiveness study protocol](../research/opencode-effectiveness-study-protocol.md)** (**FR-7.2**, [ADR-0015](../adr/0015-empirical-evaluation-study-claims.md)). This guide states principles; the protocol is the **binding** operational specification for controlled runs on real code.
+
 ## What this repository can prove with CI
 
 - **Specs:** structural checks (`allium check` / `analyse`) on committed `.allium` files.
@@ -36,6 +38,8 @@ These are **research questions**—use them to design studies; promote to FR row
 
 - [CONSTITUTION.md](../CONSTITUTION.md)
 - [traceability/RTM.md](../traceability/RTM.md)
-- [ROADMAP.md](../ROADMAP.md) (Phase 19)
+- [ROADMAP.md](../ROADMAP.md) (Phase 19–20)
+- [research/opencode-effectiveness-study-protocol.md](../research/opencode-effectiveness-study-protocol.md) (**FR-7.2**)
+- [ADR-0015](../adr/0015-empirical-evaluation-study-claims.md)
 - [docs/operations/opencode-plugin-release.md](../operations/opencode-plugin-release.md) (registry release train)
 - [BACKLOG.md](../BACKLOG.md) (promotion gate for new epics)

@@ -28,7 +28,8 @@ This folder is the canonical **governance and specification surface** for oh-my-
 | [operations/opencode-compatibility.md](operations/opencode-compatibility.md) | Operators / upgrades | Pinned `@opencode-ai/plugin`; must match `package.json` ([FR-6.3](requirements/FR.md)) |
 | [operations/opencode-stigmergy-troubleshooting.md](operations/opencode-stigmergy-troubleshooting.md) | Operators | Golden path failures: SBP, `sbp_error`/`graph_error`, `uv`, orchestration policy ([FR-6.5](requirements/FR.md), [Phase 17](ROADMAP.md)) |
 | [operations/opencode-plugin-release.md](operations/opencode-plugin-release.md) | Maintainers | npm publish runbook for `@oh-my-stigmergy/opencode-plugin` |
-| [guides/stigmergy-evaluation-discipline.md](guides/stigmergy-evaluation-discipline.md) | Operators and researchers | Empirical claims vs CI proof; falsifiable hypotheses; **FR-7.1** ([Phase 19](ROADMAP.md)) |
+| [guides/stigmergy-evaluation-discipline.md](guides/stigmergy-evaluation-discipline.md) | Operators and researchers | Empirical claims vs CI proof; falsifiable hypotheses; **FR-7.1** ([Phase 19](ROADMAP.md)); canonical protocol **FR-7.2** ([Phase 20](ROADMAP.md)) |
+| [research/README.md](research/README.md) | Operators and researchers | Effectiveness study protocol + optional results ([**FR-7.2**](requirements/FR.md), [ADR-0015](adr/0015-empirical-evaluation-study-claims.md)) |
 
 **Phases** used in requirement rows: **P0** (governance and specs in-repo), **P1** (intent tooling and workflows), **P2** (relation-first code navigation), **P3** (stigmergic coordination runtime), **P4** (deterministic verification beyond Allium CLI).
 

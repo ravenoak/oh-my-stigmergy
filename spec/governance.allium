@@ -2,7 +2,7 @@
 -- Repository governance: traceability (FR-1.1), coordination + graph slices (FR-2.x–FR-3.x),
 -- repository governance + distillation + shim + CI job intent (FR-0.1, FR-0.2, FR-1.2, FR-4.1).
 -- OpenCode plugin project-local SBP (FR-5.5): attach-or-spawn when SBP_URL unset — docs/adr/0014-sbp-project-supervision.md.
--- Empirical evaluation discipline (FR-7.1): docs/guides/stigmergy-evaluation-discipline.md; Phase 19 registry train (P19-a): docs/operations/opencode-plugin-release.md, scripts/verify-opencode-plugin-publishable.sh in CI governance.
+-- Empirical evaluation discipline (FR-7.1): docs/guides/stigmergy-evaluation-discipline.md; Phase 20 effectiveness protocol (FR-7.2): docs/research/opencode-effectiveness-study-protocol.md, scripts/verify-opencode-evaluation-protocol.sh, devtools/evaluation/; Phase 19 registry train (P19-a): docs/operations/opencode-plugin-release.md, scripts/verify-opencode-plugin-publishable.sh in CI governance.
 
 ------------------------------------------------------------
 -- Entities and Variants

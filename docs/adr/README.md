@@ -18,3 +18,4 @@ Decisions are numbered sequentially. Use [template.md](template.md) for new ADRs
 | [0012](0012-opencode-plugin-architecture.md) | OpenCode plugin — cognitive layer bridge to SBP and graph | Accepted |
 | [0013](0013-stigmergic-opencode-orchestration.md) | Stigmergic OpenCode orchestration (medium-first multi-agent path) | Accepted |
 | [0014](0014-sbp-project-supervision.md) | Project-local SBP supervision from the OpenCode plugin | Accepted |
+| [0015](0015-empirical-evaluation-study-claims.md) | Empirical OpenCode effectiveness studies — claims boundary | Accepted |

@@ -5,6 +5,8 @@ Items here are **not** execution-ready: they lack one or more of promotion ID, p
 **Full ordered program** (phases, sequencing stances, exit criteria): [ROADMAP.md](ROADMAP.md).  
 **Deferred epics** already captured as requirements: see [PRD.md](PRD.md) “Deferred program of record” and [traceability/RTM.md](traceability/RTM.md) `planned` rows.
 
+**Phase 20** ([ROADMAP.md](ROADMAP.md)) addresses **operational effectiveness evaluation** (**FR-7.2**) — not graph/SBP scale-up backlog rows below.
+
 ## Promotion gate (mandatory)
 
 Before moving a row into an FR/NFR/RTM change set:
@@ -45,4 +47,4 @@ Add new rows below with the same columns when brainstorming; **do not** implemen
 
 | Item | Phase | Dependency | Next unblocker |
 |------|-------|------------|----------------|
-| Plugin audit NDJSON visibility across OpenCode entrypoints (`debug startup` vs TUI / `opencode run`) | P3+ | [ROADMAP.md](ROADMAP.md) Phase 18 (closed) | Documentation + troubleshooting coverage; if reproduction shows a host-side gap, mint verification + optional FR ([ADR-0012](adr/0012-opencode-plugin-architecture.md)). |
+| Plugin audit NDJSON visibility across OpenCode entrypoints (`debug startup` vs TUI / `opencode run`) | P3+ | **Disposition — docs + Phase 20** | **Closed for backlog purposes:** measurement prerequisites and **`STIGMERGY_AUDIT_LOG_FILE`** contract are documented in [operations/opencode-stigmergy-troubleshooting.md](operations/opencode-stigmergy-troubleshooting.md), [packages/opencode-plugin/README.md](../../packages/opencode-plugin/README.md), and the Phase 20 protocol ([research/opencode-effectiveness-study-protocol.md](research/opencode-effectiveness-study-protocol.md)); reopen only if a **reproducible** host gap remains after a pilot ([ADR-0012](adr/0012-opencode-plugin-architecture.md)). |
