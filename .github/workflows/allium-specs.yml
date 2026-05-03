@@ -144,6 +144,9 @@ jobs:
       - name: Project-local SBP supervision docs (FR-5.5 / Phase 18)
         run: bash scripts/verify-stigmergy-sbp-supervision-doc.sh
 
+      - name: Stigmergy evaluation discipline guide (FR-7.1 / Phase 19)
+        run: bash scripts/verify-stigmergy-evaluation-discipline-doc.sh
+
       - name: Stigmergic orchestration charter docs (FR-6.2 / Phase 13)
         run: bash scripts/verify-stigmergy-orchestration-doc.sh
 

@@ -259,6 +259,15 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 18 program exit (2026-04-29):** FR-5.5 **`implemented`**; supervision verify script + extended operator docs green in CI ([NFR-D1](requirements/NFR.md)).
 
+### Phase 19 — Registry alignment + empirical evaluation discipline (open)
+
+**Program:** Close the **packaging** gap between monorepo **`file:`** consumption and **npm** consumers: publish **`@oh-my-stigmergy/sbp-server`**, then **`@oh-my-stigmergy/opencode-plugin`** with a **registry** semver edge, using [`scripts/verify-opencode-plugin-publishable.sh`](../../scripts/verify-opencode-plugin-publishable.sh) before plugin publish ([`docs/operations/opencode-plugin-release.md`](operations/opencode-plugin-release.md), [ADR-0014](adr/0014-sbp-project-supervision.md)). In parallel, document **how** to measure effectiveness without inflating verification claims: **[`docs/guides/stigmergy-evaluation-discipline.md`](guides/stigmergy-evaluation-discipline.md)** ([FR-7.1](requirements/FR.md), [CONSTITUTION.md](CONSTITUTION.md), [ADR-0004](adr/0004-verification-stack-layering.md)).
+
+| Milestone | Exit criteria |
+|-----------|----------------|
+| P19-a — Registry train | **`@oh-my-stigmergy/sbp-server`** published to npm; plugin **`package.json`** + lockfile use **registry** `dependencies` (no `file:` / `link:` / `workspace:`); `bash scripts/verify-opencode-plugin-publishable.sh` green on the release change set. |
+| P19-b — Evaluation discipline | [`docs/guides/stigmergy-evaluation-discipline.md`](guides/stigmergy-evaluation-discipline.md) linked from [docs/README.md](README.md); [`scripts/verify-stigmergy-evaluation-discipline-doc.sh`](../../scripts/verify-stigmergy-evaluation-discipline-doc.sh) in `allium-specs` **governance**; **FR-7.1** + RTM row **`implemented`**. |
+
 ## Backlog hygiene
 
 Parked ideas that are **not** yet tied to FR IDs belong in [BACKLOG.md](BACKLOG.md). Promoting an item requires: problem statement, phase label, target FR/NFR IDs, RTM verification language, and an ADR if architecture forks.
