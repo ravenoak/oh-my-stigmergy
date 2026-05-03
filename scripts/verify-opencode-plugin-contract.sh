@@ -87,7 +87,15 @@ if (typeof m.StigmergyPlugin !== 'function') {
   console.error('verify-opencode-plugin-contract: StigmergyPlugin must be an async function export');
   process.exit(1);
 }
-console.log('verify-opencode-plugin-contract: ok (export smoke)');
+if (typeof m.server !== 'function') {
+  console.error('verify-opencode-plugin-contract: missing named export server: Plugin (opencode 1.14.x loader)');
+  process.exit(1);
+}
+if (!m.default || typeof m.default !== 'object' || typeof m.default.server !== 'function') {
+  console.error('verify-opencode-plugin-contract: default export must be { id, server: Plugin }');
+  process.exit(1);
+}
+console.log('verify-opencode-plugin-contract: ok (PluginModule shape)');
 "
 
 echo "verify-opencode-plugin-contract: npm pack (tarball contains entry)"
