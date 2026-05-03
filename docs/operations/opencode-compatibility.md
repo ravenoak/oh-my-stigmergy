@@ -26,6 +26,12 @@ This document is the **operator-facing compatibility matrix** for [`@oh-my-stigm
 
 New event types require a host that emits them; track API changes in OpenCode release notes.
 
+## Verified OpenCode CLI / npm publish boundary
+
+| Verified | Notes |
+|----------|--------|
+| OpenCode CLI `1.14.31` (2026-05-02) | Host `@opencode-ai/plugin` **1.14.x** expects a **PluginModule** shape: named export `server` plus default `{ id, server }`. Published **`@oh-my-stigmergy/opencode-plugin` ≥ `0.1.2`** satisfies this; **`0.1.1`** omits the shape and may log “plugin has no server entrypoint”. |
+
 ## Known limitations
 
 - **Multi-session / named sub-agent roster** is **not** implemented in-tree: depends on OpenCode **multi-session** contracts; see [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md) and [BACKLOG.md](../BACKLOG.md) (deferred-upstream).
