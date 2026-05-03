@@ -24,7 +24,7 @@ Sections 8–9 of [oh-my-stigmergy_inspiration.md](../oh-my-stigmergy_inspiratio
 - Documentation and traceability (PRD, TDD, FR/NFR, RTM, ADRs).
 - Skills and IDE rules that route agents to specs without duplicating large prompts.
 - **Stigmergic coordination as a first-class story** — reference code and docs for indirect coordination via specs, graph artefacts, and SBP ([`packages/sbp-server`](../../packages/sbp-server)).
-- **OpenCode extension (FR-5.x, FR-6.x; [ADR-0012](adr/0012-opencode-plugin-architecture.md), [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md))** — in-tree [`packages/opencode-plugin`](../../packages/opencode-plugin/) wiring OpenCode to SBP HTTP and graph CLIs, with **ledger-first orchestration helpers** and stance→model policy—not a dependency on [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent).
+- **OpenCode extension (FR-5.x, FR-6.x; [ADR-0012](adr/0012-opencode-plugin-architecture.md), [ADR-0013](adr/0013-stigmergic-opencode-orchestration.md), [ADR-0014](adr/0014-sbp-project-supervision.md))** — in-tree [`packages/opencode-plugin`](../../packages/opencode-plugin/) wiring OpenCode to SBP HTTP and graph CLIs, **project-local SBP supervision** when **`SBP_URL`** is unset, **ledger-first orchestration helpers**, and stance→model policy—not a dependency on [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent).
 
 ### Three architectural pillars (reference)
 

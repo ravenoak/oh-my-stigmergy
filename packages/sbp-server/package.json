@@ -1,12 +1,20 @@
 {
-  "name": "oh-my-stigmergy-sbp-server",
+  "name": "@oh-my-stigmergy/sbp-server",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "HTTP SBP ledger server for oh-my-stigmergy (FR-3.x)",
+  "license": "MIT",
   "type": "module",
+  "main": "./server.mjs",
+  "exports": {
+    ".": "./server.mjs",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "start": "node server.mjs",
     "compact": "node bin/compact.mjs",
     "metrics": "node bin/metrics.mjs",
+    "stop": "node bin/stop.mjs",
     "test": "node --test --test-timeout=120000"
   },
   "dependencies": {

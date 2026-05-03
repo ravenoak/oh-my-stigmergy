@@ -15,11 +15,13 @@ Alternatives considered:
 3. **MCP-only, no plugin** — rejected: OpenCode’s first-class extension surface for session hooks and custom tools is the **plugin API** ([OpenCode plugins](https://opencode.ai/docs/plugins/)); MCP can be added later without replacing this decision.
 4. **In-process SBP inside the plugin (Bun)** — rejected: `better-sqlite3` native bindings and ledger locking semantics belong in the existing Node SBP server ([ADR-0011](0011-sbp-sqlite-store.md)); the plugin talks **HTTP** to a running server.
 
+**Sibling-process supervision:** spawning **`node …/server.mjs`** for **`@oh-my-stigmergy/sbp-server`** when **`SBP_URL`** is unset is **not** the same as in-process Bun; see [ADR-0014](0014-sbp-project-supervision.md).
+
 ## Decision
 
 - Ship an **in-tree** npm package at [`packages/opencode-plugin`](../../packages/opencode-plugin/) named **`@oh-my-stigmergy/opencode-plugin`**, loadable from OpenCode’s `plugin` config or copied to `.opencode/plugins/` per upstream docs.
 - The plugin is the **primary cognitive bridge** for this repository: custom tools + event hooks that **read/write the shared medium** (SBP HTTP API, `uv run` graph CLIs). **Stigmergic orchestration** (actionable queue helpers, stance→model policy) is **in scope** per [ADR-0013](0013-stigmergic-opencode-orchestration.md). We do **not** bundle [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent); operators choose OpenCode + this plugin + SBP without a separate harness for the **recommended** path.
-- **Transport:** configurable `SBP_URL` (default `http://127.0.0.1:3847` / `http://localhost:3847`), fail-soft when the server is unreachable (log + no session crash).
+- **Transport:** configurable `SBP_URL`; when unset, **project-local supervision** attaches or spawns **`@oh-my-stigmergy/sbp-server`** per [ADR-0014](0014-sbp-project-supervision.md); when unset and supervision is disabled (`STIGMERGY_SUPERVISE=0`), legacy default `http://127.0.0.1:3847`. Fail-soft when the server is unreachable (log + no session crash).
 - **Non-goals:** no `tool.execute.before` / `permission.asked` auto-blocking without a successor to [ADR-0005](0005-conflict-resolution-governance.md); no Z3/crucible tool inside the plugin (latency + honesty — crucible remains CI per [ADR-0006](0006-p4-crucible-execution.md)); no vendoring of oh-my-openagent source.
 
 ## Consequences

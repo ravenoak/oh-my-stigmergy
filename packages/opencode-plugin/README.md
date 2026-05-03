@@ -1,8 +1,8 @@
 # @oh-my-stigmergy/opencode-plugin
 
-OpenCode plugin that bridges the **cognitive layer** (OpenCode agents) to this repo’s **coordination** and **epistemic** layers: [SBP](../../packages/sbp-server) over HTTP and [graph](../../packages/graph) CLIs via the OpenCode shell (`$`), with **stigmergic orchestration** helpers ([ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md)).
+OpenCode plugin that bridges the **cognitive layer** (OpenCode agents) to this repo’s **coordination** and **epistemic** layers: [SBP](../../packages/sbp-server) over HTTP and [graph](../../packages/graph) CLIs via the OpenCode shell (`$`), with **stigmergic orchestration** helpers ([ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md)). When **`SBP_URL` is unset**, the plugin **supervises** [`@oh-my-stigmergy/sbp-server`](../../packages/sbp-server) for the OpenCode worktree ([ADR-0014](../../docs/adr/0014-sbp-project-supervision.md)).
 
-**Requirements:** **FR-5.x**, **FR-6.x**, **NFR-C3** | **ADR:** [ADR-0012](../../docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md) | **Roadmap:** [Phase 13+](../../docs/ROADMAP.md).
+**Requirements:** **FR-5.x**, **FR-6.x**, **NFR-C3** | **ADR:** [ADR-0012](../../docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](../../docs/adr/0013-stigmergic-opencode-orchestration.md), [ADR-0014](../../docs/adr/0014-sbp-project-supervision.md) | **Roadmap:** [Phase 13+](../../docs/ROADMAP.md).
 
 ## Who should read this
 
@@ -33,7 +33,7 @@ These boundaries avoid confusion with other harnesses and with CI-only verificat
 - **No automatic governance blocking** on `permission.asked` / `tool.execute.before` without a successor to [ADR-0005](../../docs/adr/0005-conflict-resolution-governance.md).
 - **No Z3 or crucible inside the agent session:** crucible remains a **CI** concern per [ADR-0006](../../docs/adr/0006-p4-crucible-execution.md). Do not tell users the plugin “runs” solvers at chat time.
 - **Graph tools require `uv` and repo layout:** `graph_*` spawn subprocesses; if `uv` or `packages/graph` are wrong from the process cwd, you get `graph_error:…` (see troubleshooting).
-- **SBP must be running** for ledger tools; wrong URL or down server yields `sbp_error:…`. Tools return structured errors instead of throwing into the host.
+- **SBP must be reachable** for ledger tools: with **`SBP_URL` unset**, the plugin starts or attaches project-local SBP ([ADR-0014](../../docs/adr/0014-sbp-project-supervision.md)); with **`SBP_URL` set**, that URL must respond. Wrong URL or down server yields `sbp_error:…`. Tools return structured errors instead of throwing into the host.
 - **Policy defaults are not universal truth:** orchestration JSON and env defaults must match **your** OpenCode provider’s model ids and your stance taxonomy.
 
 For **repository-wide** verification claims (Allium, RTM, what is actually enforced), follow [docs/traceability/RTM.md](../../docs/traceability/RTM.md) and [ADR-0004](../../docs/adr/0004-verification-stack-layering.md).
@@ -42,7 +42,7 @@ For **repository-wide** verification claims (Allium, RTM, what is actually enfor
 
 - **Node.js** and **npm** (OpenCode and this plugin are npm packages).
 - **`uv`** and a synced Python env for this repo’s **`packages/graph`** (see [CONTRIBUTING.md](../../CONTRIBUTING.md) `uv sync …`).
-- **SBP** available at `SBP_URL` (default `http://127.0.0.1:3847`) when using ledger tools—start it separately from [`packages/sbp-server`](../../packages/sbp-server).
+- **SBP** — when **`SBP_URL` is unset**, the plugin supervises [`@oh-my-stigmergy/sbp-server`](../../packages/sbp-server) for the worktree. When **`STIGMERGY_SUPERVISE=0`**, or when you set **`SBP_URL`** explicitly, ensure a server listens at that URL (often `http://127.0.0.1:3847` for local manual runs).
 
 ## Install
 
@@ -74,7 +74,7 @@ Adjust the path so it resolves from **where OpenCode loads config** (often the r
 
 ### After install
 
-1. Start SBP if you need ledger tools: `cd packages/sbp-server && npm start` (or your deployment).
+1. For ledger tools: leave **`SBP_URL` unset** for automatic supervision, **or** start SBP manually / point **`SBP_URL`** at your listener (`cd packages/sbp-server && npm start`, or your deployment).
 2. Ensure OpenCode’s **current working directory** is the repo root so `graph_load_node` / `graph_aspect` can run `uv run python -m graph…` successfully.
 3. Set env vars (below) or rely on defaults for local dev.
 
@@ -84,7 +84,9 @@ Adjust the path so it resolves from **where OpenCode loads config** (often the r
 
 | Variable | Purpose |
 |----------|---------|
-| `SBP_URL` | Ledger base URL (default `http://127.0.0.1:3847`). Start SBP separately: `cd packages/sbp-server && npm start`. |
+| `SBP_URL` | When **set**, ledger base URL — **attach only** (no spawn). When **unset**, project-local supervision attaches or spawns **`@oh-my-stigmergy/sbp-server`** ([ADR-0014](../../docs/adr/0014-sbp-project-supervision.md)). |
+| `STIGMERGY_SUPERVISE` | Set to **`0`** or **`false`** to skip supervision and use **`http://127.0.0.1:3847`** without spawning (you must run SBP yourself if you use ledger tools). |
+| `STIGMERGY_NODE` | **`node`** binary used to spawn SBP (default **`node`** on `PATH`). |
 | `STIGMERGY_DEFAULT_STANCE` | Default `stanceTarget` for event-sourced pheromones (default `feature_implementation`). |
 | `STIGMERGY_ORCHESTRATION_CONFIG` | Optional path to JSON matching [`schema/orchestration.schema.json`](schema/orchestration.schema.json): `defaultModel`, `stanceModels`, `localPreferredStances`, optional **`defaultOlfactoryThreshold`**, **`defaultActionableLimit`**, **`maxActionable`** (bounded fan-out). Defaults ship in [`src/orchestration.mjs`](src/orchestration.mjs) **as examples only**—set real OpenCode provider/model ids for your environment. |
 | `STIGMERGY_AUDIT_LOG_FILE` | Append-only **NDJSON** audit log (`{ ts, event, ... }`) for plugin bootstrap, OpenCode event hooks, and tool executions. Offline analysis only; not a substitute for SBP server logs (`SBP_LOG_FILE`). |

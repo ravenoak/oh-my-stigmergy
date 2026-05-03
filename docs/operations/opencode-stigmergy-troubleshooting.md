@@ -12,8 +12,17 @@ Use this when the [golden path](../guides/opencode-stigmergy-golden-path.md) loo
   ```
 
 - If the process is not listening: start from `packages/sbp-server` per the golden path; see [sbp-operator-runbook.md](sbp-operator-runbook.md) and load/decay expectations in [sbp-slo.md](sbp-slo.md).
-- **Port already in use (`EADDRINUSE` on 3847):** another SBP (or other process) is bound to that port. Either stop the other listener (e.g. `lsof -nP -iTCP:3847 -sTCP:LISTEN`) or start SBP on a different port and set **`SBP_URL`** to match (e.g. `PORT=3848` and `export SBP_URL=http://127.0.0.1:3848`). The plugin does not auto-negotiate ports.
+- **Port already in use (`EADDRINUSE` on 3847):** another SBP (or other process) is bound to that port. Either stop the other listener (e.g. `lsof -nP -iTCP:3847 -sTCP:LISTEN`) or start SBP on a different port and set **`SBP_URL`** to match (e.g. `PORT=3848` and `export SBP_URL=http://127.0.0.1:3848`). With **`SBP_URL` unset**, supervision uses an **ephemeral** port (`listen(0)`), not fixed ranges — see [ADR-0014](../adr/0014-sbp-project-supervision.md).
 - **`SBP_LOG_FILE`** — enable NDJSON server logs when diagnosing publish/stream behaviour ([golden path](../guides/opencode-stigmergy-golden-path.md) §6).
+
+## Project-local SBP supervision
+
+When **`SBP_URL` is unset**, the OpenCode plugin **attaches or spawns** project-local [`@oh-my-stigmergy/sbp-server`](../../packages/sbp-server) per [ADR-0014](../adr/0014-sbp-project-supervision.md). **`SBP_URL` set** means **attach only** — no second listener.
+
+- **Stale `runtime.json`** — if **`<worktree>/.stigmergy/runtime.json`** exists but **`GET …/healthz`** fails and the recorded **`pid`** is dead, the plugin removes the file and may spawn a fresh server. If **`healthz`** fails but the **`pid`** is alive, the plugin does not kill it; fix the process or set **`SBP_URL`** explicitly.
+- **`STIGMERGY_NODE`** — must be a working **Node** binary on the host (`better-sqlite3` is a native addon; do not point this at Bun for the child server).
+- **`.stigmergy/` permissions** — the plugin creates **`.stigmergy/`** under the OpenCode worktree; ensure the user running OpenCode can write there.
+- **SQLite ledger lock (`ELEDGERLOCKED`, exit code 75)** — two processes opened the same SQLite ledger file; only one writer is allowed ([`packages/sbp-server/server.mjs`](../../packages/sbp-server/server.mjs)). Ensure you are not mixing supervision with a second manual **`npm start`** against the same **`ledger.db`** path.
 
 ## Plugin bridge errors (sbp_error and graph_error)
 
@@ -56,4 +65,4 @@ Cross-read [golden path §5](../guides/opencode-stigmergy-golden-path.md) (“Ve
 
 - [opencode-stigmergy-golden-path.md](../guides/opencode-stigmergy-golden-path.md)
 - [bootstrap-opencode-stigmergy-stack.sh](../../scripts/bootstrap-opencode-stigmergy-stack.sh)
-- [ADR-0012](../adr/0012-opencode-plugin-architecture.md), [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md)
+- [ADR-0012](../adr/0012-opencode-plugin-architecture.md), [ADR-0013](../adr/0013-stigmergic-opencode-orchestration.md), [ADR-0014](../adr/0014-sbp-project-supervision.md)

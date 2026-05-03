@@ -247,15 +247,17 @@ Closes residual gaps where CI or specs could stay green while **NFR-P1** / **NFR
 
 **Phase 17 program exit:** [`scripts/verify-opencode-stigmergy-troubleshooting-doc.sh`](../../scripts/verify-opencode-stigmergy-troubleshooting-doc.sh) + extended [`scripts/verify-opencode-golden-path.sh`](../../scripts/verify-opencode-golden-path.sh) green; FR-6.5 **`implemented`** ([NFR-D1](requirements/NFR.md)).
 
-### Phase 18 — OpenCode bridge operational hardening (planned)
+### Phase 18 — Project-local SBP supervision + operator closure (**complete**)
 
-**Program:** Operator evaluation follow-through: keep **[golden path](guides/opencode-stigmergy-golden-path.md)** and **[troubleshooting](operations/opencode-stigmergy-troubleshooting.md)** graph/SBP instructions aligned; document **port collision** behaviour (`EADDRINUSE`, alternate **`PORT`** + **`SBP_URL`**); clarify **`STIGMERGY_AUDIT_LOG_FILE`** expectations across OpenCode modes (**`debug startup`** vs interactive / **`opencode run`**). Continue **`@opencode-ai/plugin`** pin discipline vs OpenCode CLI ([operations/opencode-compatibility.md](operations/opencode-compatibility.md)). **Not in scope:** Sisyphus-style rosters ([BACKLOG.md](BACKLOG.md) **deferred-upstream**).
+**Program:** Ship **FR-5.5** — when **`SBP_URL`** is unset, the OpenCode plugin **attaches or spawns** [`@oh-my-stigmergy/sbp-server`](../../packages/sbp-server) with ephemeral **`PORT`**, **`.stigmergy/runtime.json`**, and documented **`STIGMERGY_NODE`** / **`STIGMERGY_SUPERVISE`** ([ADR-0014](adr/0014-sbp-project-supervision.md)). Rewrite **[golden path](guides/opencode-stigmergy-golden-path.md)** and **[troubleshooting](operations/opencode-stigmergy-troubleshooting.md)** around the solo default (**unset `SBP_URL`**); keep **`@opencode-ai/plugin`** pin discipline ([operations/opencode-compatibility.md](operations/opencode-compatibility.md)). Retain troubleshooting guidance on **`STIGMERGY_AUDIT_LOG_FILE`** across OpenCode modes (**`debug startup`** vs interactive / **`opencode run`**).
 
 | Milestone | Exit criteria |
 |-----------|----------------|
-| P18-a — Docs parity | Golden path §1 graph checks match troubleshooting “reproduce without OpenCode” commands; both cite consistent **`graph.load_node`** repo/node-id pairing |
-| P18-b — Observability clarity | Troubleshooting documents audit NDJSON env propagation and session-type caveats (empirical; promote to FR/RTM only if a verified host gap exists) |
-| P18-c — Compatibility hygiene | Dependency bump policy unchanged: **`packages/opencode-plugin/package.json`** + [operations/opencode-compatibility.md](operations/opencode-compatibility.md) in one change set |
+| P18-a — Supervision + packaging | [`packages/sbp-server`](../../packages/sbp-server) publishable as **`@oh-my-stigmergy/sbp-server`**; [`packages/opencode-plugin`](../../packages/opencode-plugin) depends on it; [`packages/opencode-plugin/src/superviseSbp.mjs`](../../packages/opencode-plugin/src/superviseSbp.mjs); deterministic tests (`superviseSbp.test.mjs`, `supervised-runtime.test.mjs`). |
+| P18-b — Traceability + CI | FR-5.5 / RTM / PRD / TDD / [`spec/governance.allium`](../../spec/governance.allium); [`scripts/verify-opencode-plugin-contract.sh`](../../scripts/verify-opencode-plugin-contract.sh); [`scripts/verify-stigmergy-sbp-supervision-doc.sh`](../../scripts/verify-stigmergy-sbp-supervision-doc.sh) in **governance**. |
+| P18-c — Docs | Golden path + plugin README + compatibility matrix + troubleshooting **supervision** section link **ADR-0014**. |
+
+**Phase 18 program exit (2026-04-29):** FR-5.5 **`implemented`**; supervision verify script + extended operator docs green in CI ([NFR-D1](requirements/NFR.md)).
 
 ## Backlog hygiene
 

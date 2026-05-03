@@ -1,6 +1,6 @@
 # SBP server (FR-3.1–FR-3.4)
 
-Minimal **in-process** ledger with **SSE** broadcast (`GET /stream`), pheromone `POST /pheromones`, first-claim wins (`POST /pheromones/:id/claim`), and floor inflation (`POST /pheromones/:id/inflate`).
+npm package **`@oh-my-stigmergy/sbp-server`**: minimal **in-process** ledger with **SSE** broadcast (`GET /stream`), pheromone `POST /pheromones`, first-claim wins (`POST /pheromones/:id/claim`), and floor inflation (`POST /pheromones/:id/inflate`).
 
 ## Run
 
@@ -8,6 +8,16 @@ Minimal **in-process** ledger with **SSE** broadcast (`GET /stream`), pheromone 
 npm install
 node server.mjs
 ```
+
+### Supervised / OpenCode project-local (plugin-spawned)
+
+When **`SBP_SUPERVISED=1`**: set **`STIGMERGY_WORKTREE`** to the project root, or set **`SBP_LEDGER_SQLITE`** / **`SBP_LEDGER_JSONL`** yourself. If neither ledger env is set, the server uses **`$STIGMERGY_WORKTREE/.stigmergy/ledger.db`** (SQLite) and creates **`.stigmergy/`**.
+
+- **`PORT`:** use **`0`** for an **ephemeral** free port (recommended for automatic collision avoidance). Otherwise defaults to **3847** if **`PORT`** is unset.
+- **`SBP_RUNTIME_FILE`:** if set, after the HTTP server is listening the process writes **atomic JSON** with **`url`**, **`port`**, **`pid`**, **`startedAt`**. Binds to **`127.0.0.1`** only for predictable local URLs.
+- **Stop** (optional): from the worktree, **`npm run stop -- <worktree>`** (or **`STIGMERGY_WORKTREE`**) reads **`.stigmergy/runtime.json`** and sends **SIGTERM** to **`pid`**.
+
+The OpenCode plugin normally starts this process for you when **`SBP_URL`** is unset; see [ADR-0014](../../docs/adr/0014-sbp-project-supervision.md) (once added) and [`packages/opencode-plugin/README.md`](../opencode-plugin/README.md).
 
 ### Durable ledger (JSONL or SQLite)
 
