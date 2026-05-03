@@ -36,7 +36,7 @@ opencode_stigmergy_sbp_supervision_doc_script="scripts/verify-stigmergy-sbp-supe
 opencode_plugin_publishable_script="scripts/verify-opencode-plugin-publishable.sh"
 stigmergy_evaluation_discipline_doc_script="scripts/verify-stigmergy-evaluation-discipline-doc.sh"
 
-for f in "$workflow" "$actions_pinned_workflow" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
+for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.yml" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "LICENSE" \
   "docs/adr/0014-sbp-project-supervision.md" \
   "docs/guides/opencode-stigmergy-golden-path.md" \

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Publish @oh-my-stigmergy/opencode-plugin only after @oh-my-stigmergy/sbp-server is on npm.
 # Same auth pattern as scripts/publish-sbp-server-npm.sh (NPM_TOKEN + optional --otp).
+# Prefer GitHub Actions OIDC: .github/workflows/npm-publish.yml (see docs/operations/opencode-plugin-release.md).
 set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"

@@ -1,15 +1,38 @@
 # @oh-my-stigmergy/opencode-plugin — release runbook
 
-Maintainer steps to publish the OpenCode plugin to **npm** as a public package (FR-5.1 / [ADR-0012](../adr/0012-opencode-plugin-architecture.md)). CI proves `npm pack` and tests; it does **not** publish (no GitHub Actions secret required for merge gates).
+Maintainer steps to publish to **npm** as public packages (FR-5.1 / [ADR-0012](../adr/0012-opencode-plugin-architecture.md)). Merge gates (`allium-specs`) still **do not** call `npm publish`; publishing is a **separate** workflow or local maintainer action.
 
-## NPM authentication (maintainers only)
+## Trusted publishing (recommended — GitHub Actions OIDC)
+
+Use **[npm trusted publishing](https://docs.npmjs.com/trusted-publishers/)** so CI publishes **without** a long-lived **`NPM_TOKEN`** secret: OpenID Connect (OIDC) supplies short-lived credentials. Requirements:
+
+- **npm CLI ≥ 11.5.1** and **Node ≥ 22.14** ([npm docs](https://docs.npmjs.com/trusted-publishers/)) — the workflow upgrades npm and uses Node **24**.
+- **GitHub-hosted runners** only (self-hosted not supported for OIDC publish today).
+- **`package.json` `repository.url`** must match this repo — each publishable package sets **`repository.directory`** for the monorepo layout (`packages/sbp-server`, `packages/opencode-plugin`).
+
+**One-time npmjs.com setup (per package):** On each package → **Settings** → **Trusted publishing** → **GitHub Actions**. Configure **exactly**:
+
+| Field | Value |
+|-------|--------|
+| Organization / owner | `ravenoak` |
+| Repository | `oh-my-stigmergy` |
+| Workflow filename | `npm-publish.yml` (must match [`.github/workflows/npm-publish.yml`](../../.github/workflows/npm-publish.yml)) |
+| Environment | *(optional)* If you add a GitHub **environment** (e.g. `npm`) on the workflow job, enter the same name here |
+
+After saving, run **[Actions](https://github.com/ravenoak/oh-my-stigmergy/actions/workflows/npm-publish.yml) → npm publish → Run workflow** on **`main`**. Use checkboxes to publish **only** the server, **only** the plugin, or both (default). **Order:** the workflow always runs the **sbp-server** job first; **opencode-plugin** runs after and needs **`@oh-my-stigmergy/sbp-server@<pinned>`** already on the registry unless you are publishing plugin-only after a prior server release.
+
+**Provenance:** For **public** packages from a **public** repo, npm attaches **provenance** attestations automatically when publishing via trusted publishing ([docs](https://docs.npmjs.com/trusted-publishers/#automatic-provenance-generation)).
+
+**Hardening (optional):** After OIDC works, npm → package **Settings** → **Publishing access** → restrict token-based publishing per [npm guidance](https://docs.npmjs.com/trusted-publishers/#recommended-restrict-token-access-when-using-trusted-publishers).
+
+## NPM token publish (fallback — local or automation token)
 
 - Put **`NPM_TOKEN`** in a **local** `.env` at the repo root (copy from [`.env.example`](../../.env.example)); **never commit `.env`** — it is gitignored.
 - npm expects **`//registry.npmjs.org/:_authToken=…`** for non-interactive publish. Helper scripts create a **temporary** npm userconfig so your global `~/.npmrc` is not overwritten:
   - [`scripts/publish-sbp-server-npm.sh`](../../scripts/publish-sbp-server-npm.sh)
   - [`scripts/publish-opencode-plugin-npm.sh`](../../scripts/publish-opencode-plugin-npm.sh)
 - **`source .env`** (or `set -a && source .env && set +a`) before running those scripts so **`NPM_TOKEN`** is in the environment.
-- **`EOTP` / “requires a one-time password”:** npm accounts with **2FA** may require **`npm publish … --otp=<code>`**. Append via script passthrough: `./scripts/publish-sbp-server-npm.sh -- --otp=123456`. Alternatively create an npm **granular access token** with **Automation** (publish without OTP on compatible accounts) per [npm token docs](https://docs.npmjs.com/about-access-tokens).
+- **`EOTP` / “requires a one-time password”:** Use **`./scripts/publish-sbp-server-npm.sh --otp=123456`** or an npm **granular automation** token per [npm token docs](https://docs.npmjs.com/about-access-tokens).
 
 **Scoped sibling:** the plugin depends on **`@oh-my-stigmergy/sbp-server`** at a **registry** semver on `main` ([ADR-0014](../adr/0014-sbp-project-supervision.md)). **`npm publish`** for consumers requires that **`@oh-my-stigmergy/sbp-server@<version>` exists on npm before** the plugin lockfile can resolve in CI—follow **[Scoped packages on npm](#scoped-packages-on-npm-sbp-server--plugin)** below.
 

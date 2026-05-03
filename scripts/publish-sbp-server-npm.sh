@@ -3,6 +3,7 @@
 # Usage: from repo root, with NPM_TOKEN in the environment (e.g. source .env).
 # Extra args pass through to npm publish, e.g.  ./scripts/publish-sbp-server-npm.sh --dry-run
 # npm 2FA:  ./scripts/publish-sbp-server-npm.sh --otp=123456
+# Prefer GitHub Actions OIDC: .github/workflows/npm-publish.yml (see docs/operations/opencode-plugin-release.md).
 # If you see EOTP, either pass --otp (authenticator) or use an npm *automation*
 # granular access token (no OTP) for CI-style publish: https://docs.npmjs.com/about-access-tokens
 set -euo pipefail

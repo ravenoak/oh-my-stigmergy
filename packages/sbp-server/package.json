@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": false,
   "description": "HTTP SBP ledger server for oh-my-stigmergy (FR-3.x)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ravenoak/oh-my-stigmergy.git",
+    "directory": "packages/sbp-server"
+  },
   "license": "MIT",
   "type": "module",
   "main": "./server.mjs",

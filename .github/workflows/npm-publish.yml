@@ -1,0 +1,84 @@
+# Publish @oh-my-stigmergy/* to npm using OIDC ("trusted publishing") — no long-lived NPM_TOKEN.
+# Prerequisite: register this workflow file on npmjs.com for each package
+# (Package → Settings → Trusted publishing → GitHub Actions). Filename must match exactly: npm-publish.yml
+# See: https://docs.npmjs.com/trusted-publishers/
+name: npm publish
+
+# Review 2026-12-31: remove when GitHub Actions defaults to Node 24 for JS actions.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_sbp_server:
+        description: Run npm publish for packages/sbp-server
+        type: boolean
+        default: true
+      publish_opencode_plugin:
+        description: Run npm publish for packages/opencode-plugin (needs sbp-server already on npm at pinned version)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write # OIDC for npm trusted publishing (required)
+
+concurrency:
+  group: npm-publish-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sbp-server:
+    name: Publish @oh-my-stigmergy/sbp-server
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+
+      - name: Use npm CLI with trusted publishing support
+        run: npm install -g npm@^11.5.1
+
+      - name: Test @oh-my-stigmergy/sbp-server
+        working-directory: packages/sbp-server
+        run: |
+          npm ci --no-fund --no-audit
+          npm test
+
+      - name: Publish @oh-my-stigmergy/sbp-server to npm
+        if: github.event.inputs.publish_sbp_server == 'true'
+        working-directory: packages/sbp-server
+        run: npm publish --access public
+
+  opencode-plugin:
+    name: Publish @oh-my-stigmergy/opencode-plugin
+    needs: sbp-server
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/main' && github.event.inputs.publish_opencode_plugin == 'true'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+
+      - name: Use npm CLI with trusted publishing support
+        run: npm install -g npm@^11.5.1
+
+      - name: Test @oh-my-stigmergy/opencode-plugin
+        working-directory: packages/opencode-plugin
+        run: |
+          npm ci --no-fund --no-audit
+          npm test
+
+      - name: Publish @oh-my-stigmergy/opencode-plugin to npm
+        working-directory: packages/opencode-plugin
+        run: npm publish --access public
