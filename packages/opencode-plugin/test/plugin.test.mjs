@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { once } from "node:events";
 import { createLedgerServer } from "../../sbp-server/server.mjs";
-import { StigmergyPlugin } from "../src/index.mjs";
+import StigmergyPluginModule, { StigmergyPlugin, server } from "../src/index.mjs";
 
 /** @returns {import("@opencode-ai/plugin").ToolContext} */
 function toolCtx(over = {}) {
@@ -23,6 +23,14 @@ function toolCtx(over = {}) {
     ...over,
   };
 }
+
+test("module default export matches PluginModule shape for @opencode-ai/plugin 1.14.x", () => {
+  assert.equal(typeof StigmergyPluginModule, "object");
+  assert.equal(StigmergyPluginModule.id, "@oh-my-stigmergy/opencode-plugin");
+  assert.equal(typeof StigmergyPluginModule.server, "function");
+  assert.equal(StigmergyPluginModule.server, StigmergyPlugin);
+  assert.equal(server, StigmergyPlugin);
+});
 
 test("StigmergyPlugin exposes eight tools and logs init", async () => {
   const prev = process.env.SBP_URL;

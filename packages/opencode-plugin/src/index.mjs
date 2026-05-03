@@ -41,3 +41,16 @@ export async function StigmergyPlugin(ctx) {
 
   return { event, tool };
 }
+
+/**
+ * PluginModule shape required by @opencode-ai/plugin 1.14.x hosts
+ * (opencode >= 1.14 expects `{ server: Plugin }` on the module when resolved
+ * by package name). Exposed both as a named `server` export and as the
+ * module default. Kept alongside the named `StigmergyPlugin` export for
+ * backward compatibility with older hosts and this package's own tests.
+ */
+export const server = StigmergyPlugin;
+export default {
+  id: "@oh-my-stigmergy/opencode-plugin",
+  server: StigmergyPlugin,
+};
