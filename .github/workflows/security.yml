@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
 
       - name: Secret scanning (gitleaks)
-        uses: gitleaks/gitleaks-action@bf2dc8e55639c1e091e9b45970152e4313705814 # v2
+        uses: gitleaks/gitleaks-action@961680e5305a30eb575f3ddf6bb6b2e265b68f0a # v2
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
