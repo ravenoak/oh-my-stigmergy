@@ -34,7 +34,9 @@ After clone, reinstall JUXT Allium skills so `.agents/skills/` matches [skills-l
 npx skills@latest add juxt/allium --agent cursor -y
 ```
 
-Symlinks under [`.cursor/skills/`](.cursor/skills/) point at `.agents/skills/*`. Recreate them if broken:
+Recreate symlinks if broken:
+
+**Cursor** ([`.cursor/skills/`](.cursor/skills/)):
 
 ```bash
 mkdir -p .cursor/skills
@@ -43,7 +45,34 @@ for s in allium distill elicit propagate tend weed; do
 done
 ```
 
+**Claude Code** ([`.claude/skills/`](.claude/skills/)):
+
+```bash
+mkdir -p .claude/skills
+for s in allium distill elicit propagate tend weed; do
+  ln -sf "../../.agents/skills/$s" ".claude/skills/$s"
+done
+```
+
 Optional: `npx skills experimental_install` when your skills CLI version documents restore-from-lock behaviour.
+
+## Claude Code harness
+
+The `.claude/` directory contains the Claude Code–specific harness (committed; both Cursor and
+Claude Code are supported in parallel):
+
+| Artifact | Purpose |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | Always-loaded posture; imports `AGENTS.md` via `@AGENTS.md`; constitution, git policy, reasoning trigger summary |
+| [`.claude/rules/allium.md`](.claude/rules/allium.md) | Path-scoped rule (`**/*.allium`, CI workflows, scripts): spec-authoring + CI gate checklist |
+| [`.claude/rules/traceability.md`](.claude/rules/traceability.md) | Path-scoped rule (`docs/**/*.md`): FR/NFR ↔ RTM alignment, ADR, maturity-gating |
+| [`.claude/skills/git-workflow/`](.claude/skills/git-workflow/SKILL.md) | Claude-adapted port of the Cursor git-workflow skill |
+| [`.claude/skills/integrated-reasoning/`](.claude/skills/integrated-reasoning/SKILL.md) | Dialectical/tetralemma/Socratic reasoning framework; `stigmergy-validation` alias folded in |
+| [`.claude/skills/{allium,distill,elicit,propagate,tend,weed}`](.claude/skills/) | Symlinks to vendored JUXT Allium skills in `.agents/skills/` |
+| [`.claude/settings.json`](.claude/settings.json) | Permissions allowlist + `PostToolUse` hook (auto-runs `allium check` on `.allium` saves) |
+| [`.claude/hooks/allium-check.sh`](.claude/hooks/allium-check.sh) | Hook script: runs `allium check`; graceful no-op if `allium` not installed |
+
+`.claude/settings.local.json` (personal overrides) is gitignored — keep personal settings there.
 
 ## Maintainer bootstrap (once per repository)
 

@@ -1,5 +1,7 @@
 # Agent instructions
 
+> **Claude Code:** reads [`CLAUDE.md`](CLAUDE.md), which imports this file via `@AGENTS.md`.
+
 **oh-my-stigmergy** is an intention-first, traceability-heavy workspace for agentic software development research and practice. It emphasizes **stigmergy** (specs, graph, SBP ledger, deterministic checks). The **recommended** OpenCode integration is [`packages/opencode-plugin`](packages/opencode-plugin) (FR-5.x / FR-6.x, [ADR-0012](docs/adr/0012-opencode-plugin-architecture.md), [ADR-0013](docs/adr/0013-stigmergic-opencode-orchestration.md)). Migration from [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent): [docs/guides/migration-from-oh-my-openagent.md](docs/guides/migration-from-oh-my-openagent.md).
 
 ## Start here
@@ -22,7 +24,7 @@ Canonical reference for **what the plugin can and cannot do**, **install** (npm 
 | [docs/research/README.md](docs/research/README.md) | Phase 20 effectiveness protocol (**FR-7.2**), pilot runbook, optional results |
 | [docs/research/FEASIBILITY_PILOT_STATUS.md](docs/research/FEASIBILITY_PILOT_STATUS.md) | Human feasibility pilot execution state (`NotStarted` / `Complete` / `Declined`) — not a CI gate |
 | [docs/guides/github-flow.md](docs/guides/github-flow.md) | **GitHub Flow:** feature branches, atomic commits, PR-only `main`, squash/rebase merge; use `gh` |
-| [`.cursor/skills/git-workflow/SKILL.md`](.cursor/skills/git-workflow/SKILL.md) | **Git (Cursor):** finish work with commits on a feature branch; PR + green CI + squash merge; delete merged branches; `git fetch --prune` |
+| `git-workflow` skill ([Cursor](.cursor/skills/git-workflow/SKILL.md) · [Claude Code](.claude/skills/git-workflow/SKILL.md)) | **Git:** finish work with commits on a feature branch; PR + green CI + squash merge; delete merged branches; `git fetch --prune` |
 | [spec/project.allium](spec/project.allium) | Seed Allium config — extend with domain behaviour |
 | [docs/adr/0004-verification-stack-layering.md](docs/adr/0004-verification-stack-layering.md) | What deterministic tooling actually means **today** |
 | [docs/guides/project-positioning-and-boundaries.md](docs/guides/project-positioning-and-boundaries.md) | Multi-agent, verification, decentralization, reference scale (FR-6.4) |
@@ -32,7 +34,7 @@ Canonical reference for **what the plugin can and cannot do**, **install** (npm 
 ## Allium
 
 - Invoke JUXT skills: `/allium`, `/allium:elicit`, `/allium:distill`, `/allium:propagate`, `/allium:tend`, `/allium:weed` (see [juxt/allium](https://github.com/juxt/allium)).
-- After editing `.allium` files: run `allium check` and `allium analyse` (or `./scripts/check-allium-specs.sh` and `./scripts/analyse-allium-specs.sh`). Skills are installed under `.agents/skills/` and symlinked from `.cursor/skills/`.
+- After editing `.allium` files: run `allium check` and `allium analyse` (or `./scripts/check-allium-specs.sh` and `./scripts/analyse-allium-specs.sh`). Skills are installed under `.agents/skills/` and symlinked from `.cursor/skills/` and `.claude/skills/`. **Claude Code** runs `allium check` automatically on every `.allium` save via a PostToolUse hook (`.claude/settings.json`).
 
 ## CI and contracts
 
