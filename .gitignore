@@ -18,3 +18,6 @@ node_modules/
 dist/
 build/
 .DS_Store
+
+# Claude Code personal overrides (keep .claude/settings.json committed; local overrides stay local)
+.claude/settings.local.json
