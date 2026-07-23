@@ -51,6 +51,7 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
     stanceTarget: z.string().min(1),
     baseIntensity: z.number(),
     decayRate: z.number(),
+    kind: z.string().min(1).optional(),
     payloadJson: z.string().optional(),
   });
   const idSchema = z.object({ id: z.string().min(1) });
@@ -100,6 +101,7 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
         stanceTarget: z.string().min(1),
         baseIntensity: z.number(),
         decayRate: z.number(),
+        kind: z.string().min(1).optional(),
         payloadJson: z.string().optional(),
       },
       execute: withAudit("stigmergy_publish", rootDir, async (args, _context) => {
@@ -116,6 +118,7 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
             baseIntensity: a.baseIntensity,
             decayRate: a.decayRate,
           };
+          if (a.kind) body.kind = a.kind;
           if (a.payloadJson) {
             try {
               body.payload = JSON.parse(a.payloadJson);
@@ -124,7 +127,10 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
             }
           }
           const { ok, status, text } = await sbp.publish(body);
-          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          if (!ok) {
+            if (text?.startsWith("auth_error:") || text === "kind_unregistered") return text;
+            return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          }
           await slog("info", "stigmergy_publish_ok", { id: a.id });
           return "ok";
         } catch (e) {
@@ -159,7 +165,10 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
         try {
           const { ok, status, text } = await sbp.claim(parsed.data.id);
           if (status === 409) return "claimed_conflict:409";
-          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          if (!ok) {
+            if (text?.startsWith("auth_error:")) return text;
+            return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          }
           return "ok";
         } catch (e) {
           return `sbp_error:${String(e?.message || e)}`;
@@ -177,7 +186,10 @@ export function buildTools({ sbp, client, $, repoRoot, orchestrationPolicy }) {
         }
         try {
           const { ok, status, text } = await sbp.inflate(parsed.data.id);
-          if (!ok) return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          if (!ok) {
+            if (text?.startsWith("auth_error:")) return text;
+            return `sbp_error:${status}:${text?.slice(0, 2000) || ""}`;
+          }
           return "ok";
         } catch (e) {
           return `sbp_error:${String(e?.message || e)}`;

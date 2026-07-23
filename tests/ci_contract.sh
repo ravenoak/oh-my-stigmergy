@@ -99,7 +99,9 @@ for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.y
   "$transitions_golden_script" \
   "spec/transitions.json" "packages/transitions/schema/transitions.schema.json" \
   "packages/transitions/src/transitions/artifact.py" "packages/transitions/src/transitions/__main__.py" \
-  "packages/graph/tests/test_schema_version.py"; do
+  "packages/graph/tests/test_schema_version.py" \
+  "docs/adr/0016-sbp-ledger-identity-and-kind.md" \
+  "packages/sbp-server/test/auth.test.mjs"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -363,6 +365,10 @@ echo "$heavy_block" | grep -q 'decay-gc.test.mjs' || {
 }
 echo "$heavy_block" | grep -q 'stance-registry.test.mjs' || {
   echo "ci_contract: SBP npm test must mention stance-registry.test.mjs" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'auth.test.mjs' || {
+  echo "ci_contract: SBP npm test must mention auth.test.mjs (FR-9.1)" >&2
   exit 1
 }
 grep -q 'better-sqlite3' packages/sbp-server/package.json || {

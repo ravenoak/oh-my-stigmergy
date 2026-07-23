@@ -43,6 +43,80 @@ test("stigmergy_publish rejects empty id (Zod)", async () => {
   assert.ok(String(r).startsWith("validation_error:"));
 });
 
+test("stigmergy_publish passes kind through to the request body", async () => {
+  /** @type {any} */
+  let seenBody;
+  const sbp = {
+    async publish(body) {
+      seenBody = body;
+      return { ok: true, status: 201, text: "ok" };
+    },
+  };
+  const tools = buildTools({ sbp, client: {}, $: null, repoRoot: "/tmp", orchestrationPolicy: policy() });
+  const r = await tools.stigmergy_publish.execute(
+    { id: "a", stanceTarget: "x", baseIntensity: 1, decayRate: 0.1, kind: "signal" },
+    toolCtx(),
+  );
+  assert.equal(r, "ok");
+  assert.equal(seenBody.kind, "signal");
+});
+
+test("stigmergy_publish omits kind from body when not given (server defaults it)", async () => {
+  /** @type {any} */
+  let seenBody;
+  const sbp = {
+    async publish(body) {
+      seenBody = body;
+      return { ok: true, status: 201, text: "ok" };
+    },
+  };
+  const tools = buildTools({ sbp, client: {}, $: null, repoRoot: "/tmp", orchestrationPolicy: policy() });
+  await tools.stigmergy_publish.execute({ id: "a", stanceTarget: "x", baseIntensity: 1, decayRate: 0.1 }, toolCtx());
+  assert.equal("kind" in seenBody, false);
+});
+
+test("stigmergy_publish passes auth_error and kind_unregistered through unwrapped", async () => {
+  const authErrorSbp = {
+    async publish() {
+      return { ok: false, status: 403, text: "auth_error:403:kind_privileged" };
+    },
+  };
+  const tools = buildTools({
+    sbp: authErrorSbp,
+    client: {},
+    $: null,
+    repoRoot: "/tmp",
+    orchestrationPolicy: policy(),
+  });
+  const r = await tools.stigmergy_publish.execute(
+    { id: "a", stanceTarget: "x", baseIntensity: 1, decayRate: 0.1 },
+    toolCtx(),
+  );
+  assert.equal(r, "auth_error:403:kind_privileged");
+});
+
+test("stigmergy_claim passes auth_error through unwrapped (distinct from claimed_conflict)", async () => {
+  const sbp = {
+    async claim() {
+      return { ok: false, status: 401, text: "auth_error:401:missing_token" };
+    },
+  };
+  const tools = buildTools({ sbp, client: {}, $: null, repoRoot: "/tmp", orchestrationPolicy: policy() });
+  const r = await tools.stigmergy_claim.execute({ id: "a" }, toolCtx());
+  assert.equal(r, "auth_error:401:missing_token");
+});
+
+test("stigmergy_inflate passes auth_error through unwrapped", async () => {
+  const sbp = {
+    async inflate() {
+      return { ok: false, status: 429, text: "auth_error:429:inflate_budget" };
+    },
+  };
+  const tools = buildTools({ sbp, client: {}, $: null, repoRoot: "/tmp", orchestrationPolicy: policy() });
+  const r = await tools.stigmergy_inflate.execute({ id: "a" }, toolCtx());
+  assert.equal(r, "auth_error:429:inflate_budget");
+});
+
 test("graph_load_node rejects invalid depth", async () => {
   const sbp = { async publish() {}, async listPheromones() {}, async claim() {}, async inflate() {} };
   const tools = buildTools({ sbp, client: {}, $: null, repoRoot: "/tmp", orchestrationPolicy: policy() });

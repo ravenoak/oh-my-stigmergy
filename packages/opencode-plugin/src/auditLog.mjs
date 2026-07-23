@@ -43,7 +43,7 @@ export function appendAudit(obj) {
  * Classify tool return strings (prefix convention in tools.mjs).
  * @param {string} s
  * @param {string} toolName
- * @returns {"ok"|"validation_error"|"payload_json_invalid"|"sbp_error"|"graph_error"|"claimed_conflict"|"other"}
+ * @returns {"ok"|"validation_error"|"payload_json_invalid"|"sbp_error"|"graph_error"|"claimed_conflict"|"auth_error"|"kind_unregistered"|"other"}
  */
 export function classifyPluginToolReturn(s, toolName) {
   const str = String(s ?? "");
@@ -53,6 +53,8 @@ export function classifyPluginToolReturn(s, toolName) {
   if (str.startsWith("sbp_error:")) return "sbp_error";
   if (str.startsWith("graph_error:")) return "graph_error";
   if (str.startsWith("claimed_conflict:")) return "claimed_conflict";
+  if (str.startsWith("auth_error:")) return "auth_error";
+  if (str === "kind_unregistered") return "kind_unregistered";
   if (toolName === "stigmergy_pheromones") {
     if (str.startsWith("sbp_error:")) return "sbp_error";
     return "ok";

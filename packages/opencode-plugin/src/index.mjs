@@ -11,8 +11,9 @@ export async function StigmergyPlugin(ctx) {
   const repoRoot = (worktree || directory || process.cwd()).trim();
   const baseUrl = await resolveSbpBaseUrl({ repoRoot });
   const defaultStance = (process.env.STIGMERGY_DEFAULT_STANCE || "feature_implementation").trim();
+  const agentToken = (process.env.STIGMERGY_AGENT_TOKEN || "").trim() || undefined;
 
-  const sbp = createSbpClient({ baseUrl });
+  const sbp = createSbpClient({ baseUrl, token: agentToken });
   const orchestrationPolicy = loadOrchestrationPolicy();
   const event = buildEventHandler({ sbp, client, defaultStance });
   const tool = buildTools({ sbp, client, $, repoRoot, orchestrationPolicy });

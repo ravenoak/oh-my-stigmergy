@@ -19,3 +19,4 @@ Decisions are numbered sequentially. Use [template.md](template.md) for new ADRs
 | [0013](0013-stigmergic-opencode-orchestration.md) | Stigmergic OpenCode orchestration (medium-first multi-agent path) | Accepted |
 | [0014](0014-sbp-project-supervision.md) | Project-local SBP supervision from the OpenCode plugin | Accepted |
 | [0015](0015-empirical-evaluation-study-claims.md) | Empirical OpenCode effectiveness studies — claims boundary | Accepted |
+| [0016](0016-sbp-ledger-identity-and-kind.md) | SBP ledger identity and kind (reduced scope) | Accepted |

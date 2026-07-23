@@ -1,9 +1,10 @@
 /**
  * Minimal HTTP client for packages/sbp-server ledger API.
- * @param {{ baseUrl: string }} opts
+ * @param {{ baseUrl: string, token?: string }} opts
  */
-export function createSbpClient({ baseUrl }) {
+export function createSbpClient({ baseUrl, token }) {
   const base = String(baseUrl || "").replace(/\/$/, "");
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
   /**
    * @param {string} method
@@ -14,7 +15,10 @@ export function createSbpClient({ baseUrl }) {
     const url = `${base}${path}`;
     const init = {
       method,
-      headers: jsonBody ? { "Content-Type": "application/json" } : {},
+      headers: {
+        ...authHeader,
+        ...(jsonBody ? { "Content-Type": "application/json" } : {}),
+      },
       body: jsonBody !== null && jsonBody !== undefined ? JSON.stringify(jsonBody) : undefined,
     };
     const res = await fetch(url, init);
