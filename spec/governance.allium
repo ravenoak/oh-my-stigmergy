@@ -85,6 +85,11 @@ entity StanceFixture {
     validity: valid | invalid
 }
 
+entity DeliveryFloorCheck {
+    id: frozen_test_manifest | lockfile_freeze | dependency_allowlist
+    mode: report_only | blocking
+}
+
 entity WorkflowJob {
     id: filter | governance | specs_and_packages | check
     outcome: pending | success | failure | skipped
@@ -170,6 +175,21 @@ default StanceFixture seed_stance_fixture_valid = {
 
 default StanceFixture seed_stance_fixture_invalid = {
     validity: invalid
+}
+
+default DeliveryFloorCheck seed_floor_frozen_test_manifest = {
+    id: frozen_test_manifest,
+    mode: report_only
+}
+
+default DeliveryFloorCheck seed_floor_lockfile_freeze = {
+    id: lockfile_freeze,
+    mode: report_only
+}
+
+default DeliveryFloorCheck seed_floor_dependency_allowlist = {
+    id: dependency_allowlist,
+    mode: report_only
 }
 
 default WorkflowJob seed_workflow_job = {
@@ -273,6 +293,12 @@ invariant GraphStoreSchemasWellFormed {
 invariant StanceFixturesWellFormed {
     for f in StanceFixtures:
         f.validity = valid or f.validity = invalid
+}
+
+invariant DeliveryFloorChecksWellFormed {
+    for d in DeliveryFloorChecks:
+        (d.id = frozen_test_manifest or d.id = lockfile_freeze or d.id = dependency_allowlist)
+            and (d.mode = report_only or d.mode = blocking)
 }
 
 invariant WorkflowJobsWellFormed {

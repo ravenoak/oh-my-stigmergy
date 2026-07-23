@@ -1,0 +1,8 @@
+{
+  "reviewLabel": "deps-review",
+  "pairs": [
+    { "lockfile": "uv.lock", "manifest": "pyproject.toml" },
+    { "lockfile": "packages/sbp-server/package-lock.json", "manifest": "packages/sbp-server/package.json" },
+    { "lockfile": "packages/opencode-plugin/package-lock.json", "manifest": "packages/opencode-plugin/package.json" }
+  ]
+}

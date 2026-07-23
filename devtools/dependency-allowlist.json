@@ -1,0 +1,33 @@
+{
+  "manifests": {
+    "pip": [
+      "pyproject.toml",
+      "packages/graph/pyproject.toml",
+      "packages/stance/pyproject.toml",
+      "packages/crucible/pyproject.toml",
+      "packages/transitions/pyproject.toml"
+    ],
+    "npm": [
+      "packages/sbp-server/package.json",
+      "packages/opencode-plugin/package.json"
+    ]
+  },
+  "allowed": {
+    "pip": [
+      "oh-my-stigmergy-graph",
+      "oh-my-stigmergy-crucible",
+      "oh-my-stigmergy-transitions",
+      "oh-my-stigmergy-stance",
+      "tree-sitter",
+      "tree-sitter-python",
+      "tree-sitter-typescript",
+      "jsonschema",
+      "pytest"
+    ],
+    "npm": [
+      "better-sqlite3",
+      "@opencode-ai/plugin",
+      "@oh-my-stigmergy/sbp-server"
+    ]
+  }
+}
