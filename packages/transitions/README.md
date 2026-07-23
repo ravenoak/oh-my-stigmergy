@@ -26,6 +26,20 @@ uv run python -m unittest discover -s packages/transitions/tests -p 'test_*.py' 
 - For each `*.allium` under the given directory, the harness runs **`allium model <file>`** and merges `entities` by name (duplicate entity names across files are rejected).
 - Transition edges are interpreted only from Allium source — **no** checked-in `*.model.json` sidecar for transitions.
 
+## Committed artifact (FR-8.1)
+
+`spec/transitions.json` is a committed projection of every transition graph in `spec/*.allium`,
+validated against [`schema/transitions.schema.json`](schema/transitions.schema.json). It mirrors
+whatever state machines exist in `spec/` today (governance workflows) — it does **not** assume or
+impose an SDLC phase taxonomy. Regenerate after any spec change that touches a `transitions` block:
+
+```bash
+uv run python -m transitions --spec-dir spec --output spec/transitions.json
+```
+
+CI checks it hasn't drifted via [`scripts/verify-transitions-golden.sh`](../../scripts/verify-transitions-golden.sh)
+(regenerates in memory and diffs against the committed file).
+
 ## References
 
 - [ADR-0001](../../docs/adr/0001-allium-behavioural-specs.md) — behavioural specs.

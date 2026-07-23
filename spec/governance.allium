@@ -68,6 +68,18 @@ entity ShimAllowEntry {
     attestation: attested | tampered
 }
 
+entity TransitionArtifact {
+    sync_status: fresh | stale
+}
+
+entity GraphStoreSchema {
+    version: v1
+}
+
+entity StanceFixture {
+    validity: valid | invalid
+}
+
 entity WorkflowJob {
     id: filter | governance | specs_and_packages | check
     outcome: pending | success | failure | skipped
@@ -128,6 +140,22 @@ default DistillationArtefact seed_distillation_artefact = {
 
 default ShimAllowEntry seed_shim_allow_entry = {
     attestation: attested
+}
+
+default TransitionArtifact seed_transition_artifact = {
+    sync_status: fresh
+}
+
+default GraphStoreSchema seed_graph_store_schema = {
+    version: v1
+}
+
+default StanceFixture seed_stance_fixture_valid = {
+    validity: valid
+}
+
+default StanceFixture seed_stance_fixture_invalid = {
+    validity: invalid
 }
 
 default WorkflowJob seed_workflow_job = {
@@ -210,6 +238,21 @@ invariant DistillationArtefactsWellFormed {
 invariant ShimAllowEntriesWellFormed {
     for s in ShimAllowEntries:
         s.attestation = attested or s.attestation = tampered
+}
+
+invariant TransitionArtifactsWellFormed {
+    for t in TransitionArtifacts:
+        t.sync_status = fresh or t.sync_status = stale
+}
+
+invariant GraphStoreSchemasWellFormed {
+    for g in GraphStoreSchemas:
+        g.version = v1
+}
+
+invariant StanceFixturesWellFormed {
+    for f in StanceFixtures:
+        f.validity = valid or f.validity = invalid
 }
 
 invariant WorkflowJobsWellFormed {

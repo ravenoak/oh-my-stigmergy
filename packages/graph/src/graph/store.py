@@ -10,6 +10,12 @@ from typing import Any
 from graph.cards import Card
 from graph.ids import card_id
 
+# Versioned contract (FR-8.2): bump when cards/edges schema changes, and add a
+# migration branch in init_schema() for the version this code no longer creates
+# fresh. PRAGMA user_version is 0 on any database this code has never stamped
+# (fresh databases and pre-versioning databases look identical to sqlite).
+SCHEMA_VERSION = 1
+
 
 class SqliteCardStore:
     """Append-friendly card + edge store backed by sqlite3."""
@@ -29,6 +35,9 @@ class SqliteCardStore:
             self.conn.execute("ALTER TABLE cards ADD COLUMN language TEXT NOT NULL DEFAULT 'python'")
         if "role" not in cols:
             self.conn.execute("ALTER TABLE cards ADD COLUMN role TEXT NOT NULL DEFAULT 'line'")
+
+    def schema_version(self) -> int:
+        return int(self.conn.execute("PRAGMA user_version").fetchone()[0])
 
     def init_schema(self) -> None:
         self.conn.executescript(
@@ -53,6 +62,16 @@ class SqliteCardStore:
             """
         )
         self._migrate_cards()
+        current = self.schema_version()
+        if current > SCHEMA_VERSION:
+            raise RuntimeError(
+                f"graph store schema_version={current} is newer than this code supports "
+                f"(SCHEMA_VERSION={SCHEMA_VERSION}); upgrade packages/graph"
+            )
+        if current == 0:
+            # Fresh database, or one created before schema versioning existed — the
+            # additive migrations above already bring either to the current shape.
+            self.conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         self.conn.commit()
 
     def upsert_cards(self, cards: Iterable[Card]) -> None:

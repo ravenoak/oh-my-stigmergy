@@ -38,6 +38,7 @@ stigmergy_evaluation_discipline_doc_script="scripts/verify-stigmergy-evaluation-
 opencode_evaluation_protocol_script="scripts/verify-opencode-evaluation-protocol.sh"
 ci_contract_coverage_script="scripts/verify-ci-contract-coverage.sh"
 verify_script_waivers_json="devtools/verify-script-waivers.json"
+transitions_golden_script="scripts/verify-transitions-golden.sh"
 
 for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.yml" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "LICENSE" \
@@ -90,7 +91,15 @@ for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.y
   "tests/fixtures/crucible/opencode_plugin_bad.model.json" "tests/fixtures/crucible/opencode_plugin_bad.smt2" \
   "packages/stance/schema/stance-config.schema.json" "packages/stance/src/stance/validate.py" "packages/stance/src/stance/registry.py" \
   "tests/fixtures/stance/good.json" \
-  "$ci_contract_coverage_script" "$verify_script_waivers_json"; do
+  "tests/fixtures/stance/invalid/missing_required.json" \
+  "tests/fixtures/stance/invalid/no_stance_vector.json" \
+  "tests/fixtures/stance/invalid/threshold_out_of_range.json" \
+  "tests/fixtures/stance/invalid/extra_property.json" \
+  "$ci_contract_coverage_script" "$verify_script_waivers_json" \
+  "$transitions_golden_script" \
+  "spec/transitions.json" "packages/transitions/schema/transitions.schema.json" \
+  "packages/transitions/src/transitions/artifact.py" "packages/transitions/src/transitions/__main__.py" \
+  "packages/graph/tests/test_schema_version.py"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -139,6 +148,7 @@ bash -n "scripts/publish-opencode-plugin-npm.sh"
 bash -n "$stigmergy_evaluation_discipline_doc_script"
 bash -n "$opencode_evaluation_protocol_script"
 bash -n "$ci_contract_coverage_script"
+bash -n "$transitions_golden_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -409,6 +419,10 @@ echo "$heavy_block" | grep -q 'check-allium-specs.sh' || {
 }
 echo "$heavy_block" | grep -q 'analyse-allium-specs.sh' || {
   echo "ci_contract: specs-and-packages must run scripts/analyse-allium-specs.sh" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'verify-transitions-golden.sh' || {
+  echo "ci_contract: specs-and-packages must run scripts/verify-transitions-golden.sh (FR-8.1)" >&2
   exit 1
 }
 echo "$heavy_block" | grep -q 'timeout-minutes: 2' || {

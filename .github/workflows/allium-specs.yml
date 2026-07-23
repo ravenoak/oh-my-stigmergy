@@ -269,6 +269,9 @@ jobs:
       - name: Allium analyse (process-level)
         run: bash scripts/analyse-allium-specs.sh
 
+      - name: Transitions artifact golden diff (FR-8.1)
+        run: bash scripts/verify-transitions-golden.sh
+
       - name: Crucible compile golden diff (FR-4.2)
         run: bash scripts/verify-crucible-compile.sh
 

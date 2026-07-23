@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ._allium import AlliumModelError, load_merged_model
+from .artifact import ARTIFACT_VERSION, build_transitions_artifact, render_transitions_artifact
 
 
 class TransitionError(ValueError):
@@ -66,8 +67,11 @@ class TransitionTable:
 
 
 __all__ = [
+    "ARTIFACT_VERSION",
     "AlliumModelError",
     "TransitionError",
     "TransitionTable",
+    "build_transitions_artifact",
     "load_merged_model",
+    "render_transitions_artifact",
 ]

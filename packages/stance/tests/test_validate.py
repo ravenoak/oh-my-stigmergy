@@ -6,10 +6,12 @@ from pathlib import Path
 import jsonschema
 
 from stance.registry import load_registry
-from stance.validate import validate_file, validate_instance
+from stance.validate import validate_file
 
 
-FIXTURE_GOOD = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "stance" / "good.json"
+FIXTURES = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "stance"
+FIXTURE_GOOD = FIXTURES / "good.json"
+FIXTURES_INVALID = FIXTURES / "invalid"
 
 
 class TestValidate(unittest.TestCase):
@@ -19,28 +21,19 @@ class TestValidate(unittest.TestCase):
 
     def test_missing_required(self) -> None:
         with self.assertRaises(jsonschema.ValidationError):
-            validate_instance({"agent_id": "x", "stance_vector": {}})
+            validate_file(FIXTURES_INVALID / "missing_required.json")
+
+    def test_no_stance_vector(self) -> None:
+        with self.assertRaises(jsonschema.ValidationError):
+            validate_file(FIXTURES_INVALID / "no_stance_vector.json")
 
     def test_threshold_out_of_range(self) -> None:
         with self.assertRaises(jsonschema.ValidationError):
-            validate_instance(
-                {
-                    "agent_id": "x",
-                    "stance_vector": {"a": 0.5},
-                    "olfactory_threshold": 1.5,
-                }
-            )
+            validate_file(FIXTURES_INVALID / "threshold_out_of_range.json")
 
     def test_extra_property_rejected(self) -> None:
         with self.assertRaises(jsonschema.ValidationError):
-            validate_instance(
-                {
-                    "agent_id": "x",
-                    "stance_vector": {"a": 0.5},
-                    "olfactory_threshold": 0.1,
-                    "extra": 1,
-                }
-            )
+            validate_file(FIXTURES_INVALID / "extra_property.json")
 
     def test_load_registry_file(self) -> None:
         keys = load_registry(FIXTURE_GOOD)
