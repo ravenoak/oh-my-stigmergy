@@ -1,12 +1,17 @@
 # Orchestrator decision pre-registration
 
-**Status: SCAFFOLD — criteria not yet frozen.** This document exists now (Stage 0) so its shape is
-reviewable before the numbers are filled in. Every `[TO BE FROZEN IN STAGE 4]` blank must be
-completed, maintainer-ratified, and this document's status line flipped to **`FROZEN — <date>`**
-**before** the human-as-orchestrator bridge (Stage 4) observation window opens. No log data may be
-collected before freezing. This is the FR-7.x / ADR-0015 discipline applied to a build-vs-don't-build
-decision instead of an effectiveness study: falsifiable, versioned, and not merge-gated on its
-*outcome* — only on the *existence* of a frozen rule before data collection.
+**Status: SCAFFOLD — criteria not yet frozen.** The bridge (instrument, below) is now built and
+merged (`devtools/bridge/`), deliberately **before** freezing this document's numbers: the
+thresholds must be *derived from a real baseline*, and no baseline exists until the bridge has
+mediated 1–2 real deliveries. Every `[TO BE FROZEN]` blank below must be completed and
+maintainer-ratified, and this document's status line flipped to **`FROZEN — <date>`**, **before**
+the observation window opens — i.e. before any log data collected under this instrument counts
+toward the decision. Using the bridge for real work now, ahead of freezing, is fine (indeed
+necessary to gather the baseline) — what must not happen is treating *that same data* as part of
+the observation window without first freezing the rule it will be judged against. This is the
+FR-7.x / ADR-0015 discipline applied to a build-vs-don't-build decision instead of an effectiveness
+study: falsifiable, versioned, and not merge-gated on its *outcome* — only on the *existence* of a
+frozen rule before the window's data collection begins.
 
 **Normative context:** [ADR-0015](../adr/0015-empirical-evaluation-study-claims.md) (claims boundary —
 same discipline applied here); [ADR-0003](../adr/0003-stigmergy-vs-orchestrator.md) (what is being
@@ -24,24 +29,47 @@ real, machine-avoidable friction to justify a deterministic controller.
 
 ## Instrument: the human-as-orchestrator bridge
 
-Small `.mjs` CLIs (house style) hitting the SBP HTTP routes, by which the maintainer manually
-publishes work-order and phase-mark pheromones and manually checks phase-close. Every action is logged
-as NDJSON (`sbpLog`/audit style) with:
+**Built:** [`devtools/bridge/`](../../devtools/bridge/README.md) — small `.mjs` CLIs hitting the SBP
+HTTP routes, by which the maintainer manually publishes work-order and phase-mark pheromones and
+checks phase-close. Every action is logged as NDJSON (`STIGMERGY_BRIDGE_LOG_FILE`) with:
 
-- action type (`publish_workorder`, `mark_phase`, `check_close`, …)
-- timestamp
-- **per-session wall-clock** (start/end of the interactive session containing the action) — this is
-  the toil measurement; see "Toil operationalization" below
-- outcome (success/error, and for `check_close`: on-time or late/missed)
+- action type (`publish_workorder`, `mark_phase`, `check_close`, `session_start`, `session_end`)
+- timestamp and `sessionId`
+- **per-session wall-clock** (`session-start`/`session-end` bracket a period of bridge usage;
+  `session-end` logs `durationMs`) — this is the toil measurement; see "Toil operationalization"
+  below. A `WARNING` is printed to stderr (not the log) if a mutating action runs outside an open
+  session, flagging that action's toil as unmeasured.
+- outcome (`ok`/`status` from the SBP response)
 
 **Auth mode:** the bridge runs with **real `worker`/`privileged` identity tokens** (Stage 2's
-identity/kind mechanism), not open-mode loopback bootstrap — this is deliberate: running the bridge
-under real auth accrues operational evidence for Stage 2's class gating as a side effect, at zero
-extra cost.
+identity/kind mechanism; `STIGMERGY_AGENT_TOKEN` + `STIGMERGY_AGENT_ID`), not open-mode loopback
+bootstrap — this is deliberate: running the bridge under real auth accrues operational evidence for
+Stage 2's class gating as a side effect, at zero extra cost. `workOrder` publishes go through the
+WorkOrder payload profile (FR-11.1): the server structurally validates the payload and, under
+identity, cross-checks `provenance.createdBy` against the resolved `agentId` (rejecting a mismatch)
+— so a bridge session can't misattribute a work order to a different identity even accidentally.
+
+## Baseline estimation plan (methodology only — no numbers frozen yet)
+
+Before any threshold below can be derived, run the bridge for **1–2 real deliveries** (actual
+work you'd have done anyway, routed through `publish-workorder.mjs` / `mark-phase.mjs` /
+`check-close.mjs` inside a `session-start`/`session-end` bracket). From that run, record here:
+
+- number of phase cycles completed (a cycle = one `workOrder` published through to its last
+  `phaseTransition` mark you consider "done" for that delivery),
+- total session wall-clock (`durationMs` summed across that delivery's sessions) and toil/cycle
+  (`total wall-clock ÷ cycles`),
+- any phase-management mistake you made that a deterministic checker would have caught (missed a
+  mark, marked out of order, forgot to close) — even if minor; the frozen rule needs the true rate,
+  not a rounded-up one.
+
+**Do not** treat this baseline run's data as part of the observation window itself — it calibrates
+the thresholds; the window (and its own bound-workload commitment, per "Bound workload" below)
+starts fresh *after* freezing.
 
 ## Bound workload (closes the "usage is endogenous" gap)
 
-`[TO BE FROZEN IN STAGE 4]`: the prereg must record, before the window opens, the **specific set of
+`[TO BE FROZEN]`: the prereg must record, before the window opens, the **specific set of
 already-planned deliveries** for the observation window and commit that *all* of them route through
 the bridge. Cycle counts below are read against this recorded intended workload, not against
 whatever the maintainer happens to run — closing the channel by which usage could be gamed upward
@@ -56,9 +84,9 @@ sessions in a week.
 `action-count × per-action cost estimate`, where the per-action estimate is itself recorded in this
 document *before* the window opens (not fit to the data afterward).
 
-**Baseline for deriving thresholds:** `[TO BE FROZEN IN STAGE 4]` — a short baseline estimate
-(e.g. from the first 1–2 bridge-mediated deliveries) of mechanical cost per phase cycle, from which
-the high/low thresholds below are *derived*, not chosen by feel.
+**Baseline for deriving thresholds:** see "Baseline estimation plan" above — the recorded
+toil/cycle from 1–2 real bridge-mediated deliveries is what the high/low thresholds below are
+*derived* from, not chosen by feel.
 
 ## Excluded evidence
 
@@ -76,7 +104,7 @@ C, or gamed upward by a single contrived second session. E's evidence is phase-m
 
 ## Decision rule (must partition every possible log into exactly one verdict)
 
-`[TO BE FROZEN IN STAGE 4 — thresholds derived from the baseline above, not chosen by feel]`
+`[TO BE FROZEN — thresholds derived from the baseline above, not chosen by feel]`
 
 - **Justified** — cycles ≥ `[derived-high]` **and** toil/week ≥ `[derived-high]` **and** ≥1 recorded
   machine-avoidable phase-management failure.

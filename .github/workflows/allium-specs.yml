@@ -320,8 +320,11 @@ jobs:
       - name: Stance package unit tests (FR-1.4)
         run: uv run python -m unittest discover -s packages/stance/tests -p 'test_*.py' -v
 
-      - name: SBP server tests (FR-3.x/FR-9.1; stream.test.mjs rotation.test.mjs compaction.test.mjs decay-gc.test.mjs sqlite-store.test.mjs healthz.test.mjs multi-writer.test.mjs stance-registry.test.mjs auth.test.mjs)
+      - name: SBP server tests (FR-3.x/FR-9.1/FR-11.1; stream.test.mjs rotation.test.mjs compaction.test.mjs decay-gc.test.mjs sqlite-store.test.mjs healthz.test.mjs multi-writer.test.mjs stance-registry.test.mjs auth.test.mjs workorder-profile.test.mjs)
         run: cd packages/sbp-server && npm ci && npm test
+
+      - name: Human-as-orchestrator bridge tests (FR-11.2)
+        run: node --test --test-timeout=120000 devtools/bridge/test/bridge.test.mjs
 
       - name: OpenCode plugin tests (FR-5.x; plugin.test.mjs events.test.mjs tools-schema.test.mjs)
         run: cd packages/opencode-plugin && npm ci && npm test

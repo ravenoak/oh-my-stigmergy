@@ -1,0 +1,5 @@
+{
+  "tokens": {
+    "REPLACE_WITH_YOUR_OWN_RANDOM_TOKEN": { "agentId": "REPLACE_WITH_YOUR_AGENT_ID", "class": "worker" }
+  }
+}
