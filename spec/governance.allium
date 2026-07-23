@@ -113,6 +113,7 @@ entity OpenCodePluginTool {
 entity OpenCodePluginEvent {
     kind: session_idle | file_edited
     floor_band: low | medium | high
+    debounced: yes | no
 }
 
 ------------------------------------------------------------
@@ -238,7 +239,8 @@ default OpenCodePluginTool seed_opencode_orchestration_resolve = {
 
 default OpenCodePluginEvent seed_opencode_plugin_event = {
     kind: session_idle,
-    floor_band: low
+    floor_band: low,
+    debounced: no
 }
 
 ------------------------------------------------------------
@@ -353,4 +355,5 @@ invariant OpenCodePluginEventsWellFormed {
     for e in OpenCodePluginEvents:
         (e.kind = session_idle or e.kind = file_edited)
             and (e.floor_band = low or e.floor_band = medium or e.floor_band = high)
+            and (e.debounced = yes or e.debounced = no)
 }
