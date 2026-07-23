@@ -43,6 +43,7 @@ Canonical reference for **what the plugin can and cannot do**, **install** (npm 
 - Branch protection (human step): [docs/operations/github-branch-protection.md](docs/operations/github-branch-protection.md). Maintainer automation: [`scripts/apply-branch-protection-main.sh`](scripts/apply-branch-protection-main.sh), audit: [`scripts/verify-branch-protection-remote.sh`](scripts/verify-branch-protection-remote.sh) (`gh` + `jq`, admin token).
 - Session budgets (NFR-C1): [docs/guides/agent-session-budgets.md](docs/guides/agent-session-budgets.md).
 - Distillation (FR-1.2): [docs/guides/distillation-playbook.md](docs/guides/distillation-playbook.md).
+- Delivery floors (FR-10.x, report-only): [docs/operations/delivery-floors.md](docs/operations/delivery-floors.md).
 
 ## Do not invent enforcement
 

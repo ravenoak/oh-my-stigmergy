@@ -198,6 +198,36 @@ jobs:
           GITHUB_BASE_REF: ${{ github.base_ref }}
         run: bash scripts/verify-distillation-contract.sh
 
+      - name: Frozen test manifest (FR-10.1, report-only)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: bash scripts/verify-frozen-test-manifest.sh
+
+      - name: Lockfile freeze (FR-10.2, report-only)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: bash scripts/verify-lockfile-freeze.sh
+
+      - name: Dependency allowlist (FR-10.3, report-only)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: bash scripts/verify-dependency-allowlist.sh
+
+      - name: Delivery floors fixture-PR contract (FR-10.4)
+        run: bash tests/delivery_floors_contract.sh
+
+      - name: Delivery floors doc (FR-10.x)
+        run: bash scripts/verify-delivery-floors-doc.sh
+
       - name: Crucible shim policy attestation (FR-4.1 / NFR-S1)
         run: bash scripts/verify-shim-policy.sh
 

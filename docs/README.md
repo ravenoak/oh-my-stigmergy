@@ -18,6 +18,7 @@ This folder is the canonical **governance and specification surface** for oh-my-
 | [guides/project-positioning-and-boundaries.md](guides/project-positioning-and-boundaries.md) | Operators and agents | Multi-agent, verification, decentralization, scale (FR-6.4 / [Phase 16](ROADMAP.md)) |
 | [guides/stigmergic-sdlc-workflows.md](guides/stigmergic-sdlc-workflows.md) | Operators and agents | Pheromone, spec, and release SDLC patterns (FR-6.4) |
 | [operations/github-branch-protection.md](operations/github-branch-protection.md) | Maintainers | CI must be required on `main` |
+| [operations/delivery-floors.md](operations/delivery-floors.md) | Maintainers | FR-10.x report-only floors change; promotion to blocking |
 | [`packages/graph`](../packages/graph), [`packages/sbp-server`](../packages/sbp-server) | Implementers | Relation-first graph (FR-2.x) and SBP reference server (FR-3.x) |
 | [guides/agent-session-budgets.md](guides/agent-session-budgets.md) | Agents and humans | NFR-C1 session discipline |
 | [guides/github-flow.md](guides/github-flow.md) | Contributors and agents | Feature branches, atomic commits, PR-only merges, `gh` |

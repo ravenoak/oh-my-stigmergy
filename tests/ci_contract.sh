@@ -39,6 +39,11 @@ opencode_evaluation_protocol_script="scripts/verify-opencode-evaluation-protocol
 ci_contract_coverage_script="scripts/verify-ci-contract-coverage.sh"
 verify_script_waivers_json="devtools/verify-script-waivers.json"
 transitions_golden_script="scripts/verify-transitions-golden.sh"
+frozen_test_manifest_script="scripts/verify-frozen-test-manifest.sh"
+lockfile_freeze_script="scripts/verify-lockfile-freeze.sh"
+dependency_allowlist_script="scripts/verify-dependency-allowlist.sh"
+delivery_floors_contract="tests/delivery_floors_contract.sh"
+delivery_floors_doc_script="scripts/verify-delivery-floors-doc.sh"
 
 for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.yml" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "LICENSE" \
@@ -101,7 +106,11 @@ for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.y
   "packages/transitions/src/transitions/artifact.py" "packages/transitions/src/transitions/__main__.py" \
   "packages/graph/tests/test_schema_version.py" \
   "docs/adr/0016-sbp-ledger-identity-and-kind.md" \
-  "packages/sbp-server/test/auth.test.mjs"; do
+  "packages/sbp-server/test/auth.test.mjs" \
+  "$frozen_test_manifest_script" "$lockfile_freeze_script" "$dependency_allowlist_script" \
+  "$delivery_floors_contract" "tests/lib/fixture_pr.sh" \
+  "devtools/frozen-test-manifest.json" "devtools/lockfile-freeze.json" "devtools/dependency-allowlist.json" \
+  "$delivery_floors_doc_script" "docs/operations/delivery-floors.md"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -151,6 +160,12 @@ bash -n "$stigmergy_evaluation_discipline_doc_script"
 bash -n "$opencode_evaluation_protocol_script"
 bash -n "$ci_contract_coverage_script"
 bash -n "$transitions_golden_script"
+bash -n "$frozen_test_manifest_script"
+bash -n "$lockfile_freeze_script"
+bash -n "$dependency_allowlist_script"
+bash -n "$delivery_floors_contract"
+bash -n "tests/lib/fixture_pr.sh"
+bash -n "$delivery_floors_doc_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -277,6 +292,26 @@ echo "$governance_block" | grep -q 'verify-opencode-evaluation-protocol.sh' || {
 }
 echo "$governance_block" | grep -q 'verify-ci-contract-coverage.sh' || {
   echo "ci_contract: governance job must run scripts/verify-ci-contract-coverage.sh (FR-0.2)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-frozen-test-manifest.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-frozen-test-manifest.sh (FR-10.1)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-lockfile-freeze.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-lockfile-freeze.sh (FR-10.2)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-dependency-allowlist.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-dependency-allowlist.sh (FR-10.3)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'delivery_floors_contract.sh' || {
+  echo "ci_contract: governance job must run tests/delivery_floors_contract.sh (FR-10.4)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-delivery-floors-doc.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-delivery-floors-doc.sh (FR-10.x)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q "python-version: '3.13'" || {

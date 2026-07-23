@@ -63,6 +63,16 @@ Repository workflow [`.github/workflows/branch-protection-audit.yml`](../../.git
 
 **Expiry / rotation:** set a calendar reminder (e.g. 90-day PAT rotation). When rotating, generate a new token, update **`BP_ADMIN_TOKEN`**, re-run the workflow from **Actions → branch-protection-audit → Run workflow**, and confirm green.
 
+## Merge queue (optional, operator-enabled)
+
+Not enabled by any script in this repo — enabling a merge queue is a GitHub UI/API action under
+**Settings → Branches → branch protection rule → Require merge queue**, or the equivalent
+`gh api` call against the same ruleset this doc already covers. It composes with the existing
+required check: queued PRs still must pass **`allium-specs / check`** before the queue merges them.
+This repo does not flip this setting on your behalf (per the "never silent CI edits" discipline in
+[`docs/operations/delivery-floors.md`](delivery-floors.md)) — enable it manually if your merge
+volume warrants serializing merges through CI re-validation.
+
 ## Verification
 
 Contributors with admin access confirm in the PR template (first-time setup) that this rule is enabled, or link to the org’s central governance doc if rules are managed elsewhere.
