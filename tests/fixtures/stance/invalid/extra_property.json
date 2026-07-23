@@ -1,0 +1,6 @@
+{
+  "agent_id": "x",
+  "stance_vector": { "a": 0.5 },
+  "olfactory_threshold": 0.1,
+  "extra": 1
+}

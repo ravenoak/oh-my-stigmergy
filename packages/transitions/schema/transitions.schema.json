@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TransitionsArtifact",
+  "description": "Committed projection of every transition graph declared in spec/*.allium (FR-8.1). Mirrors whatever state machines exist in spec/ today; does not assume an SDLC phase taxonomy.",
+  "type": "object",
+  "required": ["version", "transitions"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "transitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["entity", "field", "edges", "terminals"],
+        "additionalProperties": false,
+        "properties": {
+          "entity": { "type": "string", "minLength": 1 },
+          "field": { "type": "string", "minLength": 1 },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["from", "to"],
+              "additionalProperties": false,
+              "properties": {
+                "from": { "type": "string", "minLength": 1 },
+                "to": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
+          "terminals": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

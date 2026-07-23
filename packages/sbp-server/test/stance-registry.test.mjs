@@ -9,11 +9,32 @@ import { createLedgerServer, loadStanceRegistry } from "../server.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..", "..");
 const goodRegistry = path.join(repoRoot, "tests", "fixtures", "stance", "good.json");
+const invalidDir = path.join(repoRoot, "tests", "fixtures", "stance", "invalid");
 
 test("loadStanceRegistry collects stance_vector keys from file", () => {
   const s = loadStanceRegistry(goodRegistry);
   assert.ok(s.has("security_auditing"));
   assert.ok(s.has("feature_implementation"));
+});
+
+// The shared corpus under tests/fixtures/stance/invalid/ is schema-invalid per
+// packages/stance's jsonschema (missing required fields, out-of-range threshold,
+// additionalProperties) — loadStanceRegistry only cares about stance_vector shape,
+// so it's narrower than full schema validation and stays permissive on these.
+test("loadStanceRegistry is permissive on schema-invalid-but-stance_vector-shaped fixtures", () => {
+  for (const name of ["missing_required.json", "threshold_out_of_range.json", "extra_property.json"]) {
+    const s = loadStanceRegistry(path.join(invalidDir, name));
+    assert.ok(s instanceof Set, `${name} should load without throwing`);
+  }
+  const withKey = loadStanceRegistry(path.join(invalidDir, "threshold_out_of_range.json"));
+  assert.ok(withKey.has("a"));
+});
+
+test("loadStanceRegistry throws when stance_vector itself is absent", () => {
+  assert.throws(
+    () => loadStanceRegistry(path.join(invalidDir, "no_stance_vector.json")),
+    /stance_vector/,
+  );
 });
 
 test("stance registry on rejects unknown stanceTarget with 400", async () => {

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "transitions": [
+    {
+      "entity": "Pheromone",
+      "field": "state",
+      "edges": [
+        {
+          "from": "open",
+          "to": "claimed"
+        },
+        {
+          "from": "claimed",
+          "to": "done"
+        },
+        {
+          "from": "open",
+          "to": "expired"
+        }
+      ],
+      "terminals": [
+        "done",
+        "expired"
+      ]
+    },
+    {
+      "entity": "RepositoryGovernance",
+      "field": "charter_status",
+      "edges": [
+        {
+          "from": "draft",
+          "to": "amended"
+        },
+        {
+          "from": "amended",
+          "to": "frozen"
+        }
+      ],
+      "terminals": [
+        "frozen"
+      ]
+    },
+    {
+      "entity": "TraceabilityRow",
+      "field": "maturity",
+      "edges": [
+        {
+          "from": "draft",
+          "to": "published"
+        }
+      ],
+      "terminals": [
+        "published"
+      ]
+    }
+  ]
+}

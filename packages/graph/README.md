@@ -6,6 +6,13 @@ Byte-addressed **code cards** and **IMPORTS** / **SOURCES** / **CALLS** aspect e
 
 **Backends:** default build is in-memory (`GraphIndex.build`). Optional SQLite persistence (`GraphIndex.persist_to_sqlite` / `GraphIndex.from_sqlite`) per [ADR-0007](../../docs/adr/0007-graph-persistence.md).
 
+**Schema versioning (FR-8.2):** `SqliteCardStore` stamps `PRAGMA user_version` to
+`graph.store.SCHEMA_VERSION` (currently `1`) on `init_schema()`, after any additive column
+migrations (`_migrate_cards`) run. A database whose `user_version` is newer than this code's
+`SCHEMA_VERSION` fails fast with `RuntimeError` instead of silently reading a shape it doesn't
+understand. Bump `SCHEMA_VERSION` and add a migration branch in `init_schema()` when the
+`cards`/`edges` table shape changes.
+
 ## Develop
 
 From the **repository root** (recommended, uses [`uv`](https://docs.astral.sh/uv/)):
