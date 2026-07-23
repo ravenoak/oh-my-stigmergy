@@ -41,6 +41,16 @@ Disposition is **final** for first-party scope; promote **new** rows only with F
 | Curated MCP bundle parity (Exa, Context7, etc.) | P3+ | **not pursued (first-party)** | Operators may configure MCP in OpenCode outside this plugin; optional future ADR if a **separate** MCP server is in-scope. |
 | Claude Code compatibility shim layer | — | **not pursued** | Upstream OMO scope ([ADR-0013](adr/0013-stigmergic-opencode-orchestration.md)). |
 
+## Phase orchestrator experiment (gated, evidence-first)
+
+Not execution-ready and deliberately **not** an FR row yet: this is a staged, evidence-gated
+experiment, not a committed feature. Full staging, rationale, and the recon this table summarizes:
+[`docs/planning/orchestrator-implementation-plan.md`](planning/orchestrator-implementation-plan.md).
+
+| Item | Phase | Dependency | Next unblocker |
+|------|-------|------------|----------------|
+| `packages/orchestrator` — deterministic phase orchestrator over the SBP medium | P3+ | Ledger identity/kind (reduced), delivery floors, and a human-as-orchestrator bridge must ship and be *used* first | **Gated on a pre-registered decision:** [`docs/research/orchestrator-decision-preregistration.md`](research/orchestrator-decision-preregistration.md) freezes phase-management-only justification criteria (cycle count, measured toil, machine-avoidable phase-management failures) against a bridge usage log **before** the observation window opens. Promote to an FR row + ADR-0016-successor positioning ADR **only** if the frozen criteria return `Justified` against the log — never by a self-signed ADR alone. A `Rejected-for-window` verdict is a valid, constitution-honoring outcome recorded in synthesis docs, not a failure; it reopens only on a named trigger (second contributor, second adopting repo, sustained toil trend). [ADR-0003](adr/0003-stigmergy-vs-orchestrator.md)'s rejection of a central mega-orchestrator stands unamended regardless of outcome — any future E0 must show the ledger, not a private orchestrator log, stays authoritative for "what's next" (state-locality rule + standing replay/cold-start drill). |
+
 ## Ad hoc ideas
 
 Add new rows below with the same columns when brainstorming; **do not** implement from this section without promotion.

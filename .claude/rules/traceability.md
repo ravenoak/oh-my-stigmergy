@@ -16,7 +16,12 @@ phased maturity anywhere in `docs/`:
 
 3. **Do not upgrade maturity to `implemented`** without a cited verification path — a concrete
    script, test, or tool invocation that a reviewer can reproduce — as required by
-   [ADR-0004](docs/adr/0004-verification-stack-layering.md).
+   [ADR-0004](docs/adr/0004-verification-stack-layering.md). `planned` and `partial` are
+   first-class values, not placeholders to avoid — use them honestly when the cited path doesn't
+   exist yet or only covers part of the row's claim. **A mislabeled `implemented` row (the
+   verification path doesn't actually run, or doesn't cover the claim) is a defect at the same
+   severity as a missed drill** — it is the "no invented enforcement" constitutional rule made
+   concrete in a single table cell.
 
 When changing `docs/requirements/FR.md` or `NFR.md`, include `docs/traceability/RTM.md` in
 the same commit/PR ([FR-0.1](docs/requirements/FR.md)) — the CI co-touch gate enforces this.
