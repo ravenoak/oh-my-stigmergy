@@ -11,11 +11,28 @@ function pickPath(ev) {
   return typeof p === "string" ? p : "";
 }
 
+const DEFAULT_FILE_EDITED_DEBOUNCE_MS = 3000;
+
 /**
- * @param {{ sbp: ReturnType<import("./sbpClient.mjs").createSbpClient>; client: any; defaultStance: string }} opts
+ * @param {{
+ *   sbp: ReturnType<import("./sbpClient.mjs").createSbpClient>;
+ *   client: any;
+ *   defaultStance: string;
+ *   debounceMs?: number;
+ *   setTimeoutFn?: typeof setTimeout;
+ *   clearTimeoutFn?: typeof clearTimeout;
+ * }} opts
  */
-export function buildEventHandler({ sbp, client, defaultStance }) {
+export function buildEventHandler({ sbp, client, defaultStance, debounceMs, setTimeoutFn, clearTimeoutFn }) {
   const stance = defaultStance || "feature_implementation";
+  const fileEditedDebounceMs =
+    debounceMs ?? Number(process.env.STIGMERGY_FILE_EDITED_DEBOUNCE_MS ?? DEFAULT_FILE_EDITED_DEBOUNCE_MS);
+  const st = setTimeoutFn ?? setTimeout;
+  const ct = clearTimeoutFn ?? clearTimeout;
+  /** Per-path pending debounce timers — rapid edits to the same path coalesce into one
+   * publish at the trailing edge; edits to different paths are independent.
+   * @type {Map<string, ReturnType<typeof setTimeout>>} */
+  const pendingFileEdits = new Map();
 
   async function log(level, message, extra = {}) {
     try {
@@ -105,16 +122,39 @@ export function buildEventHandler({ sbp, client, defaultStance }) {
 
     if (type === "file.edited") {
       const path = pickPath(ev);
-      await publishFailSoft(
-        {
-          id: randomUUID(),
-          stanceTarget: stance,
-          baseIntensity: 0.45,
-          decayRate: 0.05,
-          payload: { source: "opencode-plugin", event: "file.edited", path },
-        },
-        "file_edited",
-      );
+      if (fileEditedDebounceMs <= 0) {
+        await publishFailSoft(
+          {
+            id: randomUUID(),
+            stanceTarget: stance,
+            baseIntensity: 0.45,
+            decayRate: 0.05,
+            payload: { source: "opencode-plugin", event: "file.edited", path },
+          },
+          "file_edited",
+        );
+        return;
+      }
+      const key = path || "(unknown)";
+      const existing = pendingFileEdits.get(key);
+      if (existing !== undefined) {
+        ct(existing);
+        appendAudit({ event: "file_edited_debounced", path: key });
+      }
+      const handle = st(() => {
+        pendingFileEdits.delete(key);
+        publishFailSoft(
+          {
+            id: randomUUID(),
+            stanceTarget: stance,
+            baseIntensity: 0.45,
+            decayRate: 0.05,
+            payload: { source: "opencode-plugin", event: "file.edited", path },
+          },
+          "file_edited",
+        );
+      }, fileEditedDebounceMs);
+      pendingFileEdits.set(key, handle);
     }
   };
 }
