@@ -43,8 +43,10 @@ test("compactJsonlLedger drops claimed rows below intensity floor (stable bytes)
   assert.deepEqual(stats, { kept: 1, dropped: 1 });
 
   const out = fs.readFileSync(ledgerPath, "utf8");
+  // highPayload predates the `kind` field (FR-9.1 migration fixture); replay backstamps it to
+  // "signal" before compaction rewrites the file, so the retained record now carries it.
   const expected =
-    `${stableStringify({ type: "publish", payload: highPayload })}\n`;
+    `${stableStringify({ type: "publish", payload: { ...highPayload, kind: "signal" } })}\n`;
   assert.equal(out, expected);
 });
 

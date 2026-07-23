@@ -22,6 +22,7 @@ entity Pheromone {
     id: String
     state: open | claimed | done | expired
     stance_target: String
+    kind: signal
 
     transitions state {
         open -> claimed
@@ -30,6 +31,10 @@ entity Pheromone {
         terminal: done
         terminal: expired
     }
+}
+
+entity LedgerIdentity {
+    class: worker | privileged
 }
 
 entity StanceTarget {
@@ -109,7 +114,16 @@ default TraceabilityRow seed_traceability_row = {
 default Pheromone seed_pheromone = {
     id: "demo-pheromone",
     state: open,
-    stance_target: "feature_implementation"
+    stance_target: "feature_implementation",
+    kind: signal
+}
+
+default LedgerIdentity seed_ledger_identity_worker = {
+    class: worker
+}
+
+default LedgerIdentity seed_ledger_identity_privileged = {
+    class: privileged
 }
 
 default LedgerStore seed_ledger_store = {
@@ -201,6 +215,12 @@ invariant PheromonesWellFormed {
         length(p.id) > 0
             and (p.state = open or p.state = claimed or p.state = done or p.state = expired)
             and length(p.stance_target) > 0
+            and p.kind = signal
+}
+
+invariant LedgerIdentitiesWellFormed {
+    for i in LedgerIdentities:
+        i.class = worker or i.class = privileged
 }
 
 invariant StanceTargetsWellFormed {

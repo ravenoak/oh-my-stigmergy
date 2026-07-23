@@ -68,7 +68,68 @@ export function validate(body) {
   ) {
     return "inflations";
   }
+  if (body.kind !== undefined && (typeof body.kind !== "string" || !body.kind)) return "kind";
   return null;
+}
+
+const AUTH_CLASSES = new Set(["worker", "privileged"]);
+
+/**
+ * Load `{ tokens: { "<token>": { agentId, class } } }` (FR-9.1). Absent env/file = open mode
+ * (identity resolution never activates; existing single-operator behavior is unchanged).
+ * @param {string} filePath
+ * @returns {Map<string, { agentId: string, class: "worker" | "privileged" }>}
+ */
+export function loadAuthTokens(filePath) {
+  const resolved = path.resolve(filePath);
+  const data = JSON.parse(fs.readFileSync(resolved, "utf8"));
+  const tokens = data && typeof data === "object" ? data.tokens : null;
+  if (!tokens || typeof tokens !== "object" || Array.isArray(tokens)) {
+    throw new Error(`auth tokens file missing "tokens" object: ${resolved}`);
+  }
+  const map = new Map();
+  for (const [token, identity] of Object.entries(tokens)) {
+    if (!token) continue;
+    const agentId = identity && typeof identity === "object" ? identity.agentId : undefined;
+    const cls = identity && typeof identity === "object" ? identity.class : undefined;
+    if (typeof agentId !== "string" || !agentId) {
+      throw new Error(`auth tokens file: token entry missing agentId: ${resolved}`);
+    }
+    if (!AUTH_CLASSES.has(cls)) {
+      throw new Error(`auth tokens file: token ${agentId} has unknown class ${String(cls)}: ${resolved}`);
+    }
+    map.set(token, { agentId, class: cls });
+  }
+  return map;
+}
+
+/**
+ * Load `{ kinds: { "<kind>": { publishableBy: ["worker","privileged"] } } }` (FR-9.1). Class-gating
+ * on `kind` only activates when both this registry AND SBP_AUTH_TOKENS_FILE are configured.
+ * @param {string} filePath
+ * @returns {Map<string, { publishableBy: Set<string> }>}
+ */
+export function loadKindRegistry(filePath) {
+  const resolved = path.resolve(filePath);
+  const data = JSON.parse(fs.readFileSync(resolved, "utf8"));
+  const kinds = data && typeof data === "object" ? data.kinds : null;
+  if (!kinds || typeof kinds !== "object" || Array.isArray(kinds)) {
+    throw new Error(`kind registry file missing "kinds" object: ${resolved}`);
+  }
+  const map = new Map();
+  for (const [kind, entry] of Object.entries(kinds)) {
+    const publishableBy = entry && typeof entry === "object" ? entry.publishableBy : null;
+    if (!Array.isArray(publishableBy) || publishableBy.length === 0) {
+      throw new Error(`kind registry file: kind ${kind} missing non-empty publishableBy: ${resolved}`);
+    }
+    for (const cls of publishableBy) {
+      if (!AUTH_CLASSES.has(cls)) {
+        throw new Error(`kind registry file: kind ${kind} has unknown class ${String(cls)}: ${resolved}`);
+      }
+    }
+    map.set(kind, { publishableBy: new Set(publishableBy) });
+  }
+  return map;
 }
 
 export function sbpLog(obj) {
@@ -220,6 +281,7 @@ export class JsonlLedgerStore extends MemoryLedgerStore {
         const p = { ...ev.payload };
         if (typeof p.publishedAt !== "number") p.publishedAt = Date.now();
         if (!Number.isInteger(p.inflations)) p.inflations = 0;
+        if (!p.kind) p.kind = "signal";
         super.putRecord(p);
       } else if (ev.type === "claim" && ev.id && ev.token) {
         this.replayClaim(ev.id, ev.token);
@@ -308,6 +370,7 @@ export class SqliteLedgerStore extends MemoryLedgerStore {
     const rows = this.db.prepare("SELECT id, json FROM pheromones ORDER BY id").all();
     for (const row of rows) {
       const p = JSON.parse(String(row.json));
+      if (!p.kind) p.kind = "signal";
       super.putRecord(p);
     }
     const claims = this.db.prepare("SELECT id, token FROM claims ORDER BY id").all();
@@ -553,6 +616,9 @@ export function scheduleDecayGc(filePath, opts = {}) {
  *   store?: MemoryLedgerStore;
  *   stanceTargets?: Set<string> | null;
  *   storeLabel?: "memory" | "jsonl" | "sqlite";
+ *   authTokens?: Map<string, { agentId: string, class: "worker" | "privileged" }> | null;
+ *   kindRegistry?: Map<string, { publishableBy: Set<string> }> | null;
+ *   inflateBudget?: { maxPerWindow: number, windowSeconds: number } | null;
  * }} [options]
  */
 export function createLedgerServer(options = {}) {
@@ -561,7 +627,27 @@ export function createLedgerServer(options = {}) {
   const stanceTargets = options.stanceTargets ?? null;
   const storeLabel =
     options.storeLabel ?? (typeof store.storeKind === "function" ? store.storeKind() : "memory");
+  // Identity resolution (FR-9.1) only activates when authTokens is configured — absent it, every
+  // mutating route behaves exactly as before (open mode; single-operator behavior unchanged).
+  const authTokens = options.authTokens ?? null;
+  const kindRegistry = options.kindRegistry ?? null;
+  const inflateBudget = options.inflateBudget ?? null;
+  /** @type {Map<string, { windowStart: number, count: number }>} */
+  const inflateBudgetState = new Map();
   const clients = new Set();
+
+  /**
+   * @param {import("node:http").IncomingMessage} req
+   * @returns {{ agentId: string, class: "worker" | "privileged" } | { error: "missing_token" | "unknown_token" }}
+   */
+  function resolveIdentity(req) {
+    const header = req.headers.authorization || "";
+    const m = /^Bearer (.+)$/.exec(header);
+    if (!m) return { error: "missing_token" };
+    const identity = authTokens.get(m[1]);
+    if (!identity) return { error: "unknown_token" };
+    return identity;
+  }
 
   function broadcast(event, data) {
     const line = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -635,6 +721,37 @@ export function createLedgerServer(options = {}) {
           });
           return;
         }
+        json.kind = json.kind || "signal";
+        if (authTokens) {
+          const identity = resolveIdentity(req);
+          if ("error" in identity) {
+            const status = identity.error === "missing_token" ? 401 : 403;
+            res.writeHead(status).end(`auth_error:${status}:${identity.error}`);
+            sbpLog({ event: "auth_error", route: "publish", reason: identity.error, id: json.id });
+            return;
+          }
+          if (kindRegistry) {
+            const kindEntry = kindRegistry.get(json.kind);
+            if (!kindEntry) {
+              res.writeHead(400).end("kind_unregistered");
+              sbpLog({ event: "kind_unregistered", id: json.id, kind: json.kind });
+              return;
+            }
+            if (!kindEntry.publishableBy.has(identity.class)) {
+              res.writeHead(403).end("auth_error:403:kind_privileged");
+              sbpLog({
+                event: "auth_error",
+                route: "publish",
+                reason: "kind_privileged",
+                id: json.id,
+                kind: json.kind,
+                class: identity.class,
+              });
+              return;
+            }
+          }
+          json.agentId = identity.agentId;
+        }
         store.publish(json);
         const rec = store.ledger.get(json.id);
         const payload = withIntensity(rec, Date.now());
@@ -646,6 +763,15 @@ export function createLedgerServer(options = {}) {
     }
     if (req.method === "POST" && url.pathname.startsWith("/pheromones/") && url.pathname.endsWith("/claim")) {
       const id = url.pathname.split("/")[2];
+      if (authTokens) {
+        const identity = resolveIdentity(req);
+        if ("error" in identity) {
+          const status = identity.error === "missing_token" ? 401 : 403;
+          res.writeHead(status).end(`auth_error:${status}:${identity.error}`);
+          sbpLog({ event: "auth_error", route: "claim", reason: identity.error, id });
+          return;
+        }
+      }
       if (store.claims.has(id)) {
         res.writeHead(409).end("claimed");
         sbpLog({ event: "claim_conflict", id });
@@ -660,6 +786,29 @@ export function createLedgerServer(options = {}) {
     }
     if (req.method === "POST" && url.pathname.startsWith("/pheromones/") && url.pathname.endsWith("/inflate")) {
       const id = url.pathname.split("/")[2];
+      if (authTokens) {
+        const identity = resolveIdentity(req);
+        if ("error" in identity) {
+          const status = identity.error === "missing_token" ? 401 : 403;
+          res.writeHead(status).end(`auth_error:${status}:${identity.error}`);
+          sbpLog({ event: "auth_error", route: "inflate", reason: identity.error, id });
+          return;
+        }
+        if (inflateBudget) {
+          const now = Date.now();
+          const windowMs = inflateBudget.windowSeconds * 1000;
+          const state = inflateBudgetState.get(identity.agentId);
+          if (!state || now - state.windowStart >= windowMs) {
+            inflateBudgetState.set(identity.agentId, { windowStart: now, count: 1 });
+          } else if (state.count >= inflateBudget.maxPerWindow) {
+            res.writeHead(429).end("auth_error:429:inflate_budget");
+            sbpLog({ event: "auth_error", route: "inflate", reason: "inflate_budget", id, agentId: identity.agentId });
+            return;
+          } else {
+            state.count += 1;
+          }
+        }
+      }
       if (!store.inflate(id)) {
         res.writeHead(404).end("missing");
         sbpLog({ event: "inflate_missing", id });
@@ -745,7 +894,24 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (reg) {
     stanceTargets = loadStanceRegistry(reg);
   }
-  const { server } = createLedgerServer({ store, stanceTargets, storeLabel });
+  const authTokensFile = (process.env.SBP_AUTH_TOKENS_FILE || "").trim();
+  const authTokens = authTokensFile ? loadAuthTokens(authTokensFile) : null;
+  const kindRegistryFile = (process.env.SBP_KIND_REGISTRY_FILE || "").trim();
+  const kindRegistry = kindRegistryFile ? loadKindRegistry(kindRegistryFile) : null;
+  const inflateMaxPerWindow = Number(process.env.SBP_INFLATE_MAX_PER_WINDOW ?? 0);
+  const inflateWindowSeconds = Number(process.env.SBP_INFLATE_WINDOW_SECONDS ?? 0);
+  const inflateBudget =
+    inflateMaxPerWindow > 0 && inflateWindowSeconds > 0
+      ? { maxPerWindow: inflateMaxPerWindow, windowSeconds: inflateWindowSeconds }
+      : null;
+  const { server } = createLedgerServer({
+    store,
+    stanceTargets,
+    storeLabel,
+    authTokens,
+    kindRegistry,
+    inflateBudget,
+  });
   const portEnv = process.env.PORT;
   const port = portEnv === undefined || portEnv === "" ? 3847 : Number(portEnv);
   if (!Number.isInteger(port) || port < 0 || port > 65535) {

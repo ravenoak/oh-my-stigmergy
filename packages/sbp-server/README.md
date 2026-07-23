@@ -34,6 +34,19 @@ Optional **stance allow-list** (reject unknown `stanceTarget` with 400): **`SBP_
 
 Optional **decay GC** (periodic compaction): set **`SBP_DECAY_GC_INTERVAL_MS`** (milliseconds). Intensity floor: **`SBP_DECAY_GC_FLOOR`** (default `0.01`). **`SBP_LEDGER_MAX_BYTES`:** when set with decay GC enabled, oversize files trigger a **size-rotation** compaction pass. See [ADR-0009](../../docs/adr/0009-sbp-ledger-compaction-decay-gc.md), [ADR-0011](../../docs/adr/0011-sbp-sqlite-store.md), and [sbp-operator-runbook](../../docs/operations/sbp-operator-runbook.md).
 
+### Identity and kind (opt-in — [ADR-0016](../../docs/adr/0016-sbp-ledger-identity-and-kind.md))
+
+Absent the env vars below, the server is in **open mode**: no auth, no class-gating, unchanged from
+prior releases. Setting **`SBP_AUTH_TOKENS_FILE`** (JSON: `{ "tokens": { "<token>": { "agentId", "class": "worker"|"privileged" } } }`)
+requires a valid `Authorization: Bearer <token>` on `POST /pheromones`, `.../claim`, and
+`.../inflate`; the server stamps `agentId` on published records from the resolved identity. Every
+pheromone carries a `kind` (defaults to `"signal"`); **`SBP_KIND_REGISTRY_FILE`** (JSON:
+`{ "kinds": { "<kind>": { "publishableBy": ["worker","privileged"] } } }`) restricts which identity
+classes may publish which kind — **class-gating only activates when both env vars are set**. The
+baseline registry shipped here registers `signal` only, open to both classes. Per-identity inflate
+budgets: **`SBP_INFLATE_MAX_PER_WINDOW`** + **`SBP_INFLATE_WINDOW_SECONDS`** (also require
+`SBP_AUTH_TOKENS_FILE`). Records that predate `kind` are backstamped to `"signal"` on replay.
+
 **Health:** `GET /healthz` → `{ ok, store, replayedAt, pheromones, claims }`.
 
 **Manual compaction** (stop writers first):

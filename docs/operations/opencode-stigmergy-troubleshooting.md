@@ -33,6 +33,28 @@ Plugin tools return **structured prefixes** instead of crashing OpenCode when de
 
 Cross-read [golden path §5](../guides/opencode-stigmergy-golden-path.md) (“Verify inside OpenCode”).
 
+## Auth errors (auth_error and kind_unregistered)
+
+Only relevant when the SBP server is running with **`SBP_AUTH_TOKENS_FILE`** set (identity mode —
+[ADR-0016](../adr/0016-sbp-ledger-identity-and-kind.md)). Absent that env var the server is in
+**open mode** and none of this applies; a plugin without a matching token simply gets these errors
+back unwrapped (not double-prefixed with `sbp_error:`):
+
+- **`auth_error:401:missing_token`** — no (or malformed) `Authorization: Bearer <token>` header was
+  sent. Set **`STIGMERGY_AGENT_TOKEN`** in the OpenCode plugin's environment to a token present in
+  the server's `SBP_AUTH_TOKENS_FILE`.
+- **`auth_error:403:unknown_token`** — the token was sent but is not in the server's registry. Check
+  for a typo, or that the plugin and server point at the same `SBP_AUTH_TOKENS_FILE` generation.
+- **`auth_error:403:kind_privileged`** — the identity's class (`worker`) is not in the `publishableBy`
+  list for the pheromone's `kind` in **`SBP_KIND_REGISTRY_FILE`**. Only relevant once a kind
+  restricted to `privileged` is registered — the baseline registry ships `signal` open to both
+  classes.
+- **`kind_unregistered`** (bare, not `auth_error:`-prefixed) — `SBP_KIND_REGISTRY_FILE` is set and the
+  pheromone's `kind` (defaults to `"signal"` if omitted) is not in it. Register the kind, or omit it
+  to fall back to `signal`.
+- **`auth_error:429:inflate_budget`** — the identity exceeded **`SBP_INFLATE_MAX_PER_WINDOW`** within
+  **`SBP_INFLATE_WINDOW_SECONDS`**; wait for the window to elapse or raise the budget.
+
 ## uv and Python 3.13
 
 - Run [`scripts/bootstrap-opencode-stigmergy-stack.sh`](../../scripts/bootstrap-opencode-stigmergy-stack.sh) from the repo root to install **graph** and **Node** package deps (`uv sync`, `npm ci` in `packages/sbp-server` and `packages/opencode-plugin`).
