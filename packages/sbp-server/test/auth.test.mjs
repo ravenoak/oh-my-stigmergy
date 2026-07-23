@@ -170,7 +170,7 @@ test("kind registry: unregistered kind rejected with 400", async () => {
   const kindRegistry = new Map([["signal", { publishableBy: new Set(["worker", "privileged"]) }]]);
   await withServer({ authTokens, kindRegistry }, async ({ base }) => {
     const id = "aaaaaaaa-0000-4000-8000-000000000005";
-    const res = await post(`${base}/pheromones`, publishBody(id, { kind: "workOrder" }), {
+    const res = await post(`${base}/pheromones`, publishBody(id, { kind: "phaseTransition" }), {
       Authorization: "Bearer tok",
     });
     const text = await readBody(res);

@@ -44,6 +44,8 @@ lockfile_freeze_script="scripts/verify-lockfile-freeze.sh"
 dependency_allowlist_script="scripts/verify-dependency-allowlist.sh"
 delivery_floors_contract="tests/delivery_floors_contract.sh"
 delivery_floors_doc_script="scripts/verify-delivery-floors-doc.sh"
+workorder_profile_test="packages/sbp-server/test/workorder-profile.test.mjs"
+bridge_test="devtools/bridge/test/bridge.test.mjs"
 
 for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.yml" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "LICENSE" \
@@ -110,7 +112,12 @@ for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.y
   "$frozen_test_manifest_script" "$lockfile_freeze_script" "$dependency_allowlist_script" \
   "$delivery_floors_contract" "tests/lib/fixture_pr.sh" \
   "devtools/frozen-test-manifest.json" "devtools/lockfile-freeze.json" "devtools/dependency-allowlist.json" \
-  "$delivery_floors_doc_script" "docs/operations/delivery-floors.md"; do
+  "$delivery_floors_doc_script" "docs/operations/delivery-floors.md" \
+  "packages/sbp-server/schemas/workorder-profile.schema.json" "$workorder_profile_test" \
+  "devtools/bridge/README.md" "devtools/bridge/lib.mjs" "devtools/bridge/session-start.mjs" \
+  "devtools/bridge/session-end.mjs" "devtools/bridge/publish-workorder.mjs" \
+  "devtools/bridge/mark-phase.mjs" "devtools/bridge/check-close.mjs" "$bridge_test" \
+  "devtools/bridge/sbp-kind-registry.example.json" "devtools/bridge/sbp-auth-tokens.example.json"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -166,6 +173,12 @@ bash -n "$dependency_allowlist_script"
 bash -n "$delivery_floors_contract"
 bash -n "tests/lib/fixture_pr.sh"
 bash -n "$delivery_floors_doc_script"
+node --check devtools/bridge/lib.mjs
+node --check devtools/bridge/session-start.mjs
+node --check devtools/bridge/session-end.mjs
+node --check devtools/bridge/publish-workorder.mjs
+node --check devtools/bridge/mark-phase.mjs
+node --check devtools/bridge/check-close.mjs
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -404,6 +417,14 @@ echo "$heavy_block" | grep -q 'stance-registry.test.mjs' || {
 }
 echo "$heavy_block" | grep -q 'auth.test.mjs' || {
   echo "ci_contract: SBP npm test must mention auth.test.mjs (FR-9.1)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'workorder-profile.test.mjs' || {
+  echo "ci_contract: SBP npm test must mention workorder-profile.test.mjs (FR-11.1)" >&2
+  exit 1
+}
+echo "$heavy_block" | grep -q 'devtools/bridge/test/bridge.test.mjs' || {
+  echo "ci_contract: specs-and-packages must run devtools/bridge/test/bridge.test.mjs (FR-11.2)" >&2
   exit 1
 }
 grep -q 'better-sqlite3' packages/sbp-server/package.json || {

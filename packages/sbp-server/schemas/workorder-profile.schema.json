@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WorkOrderProfile",
+  "description": "Payload profile for pheromones published with kind==\"workOrder\" (FR-11.1). phase is a free-form string, not a closed enum — no SDLC phase taxonomy has been established in spec/ yet (see docs/planning/orchestrator-implementation-plan.md §7); reconciling phase against a real taxonomy, if one proves necessary, is deferred to when bridge usage data justifies authoring one.",
+  "type": "object",
+  "required": ["profileVersion", "orderId", "goal", "provenance"],
+  "additionalProperties": false,
+  "properties": {
+    "profileVersion": { "const": "1.0" },
+    "orderId": { "type": "string", "pattern": "^wo-[a-z0-9]{8,}$" },
+    "goal": { "type": "string", "minLength": 1 },
+    "phase": { "type": "string", "minLength": 1 },
+    "provenance": {
+      "type": "object",
+      "required": ["createdBy"],
+      "additionalProperties": false,
+      "properties": {
+        "createdBy": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -22,7 +22,7 @@ entity Pheromone {
     id: String
     state: open | claimed | done | expired
     stance_target: String
-    kind: signal
+    kind: signal | workOrder | phaseTransition | verificationMark
 
     transitions state {
         open -> claimed
@@ -88,6 +88,14 @@ entity StanceFixture {
 entity DeliveryFloorCheck {
     id: frozen_test_manifest | lockfile_freeze | dependency_allowlist
     mode: report_only | blocking
+}
+
+entity WorkOrderProfile {
+    validity: valid | invalid
+}
+
+entity BridgeSession {
+    lifecycle: open | closed
 }
 
 entity WorkflowJob {
@@ -192,6 +200,18 @@ default DeliveryFloorCheck seed_floor_dependency_allowlist = {
     mode: report_only
 }
 
+default WorkOrderProfile seed_workorder_profile_valid = {
+    validity: valid
+}
+
+default WorkOrderProfile seed_workorder_profile_invalid = {
+    validity: invalid
+}
+
+default BridgeSession seed_bridge_session = {
+    lifecycle: open
+}
+
 default WorkflowJob seed_workflow_job = {
     id: governance,
     outcome: success,
@@ -235,7 +255,7 @@ invariant PheromonesWellFormed {
         length(p.id) > 0
             and (p.state = open or p.state = claimed or p.state = done or p.state = expired)
             and length(p.stance_target) > 0
-            and p.kind = signal
+            and (p.kind = signal or p.kind = workOrder or p.kind = phaseTransition or p.kind = verificationMark)
 }
 
 invariant LedgerIdentitiesWellFormed {
@@ -299,6 +319,16 @@ invariant DeliveryFloorChecksWellFormed {
     for d in DeliveryFloorChecks:
         (d.id = frozen_test_manifest or d.id = lockfile_freeze or d.id = dependency_allowlist)
             and (d.mode = report_only or d.mode = blocking)
+}
+
+invariant WorkOrderProfilesWellFormed {
+    for w in WorkOrderProfiles:
+        w.validity = valid or w.validity = invalid
+}
+
+invariant BridgeSessionsWellFormed {
+    for b in BridgeSessions:
+        b.lifecycle = open or b.lifecycle = closed
 }
 
 invariant WorkflowJobsWellFormed {

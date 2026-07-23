@@ -1,0 +1,8 @@
+{
+  "kinds": {
+    "signal": { "publishableBy": ["worker", "privileged"] },
+    "workOrder": { "publishableBy": ["worker", "privileged"] },
+    "phaseTransition": { "publishableBy": ["worker", "privileged"] },
+    "verificationMark": { "publishableBy": ["privileged"] }
+  }
+}

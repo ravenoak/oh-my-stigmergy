@@ -72,6 +72,43 @@ export function validate(body) {
   return null;
 }
 
+const WORKORDER_ORDER_ID_RE = /^wo-[a-z0-9]{8,}$/;
+
+/**
+ * Structural check for the WorkOrder payload profile (FR-11.1). Applies whenever
+ * kind === "workOrder", regardless of auth mode — this is a payload-shape constraint,
+ * not an identity check (see resolveWorkOrderProvenance for the identity-dependent part).
+ * @param {unknown} payload
+ * @returns {string | null} error reason, or null if valid
+ */
+export function validateWorkOrderProfile(payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return "workorder_profile:missing payload";
+  }
+  const p = /** @type {Record<string, unknown>} */ (payload);
+  if (p.profileVersion !== "1.0") return "workorder_profile:profileVersion";
+  if (typeof p.orderId !== "string" || !WORKORDER_ORDER_ID_RE.test(p.orderId)) {
+    return "workorder_profile:orderId";
+  }
+  if (typeof p.goal !== "string" || !p.goal) return "workorder_profile:goal";
+  if (p.phase !== undefined && (typeof p.phase !== "string" || !p.phase)) {
+    return "workorder_profile:phase";
+  }
+  const provenance = p.provenance;
+  if (!provenance || typeof provenance !== "object" || Array.isArray(provenance)) {
+    return "workorder_profile:provenance";
+  }
+  const createdBy = /** @type {Record<string, unknown>} */ (provenance).createdBy;
+  if (typeof createdBy !== "string" || !createdBy) {
+    return "workorder_profile:provenance.createdBy";
+  }
+  const allowedKeys = new Set(["profileVersion", "orderId", "goal", "phase", "provenance"]);
+  for (const key of Object.keys(p)) {
+    if (!allowedKeys.has(key)) return `workorder_profile:unexpected field ${key}`;
+  }
+  return null;
+}
+
 const AUTH_CLASSES = new Set(["worker", "privileged"]);
 
 /**
@@ -722,12 +759,32 @@ export function createLedgerServer(options = {}) {
           return;
         }
         json.kind = json.kind || "signal";
+        if (json.kind === "workOrder") {
+          const profileErr = validateWorkOrderProfile(json.payload);
+          if (profileErr) {
+            res.writeHead(400).end(profileErr);
+            sbpLog({ event: "workorder_profile_invalid", id: json.id, err: profileErr });
+            return;
+          }
+        }
         if (authTokens) {
           const identity = resolveIdentity(req);
           if ("error" in identity) {
             const status = identity.error === "missing_token" ? 401 : 403;
             res.writeHead(status).end(`auth_error:${status}:${identity.error}`);
             sbpLog({ event: "auth_error", route: "publish", reason: identity.error, id: json.id });
+            return;
+          }
+          if (json.kind === "workOrder" && json.payload.provenance.createdBy !== identity.agentId) {
+            res.writeHead(403).end("auth_error:403:provenance_mismatch");
+            sbpLog({
+              event: "auth_error",
+              route: "publish",
+              reason: "provenance_mismatch",
+              id: json.id,
+              claimedCreatedBy: json.payload.provenance.createdBy,
+              agentId: identity.agentId,
+            });
             return;
           }
           if (kindRegistry) {
