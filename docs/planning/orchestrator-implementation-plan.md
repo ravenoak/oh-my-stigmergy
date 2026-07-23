@@ -193,6 +193,27 @@ constraints for E if reached: see the plan artifact referenced by this PR's desc
 No package behavior changes in this PR. FR/NFR rows: extended `FR-0.2`'s existing notes (no new ID
 minted); `docs/traceability/RTM.md` co-touched in the same PR.
 
+## 10. Implementation status addendum (updated 2026-07-23, after Stage 4)
+
+Sections 1–9 above are the point-in-time Stage-0 record; they are left as written rather than
+retrofitted. For current status, the staging beyond Stage 0 **has since shipped**:
+
+| Stage | Workstream | PR | Status |
+|---|---|---|---|
+| 1 | A — artifact treaties | #67 | Merged |
+| 2 | B(reduced) — ledger identity/kind, ADR-0016 | #68 | Merged |
+| 3 | F — delivery floors (report-only) + fixture-PR harness | #69 | Merged |
+| 4 | Human-as-orchestrator bridge + D (WorkOrder profile) | #70 | Merged — **pre-registration criteria deliberately left unfrozen** |
+| 4b | G/H — unconditional metaprocess + synthesis docs | — | Not started; does not block on the freeze |
+| 5 | E decision gate | — | Blocked on real bridge usage → freeze → observation window (calendar-time dependency, not a task dependency) |
+
+The one deliberate deviation from this document's original Stage-4 framing: rather than "freeze
+criteria, then build the bridge," the maintainer chose to build the bridge first and derive the
+freeze's numeric thresholds from 1–2 real deliveries run through it. See the "Baseline estimation
+plan" section added to `docs/research/orchestrator-decision-preregistration.md` for the resulting
+methodology. `docs/BACKLOG.md`'s "Phase orchestrator experiment" row is kept current with this
+table; prefer that row + this addendum over re-deriving status from the PR list.
+
 ## References
 
 - `IMPLEMENTATION_BRIEF.md` (repo root; source brief for this program)
