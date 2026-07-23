@@ -36,6 +36,8 @@ opencode_stigmergy_sbp_supervision_doc_script="scripts/verify-stigmergy-sbp-supe
 opencode_plugin_publishable_script="scripts/verify-opencode-plugin-publishable.sh"
 stigmergy_evaluation_discipline_doc_script="scripts/verify-stigmergy-evaluation-discipline-doc.sh"
 opencode_evaluation_protocol_script="scripts/verify-opencode-evaluation-protocol.sh"
+ci_contract_coverage_script="scripts/verify-ci-contract-coverage.sh"
+verify_script_waivers_json="devtools/verify-script-waivers.json"
 
 for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.yml" "$actions_pinned_script" "$check_script" "$analyse_script" "$trace_script" "$cotouch_script" "$const_amend_script" "$fr_anchor_script" "$distill_script" "$crucible_compile_script" "$shim_policy_script" "$shim_policy_diff_script" "$smt_script" "$heavy_budget_script" "$no_secrets_script" "$job_timeouts_script" "$job_timeouts_json" "$crucible_contract" "$version_file" "devtools/uv.version" "devtools/fr-anchor-allow.json" "devtools/ci-heavy-budget-seconds.txt" "devtools/secret-allowlist.txt" ".python-version" "pyproject.toml" "uv.lock" \
   "LICENSE" \
@@ -87,7 +89,8 @@ for f in "$workflow" "$actions_pinned_workflow" ".github/workflows/npm-publish.y
   "tests/fixtures/crucible/opencode_plugin.model.json" "tests/fixtures/crucible/opencode_plugin.smt2" \
   "tests/fixtures/crucible/opencode_plugin_bad.model.json" "tests/fixtures/crucible/opencode_plugin_bad.smt2" \
   "packages/stance/schema/stance-config.schema.json" "packages/stance/src/stance/validate.py" "packages/stance/src/stance/registry.py" \
-  "tests/fixtures/stance/good.json"; do
+  "tests/fixtures/stance/good.json" \
+  "$ci_contract_coverage_script" "$verify_script_waivers_json"; do
   test -f "$f" || {
     echo "ci_contract: missing $f" >&2
     exit 1
@@ -135,6 +138,7 @@ bash -n "scripts/publish-sbp-server-npm.sh"
 bash -n "scripts/publish-opencode-plugin-npm.sh"
 bash -n "$stigmergy_evaluation_discipline_doc_script"
 bash -n "$opencode_evaluation_protocol_script"
+bash -n "$ci_contract_coverage_script"
 bash -n "$crucible_contract"
 bash -n "$actions_pinned_script"
 
@@ -257,6 +261,10 @@ echo "$governance_block" | grep -q 'verify-stigmergy-evaluation-discipline-doc.s
 }
 echo "$governance_block" | grep -q 'verify-opencode-evaluation-protocol.sh' || {
   echo "ci_contract: governance job must run scripts/verify-opencode-evaluation-protocol.sh (FR-7.2 / Phase 20)" >&2
+  exit 1
+}
+echo "$governance_block" | grep -q 'verify-ci-contract-coverage.sh' || {
+  echo "ci_contract: governance job must run scripts/verify-ci-contract-coverage.sh (FR-0.2)" >&2
   exit 1
 }
 echo "$governance_block" | grep -q "python-version: '3.13'" || {

@@ -120,6 +120,9 @@ jobs:
       - name: CI contract (merge gate wiring)
         run: bash tests/ci_contract.sh
 
+      - name: Verify-script CI coverage (FR-0.2)
+        run: bash scripts/verify-ci-contract-coverage.sh
+
       - name: Actions SHA pinning (workflows)
         run: bash scripts/verify-actions-pinned.sh
 

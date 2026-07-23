@@ -33,4 +33,4 @@ This folder is the canonical **governance and specification surface** for oh-my-
 
 **Phases** used in requirement rows: **P0** (governance and specs in-repo), **P1** (intent tooling and workflows), **P2** (relation-first code navigation), **P3** (stigmergic coordination runtime), **P4** (deterministic verification beyond Allium CLI).
 
-**Maturity** labels: `implemented` | `partial` | `planned`. Do not upgrade maturity without evidence linked in the RTM.
+**Maturity** labels: `implemented` | `partial` | `planned`. Do not upgrade maturity without evidence linked in the RTM. A row marked `implemented` without a reproducible verification path a reviewer can run is a mislabeled-maturity defect — treat it at the same severity as a missed drill in [Epic 7](requirements/FR.md) evaluation discipline (CONSTITUTION.md Core commitment 6; the "no invented enforcement" non-goal). New requirements start `planned` (or `partial` once some but not all of the row's claim is verified) and move to `implemented` only in the same PR that lands the cited script, test, or tool.
