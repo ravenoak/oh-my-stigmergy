@@ -19,8 +19,10 @@ import sys
 root = pathlib.Path(".").resolve()
 wf_dir = root / ".github" / "workflows"
 
-# Match: uses: owner/repo@ref (allow optional quotes)
-uses_re = re.compile(r"^\s*-\s+uses:\s*['\"]?([^@'\"\s]+)@([^'\"\s]+)['\"]?\s*$")
+# Match: uses: owner/repo@ref (allow optional quotes), with or without a leading
+# "- ", and tolerate a trailing "# comment" (e.g. "# v6.3.0") — both forms occur
+# in this repo's workflows.
+uses_re = re.compile(r"^\s*(?:-\s+)?uses:\s*['\"]?([^@'\"\s]+)@([^'\"\s#]+)['\"]?\s*(?:#.*)?$")
 sha_re = re.compile(r"^[0-9a-f]{40}$")
 
 errors: list[str] = []
