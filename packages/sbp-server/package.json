@@ -23,6 +23,6 @@
     "test": "node --test --test-timeout=120000"
   },
   "dependencies": {
-    "better-sqlite3": "12.11.1"
+    "better-sqlite3": "13.0.3"
   }
 }
