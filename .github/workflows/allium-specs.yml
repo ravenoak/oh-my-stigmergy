@@ -288,7 +288,7 @@ jobs:
               exit 0
             fi
           fi
-          cargo install allium-cli --version "${VERSION}"
+          cargo install allium-cli --version "${VERSION}" --locked
 
       - name: Add cargo bin to PATH
         run: echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
